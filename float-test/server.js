@@ -1,3 +1,5 @@
+/*eslint-env node */
+'use strict';
 var net = require('net');
 
 var HOST = '127.0.0.1';
@@ -9,7 +11,7 @@ var PORT = 1337;
 net.createServer(function(sock) {
 
     // We have a connection - a socket object is assigned to the connection automatically
-    console.log('CONNECTED: ' + sock.remoteAddress +':'+ sock.remotePort);
+    console.log('CONNECTED: ' + sock.remoteAddress + ':' + sock.remotePort);
 
     // Add a 'data' event handler to this instance of socket
     sock.on('data', function(data) {
@@ -22,9 +24,10 @@ net.createServer(function(sock) {
 
     // Add a 'close' event handler to this instance of socket
     sock.on('close', function(data) {
-        console.log('CLOSED: ' + sock.remoteAddress +' '+ sock.remotePort);
+        data = data;
+        console.log('CLOSED: ' + sock.remoteAddress + ' ' + sock.remotePort);
     });
 
 }).listen(PORT, HOST);
 
-console.log('Server listening on ' + HOST +':'+ PORT);
+console.log('Server listening on ' + HOST + ':' + PORT);
