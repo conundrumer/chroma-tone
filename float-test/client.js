@@ -1,9 +1,10 @@
 /*eslint-env node */
 'use strict';
 var net = require('net');
-
-var HOST = '127.0.0.1';
-var PORT = 1337;
+var float = require('./float');
+var consts = require('./consts');
+var HOST = consts.HOST;
+var PORT = consts.PORT;
 
 var client = new net.Socket();
 client.connect(PORT, HOST, function() {

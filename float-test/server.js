@@ -1,9 +1,10 @@
 /*eslint-env node */
 'use strict';
 var net = require('net');
-
-var HOST = '127.0.0.1';
-var PORT = 1337;
+var float = require('./float');
+var consts = require('./consts');
+var HOST = consts.HOST;
+var PORT = consts.PORT;
 
 // Create a server instance, and chain the listen function to it
 // The function passed to net.createServer() becomes the event handler for the 'connection' event
