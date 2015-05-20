@@ -155,5 +155,18 @@ module.exports = {
     toHex: toHex,
     ZERO_HEX: ZERO_HEX,
     ONE_HEX: ONE_HEX,
-    INF_HEX: INF_HEX
+    INF_HEX: INF_HEX,
+    random: function() {
+        var bytes = [
+            Math.random() * (0x7f / 0x100),
+            Math.random() * (0xf0 / 0x100)
+        ];
+        for (var i = 2; i < 8; i++) {
+            bytes.push(Math.random());
+        }
+        return bytes
+            .map(x => Math.floor(Math.pow(2, 8) * x).toString(16))
+            .map(s => s.length < 2 ? '0' + s : s)
+            .join('');
+    }
 };
