@@ -102,10 +102,13 @@ function toIEEE754Double(v) { return toIEEE754(v, 11, 52); }
 // as2 compatible
 /*
 function fromHex(s) {
-    var v = Array.prototype.map.call(s, function(c, i) {return c + s[i+1]; })
+    var b = Array.prototype.map.call(s, function(c, i) {return c + s[i+1]; })
         .filter(function(c, i) {return (i % 2) === 0; })
         .map(function(c) {return parseInt(c, 16); });
-    return fromIEEE754Double(v);
+    while (b.length < 8) {
+        b.unshift(0);
+    }
+    return fromIEEE754Double(b);
 }
 
 function toHex(v) {
@@ -118,10 +121,13 @@ function toHex(v) {
 
 function fromHex(s) {
     let map = Array.prototype.map;
-    let v = map.call(s, (c, i) => c + s[i+1])
+    let b = map.call(s, (c, i) => c + s[i+1])
         .filter((c, i) => (i % 2) === 0)
         .map(c => parseInt(c, 16));
-    return fromIEEE754Double(v);
+    while (b.length < 8) {
+        b.unshift(0);
+    }
+    return fromIEEE754Double(b);
 }
 
 function toHex(v) {
@@ -142,6 +148,7 @@ assert(toHex(1) === ONE_HEX);
 assert(fromHex(ONE_HEX) === 1);
 assert(toHex(Infinity) === INF_HEX);
 assert(fromHex(INF_HEX) === Infinity);
+assert(fromHex('0') === 0);
 
 module.exports = {
     fromHex: fromHex,
