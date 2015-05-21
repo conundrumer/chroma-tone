@@ -5,7 +5,6 @@
 * toHex: takes a number and returns the binary encoding as a hex string
 */
 
-/*eslint-env node */
 'use strict';
 
 // Convert a JavaScript number to IEEE-754 Double Precision

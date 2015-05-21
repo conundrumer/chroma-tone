@@ -1,4 +1,3 @@
-/*eslint-env node */
 'use strict';
 var net = require('net');
 var float = require('./float');
