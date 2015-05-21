@@ -26,7 +26,7 @@ module.exports = function (grunt) {
       },
       pages: {
         options: {
-          remote: 'git@github.com:conundrumer/musicpsych.git',
+          remote: 'git@github.com:conundrumer/lr-legacy-core.git',
           branch: 'gh-pages'
         }
       }
