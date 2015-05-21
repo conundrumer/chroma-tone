@@ -11,13 +11,15 @@ var App = React.createClass({
     return {
       tracks: [],
       track: null,
+      selected: '',
       color: false
     };
   },
 
   onSelectTrack(e) {
     this.setState({
-      track: this.state.tracks[e.target.value]
+      track: this.state.tracks[e.target.value],
+      selected: e.target.value
     });
   },
 
@@ -36,6 +38,8 @@ var App = React.createClass({
       try {
         this.setState({
           tracks: savedLinesReader(new Buffer(new Uint8Array(upload.target.result))),
+          track: null,
+          selected: ''
         });
       } catch (e) {
         alert(`This is probably not a .sol! ${e}`);
@@ -48,28 +52,28 @@ var App = React.createClass({
   render() {
     return (
       <div>
-        Input a .sol file to view your tracks.
-        <input type="file" onChange={this.onFileInput} />
-        {
-          this.state.tracks.length > 0 ?
-            <select defaultValue="" onChange={this.onSelectTrack}>
-              <option key="-1" value="" disabled>Select a track to render...</option>
-              {
-                this.state.tracks.map((track, i) =>
-                  <option key={i} value={i}>{track.label}</option>
-                )
-              }
-            </select>
-            : null
-        }
+        <p>Input a .sol file to view your tracks.</p>
+        <p><input type="file" onChange={this.onFileInput} /></p>
+        <p>
+          {
+            this.state.tracks.length > 0 ?
+              <select value={this.state.selected} onChange={this.onSelectTrack}>
+                <option key="-1" value="" disabled>Select a track to render...</option>
+                {
+                  this.state.tracks.map((track, i) =>
+                    <option key={i} value={i}>{track.label}</option>
+                  )
+                }
+              </select>
+              : null
+          }
+        </p>
+        <p>
+          Toggle color: <input type="checkbox" onChange={this.onToggleColor} />
+        </p>
         {
           this.state.track ?
-            <div>
-              <div>
-                Toggle color: <input type="checkbox" onChange={this.onToggleColor} />
-              </div>
-              <Display track={this.state.track} color={this.state.color} />
-            </div>
+            <Display track={this.state.track} color={this.state.color} />
             : null
         }
       </div>
