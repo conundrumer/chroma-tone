@@ -25,7 +25,6 @@ saved lines schema:
 ]
 */
 'use strict';
-var fs = require('fs');
 var amf = require('amf');
 var SOL_OFFSET = 43; // discovered through experimentation, guessing there's padding
 
@@ -42,27 +41,21 @@ var LINE_ATTRIBUTES = [
 'type'
 ];
 
-function savedLinesReader(fileName, cb) {
-  fs.readFile(fileName, (err, data) => {
-    if (err) {
-      return cb(err);
-    }
-    let tracksData = amf.read(data, SOL_OFFSET);
-    tracksData = tracksData.map(track => {
-      return {
-        label: track.label,
-        version: track.version,
-        startPosition: track.startLine,
-        lines: track.data.map(line => {
-          let lineObj = {};
-          LINE_ATTRIBUTES.forEach((attribute, i) => {
-            lineObj[attribute] = line[i];
-          });
-          return lineObj;
-        })
-      };
-    });
-    cb(null, tracksData);
+function savedLinesReader(data) {
+  let tracksData = amf.read(data, SOL_OFFSET);
+  return tracksData.map(track => {
+    return {
+      label: track.label,
+      version: track.version,
+      startPosition: track.startLine,
+      lines: track.data.map(line => {
+        let lineObj = {};
+        LINE_ATTRIBUTES.forEach((attribute, i) => {
+          lineObj[attribute] = line[i];
+        });
+        return lineObj;
+      })
+    };
   });
 }
 
@@ -71,7 +64,13 @@ module.exports = savedLinesReader;
 // print to console
 /*
 var SAVEDLINES = 'testLines.sol';
-savedLinesReader(SAVEDLINES, (e, tracks) => {
+var fs = require('fs');
+
+fs.readFile(SAVEDLINES, (err, data) => {
+  if (err) {
+    return console.error(err);
+  }
+  var tracks = savedLinesReader(data);
   tracks.forEach((track, i) => {
     console.log('====== track', i, '======');
     console.log(track);
