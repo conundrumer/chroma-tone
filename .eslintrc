@@ -4,6 +4,9 @@
     "browser": true,
     "node": true
   },
+  "plugins": [
+    "react"
+  ],
   "rules": {
     "strict": 0
   }
