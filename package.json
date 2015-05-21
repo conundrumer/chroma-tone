@@ -1,0 +1,22 @@
+{
+  "name": "lr-legacy-core",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/conundrumer/lr-legacy-core.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/conundrumer/lr-legacy-core/issues"
+  },
+  "homepage": "https://github.com/conundrumer/lr-legacy-core",
+  "dependencies": {
+    "amf": "^0.1.0"
+  }
+}
