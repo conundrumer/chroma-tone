@@ -8,6 +8,10 @@ webpack watch
 
 `grunt serve`
 
-or just build the stuff
+then go 2
+
+`http://localhost:8000/`
+
+or if you want to just build the stuff (to `dist`)
 
 `grunt build`
