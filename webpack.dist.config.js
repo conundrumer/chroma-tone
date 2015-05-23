@@ -35,6 +35,8 @@ module.exports = {
   resolve: {
     extensions: ['', '.js'],
     alias: {
+      "react": __dirname + '/node_modules/react',
+      "react/addons": __dirname + '/node_modules/react/addons',
       'styles': __dirname + '/src/styles',
       'mixins': __dirname + '/src/mixins',
       'components': __dirname + '/src/components/',
@@ -56,10 +58,10 @@ module.exports = {
       loader: 'babel-loader'
     }, {
       test: /\.css$/,
-      loader: 'style-loader!css-loader!autoprefixer-loader'
+      loader: 'style-loader!css-loader'
     }, {
       test: /\.less/,
-      loader: 'style-loader!css-loader!autoprefixer-loader!less-loader'
+      loader: 'style-loader!css-loader!less-loader'
     }, {
       test: /\.(png|jpg|woff|woff2)$/,
       loader: 'url-loader?limit=8192'

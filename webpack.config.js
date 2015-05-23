@@ -26,11 +26,12 @@ module.exports = {
     colors: true,
     reasons: true
   },
-
   resolve: {
     extensions: ['', '.js'],
     modulesDirectories: ['web_modules', 'node_modules', 'bower_components'],
     alias: {
+      "react": __dirname + '/node_modules/react',
+      "react/addons": __dirname + '/node_modules/react/addons',
       'styles': __dirname + '/src/styles',
       'mixins': __dirname + '/src/mixins',
       'components': __dirname + '/src/components/',
@@ -50,10 +51,10 @@ module.exports = {
       loader: 'react-hot!babel-loader'
     }, {
       test: /\.less/,
-      loader: 'style-loader!css-loader!autoprefixer-loader!less-loader'
+      loader: 'style-loader!css-loader!less-loader'
     }, {
       test: /\.css$/,
-      loader: 'style-loader!css-loader!autoprefixer-loader'
+      loader: 'style-loader!css-loader!'
     }, {
       test: /\.(png|jpg|woff|woff2)$/,
       loader: 'url-loader?limit=8192'
