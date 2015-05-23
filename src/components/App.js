@@ -5,9 +5,8 @@ var injectTapEventPlugin = require("react-tap-event-plugin");
 //Check this repo:
 //https://github.com/zilverline/react-tap-event-plugin
 injectTapEventPlugin();
-// require('normalize.css');
+require('normalize.css');
 
-// material-ui theming
 require('../styles/fonts.css');
 require('../styles/main.less');
 var React = require('react');
