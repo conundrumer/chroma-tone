@@ -56,10 +56,10 @@ module.exports = {
       loader: 'babel-loader'
     }, {
       test: /\.css$/,
-      loader: 'style-loader!css-loader'
+      loader: 'style-loader!css-loader!autoprefixer-loader'
     }, {
       test: /\.less/,
-      loader: 'style-loader!css-loader!less-loader'
+      loader: 'style-loader!css-loader!autoprefixer-loader!less-loader'
     }, {
       test: /\.(png|jpg|woff|woff2)$/,
       loader: 'url-loader?limit=8192'

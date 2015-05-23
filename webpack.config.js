@@ -29,6 +29,7 @@ module.exports = {
 
   resolve: {
     extensions: ['', '.js'],
+    modulesDirectories: ['web_modules', 'node_modules', 'bower_components'],
     alias: {
       'styles': __dirname + '/src/styles',
       'mixins': __dirname + '/src/mixins',
@@ -49,10 +50,10 @@ module.exports = {
       loader: 'react-hot!babel-loader'
     }, {
       test: /\.less/,
-      loader: 'style-loader!css-loader!less-loader'
+      loader: 'style-loader!css-loader!autoprefixer-loader!less-loader'
     }, {
       test: /\.css$/,
-      loader: 'style-loader!css-loader'
+      loader: 'style-loader!css-loader!autoprefixer-loader'
     }, {
       test: /\.(png|jpg|woff|woff2)$/,
       loader: 'url-loader?limit=8192'
