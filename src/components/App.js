@@ -10,10 +10,10 @@ require('normalize.css');
 require('../styles/fonts.css');
 require('../styles/main.less');
 var React = require('react');
-
 var mui = require('material-ui');
-var RaisedButton = mui.RaisedButton;
 var ThemeManager = new mui.Styles.ThemeManager();
+
+var Editor = require('./Editor');
 
 var App = React.createClass({
 
@@ -30,7 +30,7 @@ var App = React.createClass({
   render: function() {
     return (
       <div className='main'>
-        <RaisedButton label="MATERIAL BUTTON!" />
+        <Editor />
       </div>
     );
   }
