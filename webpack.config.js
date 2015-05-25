@@ -56,8 +56,23 @@ module.exports = {
       test: /\.css$/,
       loader: 'style-loader!css-loader!autoprefixer-loader'
     }, {
-      test: /\.(png|jpg|woff|woff2)$/,
+      test: /\.(png|jpg)$/,
       loader: 'url-loader?limit=8192'
+    }, {
+      test: /\.(woff)(\?v=\d+\.\d+\.\d+)?$/,
+      loader: "url?limit=10000&minetype=application/font-woff"
+    }, {
+      test: /\.(woff2)(\?v=\d+\.\d+\.\d+)?$/,
+      loader: "url?limit=10000&minetype=application/font-woff2"
+    }, {
+      test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/,
+      loader: "url?limit=10000&minetype=application/octet-stream"
+    }, {
+      test: /\.eot(\?v=\d+\.\d+\.\d+)?$/,
+      loader: "file"
+    }, {
+      test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,
+      loader: "url?limit=10000&minetype=image/svg+xml"
     }]
   },
 
