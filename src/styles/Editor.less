@@ -1,5 +1,7 @@
 @import 'var.less';
 
+@bar-border: 1px solid @grey-300;
+
 .Editor {
   width: 100%;
   height: 100%;
@@ -7,16 +9,17 @@
   .bar {
     position: absolute;
     width: 100%;
-    background-color: @translucent-white;
   }
 
   .top-bar {
     .bar;
+    border-bottom: @bar-border;
   }
 
   .bottom-bar {
     .bar;
     bottom: 0;
+    border-top: @bar-border;
   }
 
   .flex-bar {
