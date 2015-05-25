@@ -8,26 +8,15 @@ injectTapEventPlugin();
 require('normalize.css');
 
 require('../styles/fonts.css');
+require('mdi/css/materialdesignicons.css');
 require('../styles/main.less');
 var React = require('react');
-var mui = require('material-ui');
-var ThemeManager = new mui.Styles.ThemeManager();
 
 var Editor = require('./Editor');
 
 var App = React.createClass({
 
-  childContextTypes: {
-    muiTheme: React.PropTypes.object
-  },
-
-  getChildContext: function() {
-    return {
-      muiTheme: ThemeManager.getCurrentTheme()
-    };
-  },
-
-  render: function() {
+  render() {
     return (
       <div className='main'>
         <Editor />
