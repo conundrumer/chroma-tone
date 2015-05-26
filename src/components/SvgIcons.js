@@ -66,4 +66,17 @@ var CursorMove = React.createClass({
 
 });
 
-module.exports = {Line, Curve, MultiLine, Viewfinder, CursorMove};
+var OnionSkin = React.createClass({
+
+  render() {
+    return (
+      <SvgIcon>
+        <path fill="black" d="M4.2,8.7V6.4H2v2.2 M17.6,4.2c0-1.2-1-2.2-2.2-2.2v2.2 M8.7,4.2V2H6.4v2.2 M13.1,4.2V2h-2.2v2.2 M17.6,15.3h-2.2v2.2,C16.6,17.6,17.6,16.6,17.6,15.3 M2,10.9v2.2h2.2v-2.2 M2,4.2h2.2V2C3,2,2,3,2,4.2 M15.3,10.9v2.2h2.2v-2.2 M2,15.3,c0,1.2,1,2.2,2.2,2.2v-2.2 M10.9,15.3v2.2h2.2v-2.2"/>
+        <path fill="black" d="M8.7,19.8V8.7h11.1v11.1 M22,19.8V8.7c0-1.2-1-2.2-2.2-2.2H8.7c-1.2,0-2.2,1-2.2,2.2v5.6v4.4v1.1c0,1.2,1,2.2,2.2,2.2h11.1,C21,22,22,21,22,19.8"/>
+      </SvgIcon>
+    );
+  }
+
+});
+
+module.exports = {Line, Curve, MultiLine, Viewfinder, CursorMove, OnionSkin};
