@@ -4,7 +4,8 @@ var React = require('react/addons');
 var mui = require('material-ui');
 var ThemeManager = new mui.Styles.ThemeManager();
 
-var {IconButton, Slider, Toolbar, FontIcon, Paper} = mui;
+var {Slider, Toolbar, FontIcon, Paper} = mui;
+var MuiIconButton = mui.IconButton;
 var {Line, Curve, MultiLine, Viewfinder, CursorMove, OnionSkin} = require('./SvgIcons');
 var SvgDisplay = require('./SvgDisplay');
 
@@ -24,13 +25,39 @@ function randomLines() {
 
 var LINES = randomLines();
 
-var MdiIconButton = React.createClass({
+var IconButton = React.createClass({
+
+  getIcon(icon) {
+    switch (icon) {
+      case 'line':
+        return <Line />;
+      case 'curve':
+        return <Curve />;
+      case 'multi-line':
+        return <MultiLine />;
+      case 'viewfinder':
+        return <Viewfinder />;
+      case 'cursor-move':
+        return <CursorMove />;
+      case 'onion-skin':
+        return <OnionSkin />;
+    }
+    return null;
+  },
 
   render() {
+    var icon = this.getIcon(this.props.icon);
+    if (icon) {
+      return (
+        <MuiIconButton {...this.props}>
+          {icon}
+        </MuiIconButton>
+      );
+    }
     return (
-      <IconButton {...this.props}>
+      <MuiIconButton {...this.props}>
         <FontIcon className={'mdi mdi-' + this.props.icon} />
-      </IconButton>
+      </MuiIconButton>
     );
   }
 
@@ -94,7 +121,7 @@ var Editor = React.createClass({
             <div/>
             <div className='flex'>
             <Paper circle={true}>
-              <MdiIconButton icon="undo-variant" style={{
+              <IconButton icon="undo-variant" style={{
                 width: 42,
                 height: 42,
                 padding: '0px'
@@ -102,24 +129,20 @@ var Editor = React.createClass({
             </Paper>
             <Paper style={{height: 42, margin: '0 12px'}}>
               <Toolbar className='flex-bar' style={{height: 42, padding: '0 6px', alignItems: 'center'}}>
-                <MdiIconButton style={small} icon="pencil" />
-                <IconButton style={small} >
-                  <Line/>
-                </IconButton>
-                <MdiIconButton style={small} icon="eraser" />
-                <IconButton style={small}>
-                  <CursorMove/>
-                </IconButton>
-                <MdiIconButton style={small} icon="magnify" />
-                <MdiIconButton style={small} icon="play" />
-                <MdiIconButton style={small} icon="stop" />
-                <MdiIconButton style={small} icon="flag-variant" />
-                <MdiIconButton style={small} icon="content-save" />
-                <MdiIconButton style={small} icon="help-circle" />
+                <IconButton style={small} icon="pencil" />
+                <IconButton icon='line' style={small} />
+                <IconButton style={small} icon="eraser" />
+                <IconButton icon='cursor-move' style={small} />
+                <IconButton style={small} icon="magnify" />
+                <IconButton style={small} icon="play" />
+                <IconButton style={small} icon="stop" />
+                <IconButton style={small} icon="flag-variant" />
+                <IconButton style={small} icon="content-save" />
+                <IconButton style={small} icon="help-circle" />
               </Toolbar>
             </Paper>
             <Paper circle={true}>
-              <MdiIconButton icon="chevron-down" onClick={() => this.setState({toolbarsOpen: true})} style={{
+              <IconButton icon="chevron-down" onClick={() => this.setState({toolbarsOpen: true})} style={{
                 width: 42,
                 height: 42,
                 padding: '0px'
@@ -131,72 +154,60 @@ var Editor = React.createClass({
           <Paper zDepth={2} className='top-bar'>
             <Toolbar className={'flex-bar top ' + openedClass} style={closedBar}>
               <div className='flex-group'>
-                <MdiIconButton icon="content-save" />
-                <MdiIconButton icon="undo-variant" />
-                <MdiIconButton icon="redo-variant" />
+                <IconButton icon="content-save" />
+                <IconButton icon="undo-variant" />
+                <IconButton icon="redo-variant" />
               </div>
               <div className='flex-group'>
-                <MdiIconButton icon="cursor-default" />
-                <MdiIconButton icon="pencil" />
-                <MdiIconButton icon="brush" />
-                <IconButton>
-                  <Line/>
-                </IconButton>
-                <IconButton>
-                  <Curve/>
-                </IconButton>
-                <IconButton>
-                  <MultiLine/>
-                </IconButton>
-                <MdiIconButton icon="eraser" />
+                <IconButton icon="cursor-default" />
+                <IconButton icon="pencil" />
+                <IconButton icon="brush" />
+                <IconButton icon='line' />
+                <IconButton icon='curve' />
+                <IconButton icon='multi-line' />
+                <IconButton icon="eraser" />
               </div>
               <div className='flex-group'>
-                <MdiIconButton icon="settings" />
-                <MdiIconButton icon="message" />
-                <MdiIconButton icon="chevron-up" onClick={() => this.setState({toolbarsOpen: false})} />
+                <IconButton icon="settings" />
+                <IconButton icon="message" />
+                <IconButton icon="chevron-up" onClick={() => this.setState({toolbarsOpen: false})} />
               </div>
             </Toolbar>
           </Paper>
           <Paper zDepth={2} className='bottom-bar'>
             <Toolbar className={'flex-bar ' + openedClass} style={closedBar}>
               <div className='flex-group'>
-                <MdiIconButton icon="layers" />
-                <IconButton>
-                  <Viewfinder/>
-                </IconButton>
-                <IconButton>
-                  <CursorMove/>
-                </IconButton>
-                <MdiIconButton icon="magnify" />
+                <IconButton icon="layers" />
+                <IconButton icon='viewfinder' />
+                <IconButton icon='cursor-move' />
+                <IconButton icon="magnify" />
               </div>
               <div className='flex-group'>
-                <MdiIconButton icon="flag-outline-variant" />
-                <MdiIconButton icon="flag-variant" />
-                <MdiIconButton icon="play" />
-                <MdiIconButton icon="stop" />
-                <MdiIconButton icon="pause" />
+                <IconButton icon="flag-outline-variant" />
+                <IconButton icon="flag-variant" />
+                <IconButton icon="play" />
+                <IconButton icon="stop" />
+                <IconButton icon="pause" />
               </div>
               <div className='flex-group'>
-                <MdiIconButton icon="video" />
-                <MdiIconButton icon="movie" />
-                <MdiIconButton icon="help-circle" />
-                <MdiIconButton icon={toggleBottomIcon} onClick={this.toggleBottom} />
+                <IconButton icon="video" />
+                <IconButton icon="movie" />
+                <IconButton icon="help-circle" />
+                <IconButton icon={toggleBottomIcon} onClick={this.toggleBottom} />
               </div>
             </Toolbar>
             <Toolbar className={'flex-bar ' + bottomOpenedClass} style={closedBottom}>
               <div/>
               <div className='flex-group flex-time-control'>
-                <IconButton>
-                  <OnionSkin />
-                </IconButton>
-                <MdiIconButton icon="rewind" />
-                <MdiIconButton icon="skip-previous" />
+                <IconButton icon='OnionSkin' />
+                <IconButton icon="rewind" />
+                <IconButton icon="skip-previous" />
                 <div className='flex-timeline'>
                   <Slider name="timeline" style={{margin: 0}} />
                 </div>
-                <MdiIconButton icon="skip-next" />
-                <MdiIconButton icon="fast-forward" />
-                <MdiIconButton icon="music-note" />
+                <IconButton icon="skip-next" />
+                <IconButton icon="fast-forward" />
+                <IconButton icon="music-note" />
               </div>
               <div/>
             </Toolbar>
