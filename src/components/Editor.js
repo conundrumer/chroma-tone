@@ -13,6 +13,8 @@ var SvgDisplay = require('./SvgDisplay');
 
 require('styles/Editor.less');
 
+function doNothing() {}
+
 function randomLines() {
   var lines = [];
   var limits = 900;
@@ -94,7 +96,22 @@ var Editor = React.createClass({
     this.setState({bottomOpen: !this.state.bottomOpen});
   },
 
+  renderButtons(buttons) {
+    return buttons.map((button, i) =>
+      button.render ? button.render(i) : <IconButton key={i} {...button} />
+    );
+  },
+
+  renderButtonGroups(groups) {
+    return groups.map((group, i) =>
+      <div key={i} className='flex-group'>
+        { this.renderButtons(group) }
+      </div>
+    );
+  },
+
   render() {
+    var floatCircleStyle = { padding: '0px', width: 42, height: 42};
     var small = {padding: '9px', width: 42, height: 42};
     var closedBar = {};
     var openedClass = 'open';
@@ -121,93 +138,110 @@ var Editor = React.createClass({
             <div/>
             <div className='flex'>
             <Paper circle={true}>
-              <IconButton icon="undo-variant" style={{
-                width: 42,
-                height: 42,
-                padding: '0px'
-              }}/>
+              {
+                this.renderButtons([{
+                  icon: 'undo-variant',
+                  style: floatCircleStyle
+                }])
+              }
             </Paper>
             <Paper style={{height: 42, margin: '0 12px'}}>
               <Toolbar className='flex-bar' style={{height: 42, padding: '0 6px', alignItems: 'center'}}>
-                <IconButton style={small} icon="pencil" />
-                <IconButton icon='line' style={small} />
-                <IconButton style={small} icon="eraser" />
-                <IconButton icon='cursor-move' style={small} />
-                <IconButton style={small} icon="magnify" />
-                <IconButton style={small} icon="play" />
-                <IconButton style={small} icon="stop" />
-                <IconButton style={small} icon="flag-variant" />
-                <IconButton style={small} icon="content-save" />
-                <IconButton style={small} icon="help-circle" />
+                {
+                  this.renderButtons([
+                    { icon: 'pencil', onClick: doNothing },
+                    { icon: 'line', onClick: doNothing },
+                    { icon: 'eraser', onClick: doNothing },
+                    { icon: 'cursor-move', onClick: doNothing },
+                    { icon: 'magnify', onClick: doNothing },
+                    { icon: 'play', onClick: doNothing },
+                    { icon: 'stop', onClick: doNothing },
+                    { icon: 'flag-variant', onClick: doNothing },
+                    { icon: 'content-save', onClick: doNothing },
+                    { icon: 'help-circle', onClick: doNothing }
+                    ].map(button => {
+                      button.style = small;
+                      return button;
+                    })
+                  )
+                }
               </Toolbar>
             </Paper>
             <Paper circle={true}>
-              <IconButton icon="chevron-down" onClick={() => this.setState({toolbarsOpen: true})} style={{
-                width: 42,
-                height: 42,
-                padding: '0px'
-              }}/>
+              {
+                this.renderButtons([{
+                  icon: 'chevron-down',
+                  style: floatCircleStyle,
+                  onClick: () => this.setState({toolbarsOpen: true})
+                }])
+              }
             </Paper>
             </div>
             <div/>
           </div>
           <Paper zDepth={2} className='top-bar'>
             <Toolbar className={'flex-bar top ' + openedClass} style={closedBar}>
-              <div className='flex-group'>
-                <IconButton icon="content-save" />
-                <IconButton icon="undo-variant" />
-                <IconButton icon="redo-variant" />
-              </div>
-              <div className='flex-group'>
-                <IconButton icon="cursor-default" />
-                <IconButton icon="pencil" />
-                <IconButton icon="brush" />
-                <IconButton icon='line' />
-                <IconButton icon='curve' />
-                <IconButton icon='multi-line' />
-                <IconButton icon="eraser" />
-              </div>
-              <div className='flex-group'>
-                <IconButton icon="settings" />
-                <IconButton icon="message" />
-                <IconButton icon="chevron-up" onClick={() => this.setState({toolbarsOpen: false})} />
-              </div>
+              {
+                this.renderButtonGroups([[
+                  { icon: "content-save", onClick: doNothing },
+                  { icon: "undo-variant", onClick: doNothing },
+                  { icon: "redo-variant", onClick: doNothing }
+                ], [
+                  { icon: "cursor-default", onClick: doNothing },
+                  { icon: "pencil", onClick: doNothing },
+                  { icon: "brush", onClick: doNothing },
+                  { icon: 'line', onClick: doNothing },
+                  { icon: 'curve', onClick: doNothing },
+                  { icon: 'multi-line', onClick: doNothing },
+                  { icon: "eraser", onClick: doNothing }
+                ], [
+                  { icon: "settings", onClick: doNothing },
+                  { icon: "message", onClick: doNothing },
+                  { icon: "chevron-up", onClick: () => this.setState({toolbarsOpen: false}) }
+                ]])
+              }
             </Toolbar>
           </Paper>
           <Paper zDepth={2} className='bottom-bar'>
             <Toolbar className={'flex-bar ' + openedClass} style={closedBar}>
-              <div className='flex-group'>
-                <IconButton icon="layers" />
-                <IconButton icon='viewfinder' />
-                <IconButton icon='cursor-move' />
-                <IconButton icon="magnify" />
-              </div>
-              <div className='flex-group'>
-                <IconButton icon="flag-outline-variant" />
-                <IconButton icon="flag-variant" />
-                <IconButton icon="play" />
-                <IconButton icon="stop" />
-                <IconButton icon="pause" />
-              </div>
-              <div className='flex-group'>
-                <IconButton icon="video" />
-                <IconButton icon="movie" />
-                <IconButton icon="help-circle" />
-                <IconButton icon={toggleBottomIcon} onClick={this.toggleBottom} />
-              </div>
+              {
+                this.renderButtonGroups([[
+                  { icon: "layers", onClick: doNothing },
+                  { icon: 'viewfinder', onClick: doNothing },
+                  { icon: 'cursor-move', onClick: doNothing },
+                  { icon: "magnify", onClick: doNothing }
+                ], [
+                  { icon: "flag-outline-variant", onClick: doNothing },
+                  { icon: "flag-variant", onClick: doNothing },
+                  { icon: "play", onClick: doNothing },
+                  { icon: "stop", onClick: doNothing },
+                  { icon: "pause", onClick: doNothing }
+                ], [
+                  { icon: "video", onClick: doNothing },
+                  { icon: "movie", onClick: doNothing },
+                  { icon: "help-circle", onClick: doNothing },
+                  { icon: toggleBottomIcon, onClick: this.toggleBottom }
+                ]])
+              }
             </Toolbar>
             <Toolbar className={'flex-bar ' + bottomOpenedClass} style={closedBottom}>
               <div/>
               <div className='flex-group flex-time-control'>
-                <IconButton icon='onion-skin' />
-                <IconButton icon="rewind" />
-                <IconButton icon="skip-previous" />
-                <div className='flex-timeline'>
-                  <Slider name="timeline" style={{margin: 0}} />
-                </div>
-                <IconButton icon="skip-next" />
-                <IconButton icon="fast-forward" />
-                <IconButton icon="music-note" />
+                {
+                  this.renderButtons([
+                    { icon: 'onion-skin', onClick: doNothing },
+                    { icon: "rewind", onClick: doNothing },
+                    { icon: "skip-previous", onClick: doNothing },
+                    { render: (i) =>
+                      <div key={i} className='flex-timeline'>
+                        <Slider name="timeline" style={{margin: 0}} />
+                      </div>
+                    },
+                    { icon: "skip-next", onClick: doNothing },
+                    { icon: "fast-forward", onClick: doNothing },
+                    { icon: "music-note", onClick: doNothing }
+                  ])
+                }
               </div>
               <div/>
             </Toolbar>
