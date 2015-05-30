@@ -199,7 +199,7 @@ var Editor = React.createClass({
             <Toolbar className={'flex-bar ' + bottomOpenedClass} style={closedBottom}>
               <div/>
               <div className='flex-group flex-time-control'>
-                <IconButton icon='OnionSkin' />
+                <IconButton icon='onion-skin' />
                 <IconButton icon="rewind" />
                 <IconButton icon="skip-previous" />
                 <div className='flex-timeline'>
