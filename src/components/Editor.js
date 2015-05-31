@@ -4,10 +4,9 @@ var React = require('react/addons');
 var mui = require('material-ui');
 var ThemeManager = new mui.Styles.ThemeManager();
 
-var {Slider, Toolbar, FontIcon, Paper} = mui;
-var MuiIconButton = mui.IconButton;
-var {Line, Curve, MultiLine, Viewfinder, CursorMove, OnionSkin} = require('./SvgIcons');
+var {Slider, Toolbar, Paper} = mui;
 var SvgDisplay = require('./SvgDisplay');
+var IconButton = require('./IconButton');
 
 //var Actions = require('actions/xxx')
 
@@ -26,44 +25,6 @@ function randomLines() {
 }
 
 var LINES = randomLines();
-
-var IconButton = React.createClass({
-
-  getIcon(icon) {
-    switch (icon) {
-      case 'line':
-        return <Line />;
-      case 'curve':
-        return <Curve />;
-      case 'multi-line':
-        return <MultiLine />;
-      case 'viewfinder':
-        return <Viewfinder />;
-      case 'cursor-move':
-        return <CursorMove />;
-      case 'onion-skin':
-        return <OnionSkin />;
-    }
-    return null;
-  },
-
-  render() {
-    var icon = this.getIcon(this.props.icon);
-    if (icon) {
-      return (
-        <MuiIconButton {...this.props}>
-          {icon}
-        </MuiIconButton>
-      );
-    }
-    return (
-      <MuiIconButton {...this.props}>
-        <FontIcon className={'mdi mdi-' + this.props.icon} />
-      </MuiIconButton>
-    );
-  }
-
-});
 
 var Editor = React.createClass({
 
