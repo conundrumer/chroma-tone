@@ -26,12 +26,19 @@ function randomLines() {
 
 var LINES = randomLines();
 
+var Spacer = React.createClass({
+  render() {
+    return <div/>;
+  }
+
+});
+
 var Editor = React.createClass({
 
   getInitialState() {
     return {
       toolbarsOpen: false,
-      bottomOpen: false
+      timeControlOpen: false
     };
   },
 
@@ -53,23 +60,62 @@ var Editor = React.createClass({
     });
   },
 
-  toggleBottom() {
-    this.setState({bottomOpen: !this.state.bottomOpen});
+  openToolbars() {
+    this.setState({ toolbarsOpen: true });
+  },
+
+  closeToolbars() {
+    this.setState({ toolbarsOpen: false });
+  },
+
+  toggleTimeControl() {
+    this.setState({ timeControlOpen: !this.state.timeControlOpen });
+  },
+
+  // this won't be necessary once dependency on material-ui is removed
+  getStyles() {
+    var styles = {
+      floatCircle: { padding: '0px', width: 42, height: 42 },
+      smallIcon: { padding: '9px', width: 42, height: 42 },
+      floatPaper: { height: 42, margin: '0 12px' },
+      floatBar: { height: 42, padding: '0 6px', alignItems: 'center' },
+      toolbar: { height: '0px' },
+      timeControl: { height: '0px' }
+    };
+
+    if (this.state.toolbarsOpen) {
+      styles.toolbar = {};
+      if (this.state.timeControlOpen) {
+        styles.timeControl = {};
+      }
+    }
+
+    return styles;
+  },
+
+  getClasses() {
+    var classes = {
+      toolbar: 'closed',
+      timeControl: 'closed'
+    };
+
+    if (this.state.toolbarsOpen) {
+      classes.toolbar = 'open';
+      if (this.state.timeControlOpen) {
+        classes.timeControl = 'open';
+      }
+    }
+
+    return classes;
   },
 
   getButtons() {
-    var floatCircleStyle = { padding: '0px', width: 42, height: 42};
-    var small = {padding: '9px', width: 42, height: 42};
-    var toggleBottomIcon = 'chevron-down';
-
-    if (!this.state.bottomOpen) {
-      toggleBottomIcon = 'chevron-up';
-    }
+    var styles = this.getStyles();
 
     return {
       floatLeft: [{
         icon: 'undo-variant',
-        style: floatCircleStyle
+        style: styles.floatCircle
       }],
       floatMiddle: [
         { icon: 'pencil', onClick: doNothing },
@@ -82,65 +128,67 @@ var Editor = React.createClass({
         { icon: 'flag-variant', onClick: doNothing },
         { icon: 'content-save', onClick: doNothing },
         { icon: 'help-circle', onClick: doNothing }
-        ].map(button => {
-          button.style = small;
+      ].map(button => {
+          button.style = styles.smallIcon;
           return button;
       }),
       floatRight: [{
         icon: 'chevron-down',
-        style: floatCircleStyle,
-        onClick: () => this.setState({toolbarsOpen: true})
+        style: styles.floatCircle,
+        onClick: this.openToolbars
       }],
       topLeft: [
-        { icon: "content-save", onClick: doNothing },
-        { icon: "undo-variant", onClick: doNothing },
-        { icon: "redo-variant", onClick: doNothing }
+        { icon: 'content-save', onClick: doNothing },
+        { icon: 'undo-variant', onClick: doNothing },
+        { icon: 'redo-variant', onClick: doNothing }
       ],
       topMiddle: [
-        { icon: "cursor-default", onClick: doNothing },
-        { icon: "pencil", onClick: doNothing },
-        { icon: "brush", onClick: doNothing },
+        { icon: 'cursor-default', onClick: doNothing },
+        { icon: 'pencil', onClick: doNothing },
+        { icon: 'brush', onClick: doNothing },
         { icon: 'line', onClick: doNothing },
         { icon: 'curve', onClick: doNothing },
         { icon: 'multi-line', onClick: doNothing },
-        { icon: "eraser", onClick: doNothing }
+        { icon: 'eraser', onClick: doNothing }
       ],
       topRight: [
-        { icon: "settings", onClick: doNothing },
-        { icon: "message", onClick: doNothing },
-        { icon: "chevron-up", onClick: () => this.setState({toolbarsOpen: false}) }
+        { icon: 'settings', onClick: doNothing },
+        { icon: 'message', onClick: doNothing },
+        { icon: 'chevron-up', onClick: this.closeToolbars }
       ],
       bottomLeft: [
-        { icon: "layers", onClick: doNothing },
+        { icon: 'layers', onClick: doNothing },
         { icon: 'viewfinder', onClick: doNothing },
         { icon: 'cursor-move', onClick: doNothing },
-        { icon: "magnify", onClick: doNothing }
+        { icon: 'magnify', onClick: doNothing }
       ],
       bottomMiddle: [
-        { icon: "flag-outline-variant", onClick: doNothing },
-        { icon: "flag-variant", onClick: doNothing },
-        { icon: "play", onClick: doNothing },
-        { icon: "stop", onClick: doNothing },
-        { icon: "pause", onClick: doNothing }
+        { icon: 'flag-outline-variant', onClick: doNothing },
+        { icon: 'flag-variant', onClick: doNothing },
+        { icon: 'play', onClick: doNothing },
+        { icon: 'stop', onClick: doNothing },
+        { icon: 'pause', onClick: doNothing }
       ],
       bottomRight: [
-        { icon: "video", onClick: doNothing },
-        { icon: "movie", onClick: doNothing },
-        { icon: "help-circle", onClick: doNothing },
-        { icon: toggleBottomIcon, onClick: this.toggleBottom }
+        { icon: 'video', onClick: doNothing },
+        { icon: 'movie', onClick: doNothing },
+        { icon: 'help-circle', onClick: doNothing },
+        { icon: this.state.timeControlOpen ? 'chevron-down' : 'chevron-up',
+          onClick: this.toggleTimeControl
+        }
       ],
-      time: [
+      timeControl: [
         { icon: 'onion-skin', onClick: doNothing },
-        { icon: "rewind", onClick: doNothing },
-        { icon: "skip-previous", onClick: doNothing },
+        { icon: 'rewind', onClick: doNothing },
+        { icon: 'skip-previous', onClick: doNothing },
         { render: (i) =>
           <div key={i} className='flex-timeline'>
-            <Slider name="timeline" style={{margin: 0}} />
+            <Slider name='timeline' style={{ margin: 0 }} />
           </div>
         },
-        { icon: "skip-next", onClick: doNothing },
-        { icon: "fast-forward", onClick: doNothing },
-        { icon: "music-note", onClick: doNothing }
+        { icon: 'skip-next', onClick: doNothing },
+        { icon: 'fast-forward', onClick: doNothing },
+        { icon: 'music-note', onClick: doNothing }
       ]
     };
   },
@@ -160,63 +208,57 @@ var Editor = React.createClass({
   },
 
   render() {
-    var closedBar = {};
-    var openedClass = 'open';
-    var closedBottom = {};
-    var bottomOpenedClass = 'open';
-
-    if (!this.state.bottomOpen) {
-      closedBottom = {height: '0px'};
-      bottomOpenedClass = 'closed';
-    }
-    if (!this.state.toolbarsOpen) {
-      closedBar = {height: '0px'};
-      openedClass = 'closed';
-      closedBottom = {height: '0px'};
-      bottomOpenedClass = 'closed';
-    }
-
+    var styles = this.getStyles();
+    var classes = this.getClasses();
     var buttons = this.getButtons();
 
     return (
         <div className='Editor'>
           <SvgDisplay lines={LINES} />
           <div className='float-bar'>
-            <div/>
+            <Spacer/>
             <div className='flex'>
-            <Paper circle={true}>
-              {
-                this.renderButtons(buttons.floatLeft)
-              }
-            </Paper>
-            <Paper style={{height: 42, margin: '0 12px'}}>
-              <Toolbar className='flex-bar' style={{height: 42, padding: '0 6px', alignItems: 'center'}}>
-                { this.renderButtons(buttons.floatMiddle) }
-              </Toolbar>
-            </Paper>
-            <Paper circle={true}>
-              {
-                this.renderButtons(buttons.floatRight)
-              }
-            </Paper>
+              <Paper circle={true}>
+                {
+                  this.renderButtons(buttons.floatLeft)
+                }
+              </Paper>
+              <Paper style={styles.floatPaper}>
+                <Toolbar className='flex-bar' style={styles.floatBar}>
+                  {
+                    this.renderButtons(buttons.floatMiddle)
+                  }
+                </Toolbar>
+              </Paper>
+              <Paper circle={true}>
+                {
+                  this.renderButtons(buttons.floatRight)
+                }
+              </Paper>
             </div>
-            <div/>
+            <Spacer/>
           </div>
           <Paper zDepth={2} className='top-bar'>
-            <Toolbar className={'flex-bar top ' + openedClass} style={closedBar}>
-              { this.renderButtonGroups([buttons.topLeft, buttons.topMiddle, buttons.topRight]) }
+            <Toolbar className={'flex-bar top ' + classes.toolbar} style={styles.toolbar}>
+              {
+                this.renderButtonGroups([buttons.topLeft, buttons.topMiddle, buttons.topRight])
+              }
             </Toolbar>
           </Paper>
           <Paper zDepth={2} className='bottom-bar'>
-            <Toolbar className={'flex-bar ' + openedClass} style={closedBar}>
-              { this.renderButtonGroups([buttons.bottomLeft, buttons.bottomMiddle, buttons.bottomRight]) }
+            <Toolbar className={'flex-bar ' + classes.toolbar} style={styles.toolbar}>
+              {
+                this.renderButtonGroups([buttons.bottomLeft, buttons.bottomMiddle, buttons.bottomRight])
+              }
             </Toolbar>
-            <Toolbar className={'flex-bar ' + bottomOpenedClass} style={closedBottom}>
-              <div/>
+            <Toolbar className={'flex-bar ' + classes.timeControl} style={styles.timeControl}>
+              <Spacer/>
               <div className='flex-group flex-time-control'>
-                { this.renderButtons(buttons.time) }
+                {
+                  this.renderButtons(buttons.timeControl)
+                }
               </div>
-              <div/>
+              <Spacer/>
             </Toolbar>
           </Paper>
         </div>
