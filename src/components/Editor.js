@@ -4,7 +4,7 @@ var React = require('react/addons');
 var mui = require('material-ui');
 var ThemeManager = new mui.Styles.ThemeManager();
 
-var {Toolbar, Paper} = mui;
+var {Paper} = mui;
 var SvgDisplay = require('./SvgDisplay');
 var IconButton = require('./IconButton');
 
@@ -224,11 +224,11 @@ var Editor = React.createClass({
               }
             </Paper>
             <Paper style={styles.floatPaper}>
-              <Toolbar className='flex-bar' style={styles.floatBar}>
+              <div className='flex-bar' style={styles.floatBar}>
                 {
                   this.renderButtons(buttons.floatMiddle)
                 }
-              </Toolbar>
+              </div>
             </Paper>
             <Paper circle={true}>
               {
@@ -239,19 +239,19 @@ var Editor = React.createClass({
           <Spacer/>
         </div>
         <Paper zDepth={2} className='top-bar'>
-          <Toolbar className={'flex-bar top ' + classes.toolbar} style={styles.toolbar}>
+          <div className={'flex-bar top ' + classes.toolbar} style={styles.toolbar}>
             {
               this.renderButtonGroups([buttons.topLeft, buttons.topMiddle, buttons.topRight])
             }
-          </Toolbar>
+          </div>
         </Paper>
         <Paper zDepth={2} className='bottom-bar'>
-          <Toolbar className={'flex-bar ' + classes.toolbar} style={styles.toolbar}>
+          <div className={'flex-bar ' + classes.toolbar} style={styles.toolbar}>
             {
               this.renderButtonGroups([buttons.bottomLeft, buttons.bottomMiddle, buttons.bottomRight])
             }
-          </Toolbar>
-          <Toolbar className={'flex-bar ' + classes.timeControl} style={styles.timeControl}>
+          </div>
+          <div className={'flex-bar ' + classes.timeControl} style={styles.timeControl}>
             <Spacer/>
             <div className='flex-group flex-time-control'>
               {
@@ -259,7 +259,7 @@ var Editor = React.createClass({
               }
             </div>
             <Spacer/>
-          </Toolbar>
+          </div>
         </Paper>
       </div>
     );
