@@ -213,56 +213,56 @@ var Editor = React.createClass({
     var buttons = this.getButtons();
 
     return (
-        <div className='Editor'>
-          <SvgDisplay lines={LINES} />
-          <div className='float-bar'>
+      <div className='Editor'>
+        <SvgDisplay lines={LINES} />
+        <div className='float-bar'>
+          <Spacer/>
+          <div className='flex'>
+            <Paper circle={true}>
+              {
+                this.renderButtons(buttons.floatLeft)
+              }
+            </Paper>
+            <Paper style={styles.floatPaper}>
+              <Toolbar className='flex-bar' style={styles.floatBar}>
+                {
+                  this.renderButtons(buttons.floatMiddle)
+                }
+              </Toolbar>
+            </Paper>
+            <Paper circle={true}>
+              {
+                this.renderButtons(buttons.floatRight)
+              }
+            </Paper>
+          </div>
+          <Spacer/>
+        </div>
+        <Paper zDepth={2} className='top-bar'>
+          <Toolbar className={'flex-bar top ' + classes.toolbar} style={styles.toolbar}>
+            {
+              this.renderButtonGroups([buttons.topLeft, buttons.topMiddle, buttons.topRight])
+            }
+          </Toolbar>
+        </Paper>
+        <Paper zDepth={2} className='bottom-bar'>
+          <Toolbar className={'flex-bar ' + classes.toolbar} style={styles.toolbar}>
+            {
+              this.renderButtonGroups([buttons.bottomLeft, buttons.bottomMiddle, buttons.bottomRight])
+            }
+          </Toolbar>
+          <Toolbar className={'flex-bar ' + classes.timeControl} style={styles.timeControl}>
             <Spacer/>
-            <div className='flex'>
-              <Paper circle={true}>
-                {
-                  this.renderButtons(buttons.floatLeft)
-                }
-              </Paper>
-              <Paper style={styles.floatPaper}>
-                <Toolbar className='flex-bar' style={styles.floatBar}>
-                  {
-                    this.renderButtons(buttons.floatMiddle)
-                  }
-                </Toolbar>
-              </Paper>
-              <Paper circle={true}>
-                {
-                  this.renderButtons(buttons.floatRight)
-                }
-              </Paper>
+            <div className='flex-group flex-time-control'>
+              {
+                this.renderButtons(buttons.timeControl)
+              }
             </div>
             <Spacer/>
-          </div>
-          <Paper zDepth={2} className='top-bar'>
-            <Toolbar className={'flex-bar top ' + classes.toolbar} style={styles.toolbar}>
-              {
-                this.renderButtonGroups([buttons.topLeft, buttons.topMiddle, buttons.topRight])
-              }
-            </Toolbar>
-          </Paper>
-          <Paper zDepth={2} className='bottom-bar'>
-            <Toolbar className={'flex-bar ' + classes.toolbar} style={styles.toolbar}>
-              {
-                this.renderButtonGroups([buttons.bottomLeft, buttons.bottomMiddle, buttons.bottomRight])
-              }
-            </Toolbar>
-            <Toolbar className={'flex-bar ' + classes.timeControl} style={styles.timeControl}>
-              <Spacer/>
-              <div className='flex-group flex-time-control'>
-                {
-                  this.renderButtons(buttons.timeControl)
-                }
-              </div>
-              <Spacer/>
-            </Toolbar>
-          </Paper>
-        </div>
-      );
+          </Toolbar>
+        </Paper>
+      </div>
+    );
   }
 });
 
