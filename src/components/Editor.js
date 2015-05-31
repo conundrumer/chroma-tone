@@ -4,7 +4,7 @@ var React = require('react/addons');
 var mui = require('material-ui');
 var ThemeManager = new mui.Styles.ThemeManager();
 
-var {Slider, Toolbar, Paper} = mui;
+var {Toolbar, Paper} = mui;
 var SvgDisplay = require('./SvgDisplay');
 var IconButton = require('./IconButton');
 
@@ -183,7 +183,7 @@ var Editor = React.createClass({
         { icon: 'skip-previous', onClick: doNothing },
         { render: (i) =>
           <div key={i} className='flex-timeline'>
-            <Slider name='timeline' style={{ margin: 0 }} />
+            <input type='range' min={0} max={100} defaultValue={0} style={{width: '100%'}} />
           </div>
         },
         { icon: 'skip-next', onClick: doNothing },
