@@ -72,23 +72,11 @@ var Editor = React.createClass({
     this.setState({ timeControlOpen: !this.state.timeControlOpen });
   },
 
-  // this won't be necessary once dependency on material-ui is removed
   getStyles() {
     var styles = {
       floatCircle: { padding: '0px', width: 42, height: 42 },
-      smallIcon: { padding: '9px', width: 42, height: 42 },
-      floatPaper: { height: 42, margin: '0 12px' },
-      floatBar: { height: 42, padding: '0 6px', alignItems: 'center' },
-      toolbar: { height: '0px' },
-      timeControl: { height: '0px' }
+      smallIcon: { padding: '9px', width: 42, height: 42 },=
     };
-
-    if (this.state.toolbarsOpen) {
-      styles.toolbar = {};
-      if (this.state.timeControlOpen) {
-        styles.timeControl = {};
-      }
-    }
 
     return styles;
   },
@@ -96,14 +84,17 @@ var Editor = React.createClass({
   getClasses() {
     var classes = {
       toolbar: 'closed',
-      timeControl: 'closed'
+      timeControl: 'hidden',
+      bar: 'hidden'
     };
 
     if (this.state.toolbarsOpen) {
       classes.toolbar = 'open';
-      if (this.state.timeControlOpen) {
-        classes.timeControl = 'open';
-      }
+      classes.bar = 'visible';
+    }
+
+    if (this.state.timeControlOpen) {
+      classes.timeControl = 'visible';
     }
 
     return classes;
@@ -208,7 +199,6 @@ var Editor = React.createClass({
   },
 
   render() {
-    var styles = this.getStyles();
     var classes = this.getClasses();
     var buttons = this.getButtons();
 
@@ -223,8 +213,8 @@ var Editor = React.createClass({
                 this.renderButtons(buttons.floatLeft)
               }
             </Paper>
-            <Paper style={styles.floatPaper}>
-              <div className='flex-bar' style={styles.floatBar}>
+            <Paper className='float-paper'>
+              <div className='flex-bar float-toolbar'>
                 {
                   this.renderButtons(buttons.floatMiddle)
                 }
@@ -238,20 +228,20 @@ var Editor = React.createClass({
           </div>
           <Spacer/>
         </div>
-        <Paper zDepth={2} className='top-bar'>
-          <div className={'flex-bar top ' + classes.toolbar} style={styles.toolbar}>
+        <Paper zDepth={2} className={'top-bar ' + classes.bar} transitionEnabled={false}>
+          <div className='flex-bar top '>
             {
               this.renderButtonGroups([buttons.topLeft, buttons.topMiddle, buttons.topRight])
             }
           </div>
         </Paper>
-        <Paper zDepth={2} className='bottom-bar'>
-          <div className={'flex-bar ' + classes.toolbar} style={styles.toolbar}>
+        <Paper zDepth={2} className={'bottom-bar ' + classes.bar} transitionEnabled={false}>
+          <div className='flex-bar'>
             {
               this.renderButtonGroups([buttons.bottomLeft, buttons.bottomMiddle, buttons.bottomRight])
             }
           </div>
-          <div className={'flex-bar ' + classes.timeControl} style={styles.timeControl}>
+          <div className={'flex-bar time-control ' + classes.timeControl}>
             <Spacer/>
             <div className='flex-group flex-time-control'>
               {
