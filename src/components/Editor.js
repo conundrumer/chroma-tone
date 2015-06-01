@@ -1,6 +1,7 @@
 'use strict';
 
 var React = require('react/addons');
+var CSSTransitionGroup = React.addons.CSSTransitionGroup;
 var mui = require('material-ui');
 var ThemeManager = new mui.Styles.ThemeManager();
 
@@ -48,8 +49,7 @@ var PaperBar = React.createClass({
 
   getDefaultProps() {
     return {
-      className: 'top',
-      visible: true
+      className: 'top'
     };
   },
 
@@ -57,7 +57,6 @@ var PaperBar = React.createClass({
     return (
       <Paper
         className={'paper-bar ' + this.props.className}
-        zDepth={2}
         rounded={false}
         transitionEnabled={false}
       >
@@ -225,16 +224,7 @@ var Editor = React.createClass({
   render() {
     var buttons = this.getButtons();
 
-    var topPaperBarClass = 'top visible';
-    var bottomPaperBarClass = 'bottom visible';
-
-    if (this.state.timeControlVisible) {
-      bottomPaperBarClass += ' extended';
-    }
-    if (!this.state.toolbarsVisible) {
-      topPaperBarClass = 'top hidden';
-      bottomPaperBarClass = 'bottom hidden';
-    }
+    var bottomPaperBarClass = this.state.timeControlVisible ? 'bottom-extended' : 'bottom';
 
     return (
       <div className='LR-Editor'>
@@ -258,27 +248,45 @@ var Editor = React.createClass({
             }
           </Paper>
         </div>
-        <PaperBar className={topPaperBarClass} visible={this.state.toolbarsVisible}>
-          <Toolbar className='top'>
-            {
-              this.renderButtonGroups([buttons.topLeft, buttons.topMiddle, buttons.topRight])
-            }
-          </Toolbar>
-        </PaperBar>
-        <PaperBar className={bottomPaperBarClass} visible={this.state.toolbarsVisible}>
-          <Toolbar>
-            {
-              this.renderButtonGroups([buttons.bottomLeft, buttons.bottomMiddle, buttons.bottomRight])
-            }
-          </Toolbar>
-          <Toolbar className='time-control-toolbar'>
-            <div className='toolbar-group time-control'>
-              {
-                this.renderButtons(buttons.timeControl)
-              }
-            </div>
-          </Toolbar>
-        </PaperBar>
+        <CSSTransitionGroup transitionName='top'>
+          {
+            this.state.toolbarsVisible ?
+            <PaperBar className='top'>
+              <Toolbar className='top'>
+                {
+                  this.renderButtonGroups([buttons.topLeft, buttons.topMiddle, buttons.topRight])
+                }
+              </Toolbar>
+            </PaperBar>
+            : null
+          }
+        </CSSTransitionGroup>
+        <CSSTransitionGroup transitionName={bottomPaperBarClass}>
+          {
+            this.state.toolbarsVisible ?
+            <PaperBar className={bottomPaperBarClass}>
+              <Toolbar>
+                {
+                  this.renderButtonGroups([buttons.bottomLeft, buttons.bottomMiddle, buttons.bottomRight])
+                }
+              </Toolbar>
+              <CSSTransitionGroup transitionName='time-control-toolbar' style={{width: '100%'}}>
+                {
+                  this.state.timeControlVisible ?
+                  <Toolbar key='1' className='time-control-toolbar'>
+                    <div className='toolbar-group time-control'>
+                      {
+                        this.renderButtons(buttons.timeControl)
+                      }
+                    </div>
+                  </Toolbar>
+                  : null
+                }
+              </CSSTransitionGroup>
+            </PaperBar>
+            : null
+          }
+        </CSSTransitionGroup>
       </div>
     );
   }

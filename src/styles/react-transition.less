@@ -1,0 +1,27 @@
+@import 'var.less';
+
+.react-transition(
+  @property;
+  @unmounted-value;
+  @mounted-value;
+  @enter-type: ease-out;
+  @leave-type: ease-in;
+  @time: @transition-time )
+{
+  @{property}: @mounted-value;
+  &-enter {
+    transition: none;
+    @{property}: @unmounted-value;
+    &-active {
+      transition: @enter-type @time;
+      @{property}: @mounted-value;
+    }
+  }
+  &-leave {
+    @{property}: @mounted-value;
+    &-active {
+      transition: @leave-type @time;
+      @{property}: @unmounted-value;
+    }
+  }
+}
