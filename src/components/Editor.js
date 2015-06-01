@@ -45,7 +45,7 @@ var Toolbar = React.createClass({
   render() {
     var visibility = this.props.visible ? 'visible ' : 'hidden ';
     return (
-      <div className={'flex-bar ' + visibility + this.props.className}>
+      <div className={'toolbar ' + visibility + this.props.className}>
         {this.props.children}
       </div>
     );
@@ -63,10 +63,10 @@ var PaperBar = React.createClass({
   },
 
   render() {
-    var alignment = this.props.top ? 'top-bar ' : 'bottom-bar ';
+    var alignment = this.props.top ? 'top ' : 'bottom ';
     var visibility = this.props.visible ? 'visible' : 'hidden';
     return (
-      <Paper className={alignment + visibility} zDepth={2} transitionEnabled={false}>
+      <Paper className={'paper-bar ' + alignment + visibility} zDepth={2} transitionEnabled={false}>
         {this.props.children}
       </Paper>
     );
@@ -195,7 +195,7 @@ var Editor = React.createClass({
         { icon: 'rewind', onClick: doNothing },
         { icon: 'skip-previous', onClick: doNothing },
         { render: (i) =>
-          <div key={i} className='flex-timeline'>
+          <div key={i} className='timeline'>
             <input type='range' min={0} max={100} defaultValue={0} style={{width: '100%'}} />
           </div>
         },
@@ -214,7 +214,7 @@ var Editor = React.createClass({
 
   renderButtonGroups(groups) {
     return groups.map((group, i) =>
-      <div key={i} className='flex-group'>
+      <div key={i} className='toolbar-group'>
         { this.renderButtons(group) }
       </div>
     );
@@ -224,11 +224,11 @@ var Editor = React.createClass({
     var buttons = this.getButtons();
 
     return (
-      <div className='Editor'>
+      <div className='LR-Editor'>
         <SvgDisplay lines={LINES} />
-        <div className='float-bar'>
+        <div className='float-container'>
           <Spacer/>
-          <div className='flex'>
+          <div className='center-container'>
             <Paper circle={true}>
               {
                 this.renderButtons(buttons.floatLeft)
@@ -250,7 +250,7 @@ var Editor = React.createClass({
           <Spacer/>
         </div>
         <PaperBar visible={this.state.toolbarsOpen}>
-          <Toolbar className='top'>
+          <Toolbar className='top-toolbar'>
             {
               this.renderButtonGroups([buttons.topLeft, buttons.topMiddle, buttons.topRight])
             }
@@ -262,9 +262,9 @@ var Editor = React.createClass({
               this.renderButtonGroups([buttons.bottomLeft, buttons.bottomMiddle, buttons.bottomRight])
             }
           </Toolbar>
-          <Toolbar className='time-control' visible={this.state.timeControlOpen}>
+          <Toolbar className='time-control-toolbar' visible={this.state.timeControlOpen}>
             <Spacer/>
-            <div className='flex-group flex-time-control'>
+            <div className='toolbar-group time-control'>
               {
                 this.renderButtons(buttons.timeControl)
               }
