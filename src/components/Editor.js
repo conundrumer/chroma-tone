@@ -67,6 +67,10 @@ var Editor = React.createClass({
     this.setState({ timeControlVisible: !this.state.timeControlVisible });
   },
 
+  toggleDebug() {
+    this.setState({debugButtons: !this.state.debugButtons});
+  },
+
   getStyles() {
     var styles = {
       floatCircle: { padding: '0px', width: 42, height: 42 },
@@ -83,7 +87,7 @@ var Editor = React.createClass({
       floatLeft: [{
         icon: 'undo-variant',
         style: styles.floatCircle,
-        onClick: () => this.setState({debugButtons: !this.state.debugButtons})
+        onClick: this.toggleDebug
       }],
       floatMiddle: [
         { icon: 'pencil', onClick: doNothing },

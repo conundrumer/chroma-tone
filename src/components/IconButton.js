@@ -9,6 +9,10 @@ var {Line, Curve, MultiLine, Viewfinder, CursorMove, OnionSkin} = require('./Svg
 
 var IconButton = React.createClass({
 
+  shouldComponentUpdate(nextProps, nextState) {
+    return this.props.icon !== nextProps.icon;
+  },
+
   getIcon(icon) {
     switch (icon) {
       case 'line':
