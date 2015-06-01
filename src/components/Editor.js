@@ -223,31 +223,36 @@ var Editor = React.createClass({
 
   render() {
     var buttons = this.getButtons();
+    var floatZDepth = this.state.toolbarsVisible ? 0 : 1;
 
     var bottomPaperBarClass = this.state.timeControlVisible ? 'bottom-extended' : 'bottom';
 
     return (
       <div className='LR-Editor'>
         <SvgDisplay lines={LINES} />
-        <div className='float-container'>
-          <Paper circle={true}>
-            {
-              this.renderButtons(buttons.floatLeft)
-            }
-          </Paper>
-          <Paper className='float-paper'>
-            <Toolbar className='float-toolbar'>
-              {
-                this.renderButtons(buttons.floatMiddle)
-              }
-            </Toolbar>
-          </Paper>
-          <Paper circle={true}>
-            {
-              this.renderButtons(buttons.floatRight)
-            }
-          </Paper>
-        </div>
+        <CSSTransitionGroup transitionName='float-container'>
+          {
+            <div className='float-container'>
+              <Paper circle={true} zDepth={floatZDepth}>
+                {
+                  this.renderButtons(buttons.floatLeft)
+                }
+              </Paper>
+              <Paper className='float-paper' zDepth={floatZDepth}>
+                <Toolbar className='float-toolbar'>
+                  {
+                    this.renderButtons(buttons.floatMiddle)
+                  }
+                </Toolbar>
+              </Paper>
+              <Paper circle={true} zDepth={floatZDepth}>
+                {
+                  this.renderButtons(buttons.floatRight)
+                }
+              </Paper>
+            </div>
+          }
+        </CSSTransitionGroup>
         <CSSTransitionGroup transitionName='top'>
           {
             this.state.toolbarsVisible ?
