@@ -53,6 +53,27 @@ var Toolbar = React.createClass({
 
 });
 
+var PaperBar = React.createClass({
+
+  getDefaultProps() {
+    return {
+      top: true,
+      visible: true
+    };
+  },
+
+  render() {
+    var alignment = this.props.top ? 'top-bar ' : 'bottom-bar ';
+    var visibility = this.props.visible ? 'visible' : 'hidden';
+    return (
+      <Paper className={alignment + visibility} zDepth={2} transitionEnabled={false}>
+        {this.props.children}
+      </Paper>
+    );
+  }
+
+});
+
 var Editor = React.createClass({
 
   getInitialState() {
@@ -99,18 +120,6 @@ var Editor = React.createClass({
     };
 
     return styles;
-  },
-
-  getClasses() {
-    var classes = {
-      bar: 'hidden'
-    };
-
-    if (this.state.toolbarsOpen) {
-      classes.bar = 'visible';
-    }
-
-    return classes;
   },
 
   getButtons() {
@@ -212,7 +221,6 @@ var Editor = React.createClass({
   },
 
   render() {
-    var classes = this.getClasses();
     var buttons = this.getButtons();
 
     return (
@@ -241,14 +249,14 @@ var Editor = React.createClass({
           </div>
           <Spacer/>
         </div>
-        <Paper zDepth={2} className={'top-bar ' + classes.bar} transitionEnabled={false}>
+        <PaperBar visible={this.state.toolbarsOpen}>
           <Toolbar className='top'>
             {
               this.renderButtonGroups([buttons.topLeft, buttons.topMiddle, buttons.topRight])
             }
           </Toolbar>
-        </Paper>
-        <Paper zDepth={2} className={'bottom-bar ' + classes.bar} transitionEnabled={false}>
+        </PaperBar>
+        <PaperBar visible={this.state.toolbarsOpen} top={false}>
           <Toolbar>
             {
               this.renderButtonGroups([buttons.bottomLeft, buttons.bottomMiddle, buttons.bottomRight])
@@ -263,7 +271,7 @@ var Editor = React.createClass({
             </div>
             <Spacer/>
           </Toolbar>
-        </Paper>
+        </PaperBar>
       </div>
     );
   }
