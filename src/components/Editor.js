@@ -75,7 +75,7 @@ var Editor = React.createClass({
   getStyles() {
     var styles = {
       floatCircle: { padding: '0px', width: 42, height: 42 },
-      smallIcon: { padding: '9px', width: 42, height: 42 },=
+      smallIcon: { padding: '9px', width: 42, height: 42 }
     };
 
     return styles;
