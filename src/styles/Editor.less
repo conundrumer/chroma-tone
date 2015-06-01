@@ -6,7 +6,7 @@
 @toolbar-max-width: 900px;
 @num-icons-in-timeline: 7;
 @max-shadow-height: 10px;
-@hidden-paper-bar-distance: -1 * (@max-shadow-height + 2 * @icon-height);
+@hidden-paper-bar-distance: @max-shadow-height + 2 * @toolbar-height;
 
 .LR-Editor {
   width: 100%;
@@ -38,14 +38,18 @@
     &.top {
       top: 0;
       &.hidden {
-        top: @hidden-paper-bar-distance;
+        transform: translateY(-1 * @hidden-paper-bar-distance)
       }
     }
 
     &.bottom {
       bottom: 0;
+      transform: translateY(@toolbar-height);
       &.hidden {
-        bottom: @hidden-paper-bar-distance;
+        transform: translateY(@hidden-paper-bar-distance);
+      }
+      &.extended {
+        transform: translateY(0);
       }
     }
   }

@@ -30,15 +30,13 @@ var Toolbar = React.createClass({
 
   getDefaultProps() {
     return {
-      className: '',
-      visible: true
+      className: ''
     };
   },
 
   render() {
-    var visibility = this.props.visible ? 'visible ' : 'hidden ';
     return (
-      <div className={'toolbar ' + visibility + this.props.className}>
+      <div className={'toolbar ' + this.props.className}>
         {this.props.children}
       </div>
     );
@@ -56,10 +54,9 @@ var PaperBar = React.createClass({
   },
 
   render() {
-    var visibility = this.props.visible ? 'visible ' : 'hidden ';
     return (
       <Paper
-        className={'paper-bar ' + visibility + this.props.className}
+        className={'paper-bar ' + this.props.className}
         zDepth={2}
         rounded={false}
         transitionEnabled={false}
@@ -75,6 +72,7 @@ var Editor = React.createClass({
 
   getInitialState() {
     return {
+      debugButtons: false,
       toolbarsVisible: false,
       timeControlVisible: false
     };
@@ -125,7 +123,8 @@ var Editor = React.createClass({
     return {
       floatLeft: [{
         icon: 'undo-variant',
-        style: styles.floatCircle
+        style: styles.floatCircle,
+        onClick: () => this.setState({debugButtons: !this.state.debugButtons})
       }],
       floatMiddle: [
         { icon: 'pencil', onClick: doNothing },
@@ -207,7 +206,11 @@ var Editor = React.createClass({
 
   renderButtons(buttons) {
     return buttons.map((button, i) =>
-      button.render ? button.render(i) : <IconButton key={i} {...button} />
+      button.render ?
+        button.render(i) :
+      this.state.debugButtons ?
+        <button key={i} style={{width: 48, height: 48, padding: 0}} {...button} /> :
+        <IconButton key={i} {...button} />
     );
   },
 
@@ -221,6 +224,17 @@ var Editor = React.createClass({
 
   render() {
     var buttons = this.getButtons();
+
+    var topPaperBarClass = 'top visible';
+    var bottomPaperBarClass = 'bottom visible';
+
+    if (this.state.timeControlVisible) {
+      bottomPaperBarClass += ' extended';
+    }
+    if (!this.state.toolbarsVisible) {
+      topPaperBarClass = 'top hidden';
+      bottomPaperBarClass = 'bottom hidden';
+    }
 
     return (
       <div className='LR-Editor'>
@@ -244,20 +258,20 @@ var Editor = React.createClass({
             }
           </Paper>
         </div>
-        <PaperBar className='top' visible={this.state.toolbarsVisible}>
+        <PaperBar className={topPaperBarClass} visible={this.state.toolbarsVisible}>
           <Toolbar className='top'>
             {
               this.renderButtonGroups([buttons.topLeft, buttons.topMiddle, buttons.topRight])
             }
           </Toolbar>
         </PaperBar>
-        <PaperBar className='bottom' visible={this.state.toolbarsVisible}>
+        <PaperBar className={bottomPaperBarClass} visible={this.state.toolbarsVisible}>
           <Toolbar>
             {
               this.renderButtonGroups([buttons.bottomLeft, buttons.bottomMiddle, buttons.bottomRight])
             }
           </Toolbar>
-          <Toolbar className='time-control-toolbar' visible={this.state.timeControlVisible}>
+          <Toolbar className='time-control-toolbar'>
             <div className='toolbar-group time-control'>
               {
                 this.renderButtons(buttons.timeControl)
