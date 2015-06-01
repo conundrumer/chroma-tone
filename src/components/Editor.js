@@ -270,16 +270,17 @@ var Editor = React.createClass({
                   this.renderButtonGroups([buttons.bottomLeft, buttons.bottomMiddle, buttons.bottomRight])
                 }
               </Toolbar>
-              <CSSTransitionGroup transitionName='time-control-toolbar' style={{width: '100%'}}>
+              <CSSTransitionGroup
+                className='toolbar time-control-toolbar'
+                transitionName='time-control-toolbar'
+              >
                 {
                   this.state.timeControlVisible ?
-                  <Toolbar key='1' className='time-control-toolbar'>
-                    <div className='toolbar-group time-control'>
-                      {
-                        this.renderButtons(buttons.timeControl)
-                      }
-                    </div>
-                  </Toolbar>
+                  <div className='toolbar-group time-control'>
+                    {
+                      this.renderButtons(buttons.timeControl)
+                    }
+                  </div>
                   : null
                 }
               </CSSTransitionGroup>
