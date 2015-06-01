@@ -33,6 +33,26 @@ var Spacer = React.createClass({
 
 });
 
+var Toolbar = React.createClass({
+
+  getDefaultProps() {
+    return {
+      className: '',
+      visible: true
+    };
+  },
+
+  render() {
+    var visibility = this.props.visible ? 'visible ' : 'hidden ';
+    return (
+      <div className={'flex-bar ' + visibility + this.props.className}>
+        {this.props.children}
+      </div>
+    );
+  }
+
+});
+
 var Editor = React.createClass({
 
   getInitialState() {
@@ -83,18 +103,11 @@ var Editor = React.createClass({
 
   getClasses() {
     var classes = {
-      toolbar: 'closed',
-      timeControl: 'hidden',
       bar: 'hidden'
     };
 
     if (this.state.toolbarsOpen) {
-      classes.toolbar = 'open';
       classes.bar = 'visible';
-    }
-
-    if (this.state.timeControlOpen) {
-      classes.timeControl = 'visible';
     }
 
     return classes;
@@ -214,11 +227,11 @@ var Editor = React.createClass({
               }
             </Paper>
             <Paper className='float-paper'>
-              <div className='flex-bar float-toolbar'>
+              <Toolbar className='float-toolbar'>
                 {
                   this.renderButtons(buttons.floatMiddle)
                 }
-              </div>
+              </Toolbar>
             </Paper>
             <Paper circle={true}>
               {
@@ -229,19 +242,19 @@ var Editor = React.createClass({
           <Spacer/>
         </div>
         <Paper zDepth={2} className={'top-bar ' + classes.bar} transitionEnabled={false}>
-          <div className='flex-bar top '>
+          <Toolbar className='top'>
             {
               this.renderButtonGroups([buttons.topLeft, buttons.topMiddle, buttons.topRight])
             }
-          </div>
+          </Toolbar>
         </Paper>
         <Paper zDepth={2} className={'bottom-bar ' + classes.bar} transitionEnabled={false}>
-          <div className='flex-bar'>
+          <Toolbar>
             {
               this.renderButtonGroups([buttons.bottomLeft, buttons.bottomMiddle, buttons.bottomRight])
             }
-          </div>
-          <div className={'flex-bar time-control ' + classes.timeControl}>
+          </Toolbar>
+          <Toolbar className='time-control' visible={this.state.timeControlOpen}>
             <Spacer/>
             <div className='flex-group flex-time-control'>
               {
@@ -249,7 +262,7 @@ var Editor = React.createClass({
               }
             </div>
             <Spacer/>
-          </div>
+          </Toolbar>
         </Paper>
       </div>
     );
