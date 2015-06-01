@@ -1,6 +1,12 @@
-@import 'var.less';
-
-@bar-border: 1px solid @grey-300;
+@transition-time: 0.2s;
+@small-icon-height: 42px;
+@icon-width: 48px;
+@icon-height: @icon-width;
+@toolbar-height: 56px;
+@toolbar-max-width: 900px;
+@num-icons-in-timeline: 7;
+@max-shadow-height: 10px;
+@hidden-paper-bar-distance: -1 * (@max-shadow-height + 2 * @icon-height);
 
 .LR-Editor {
   width: 100%;
@@ -9,15 +15,15 @@
   position: relative;
 
   .visible {
-    transition: 0.2s ease-out;
+    transition: @transition-time ease-out;
   }
 
   .hidden {
-    transition: 0.2s ease-in;
+    transition: @transition-time ease-in;
   }
 
   .float-paper {
-    height: 42px;
+    height: @small-icon-height;
     margin: 0 12px;
   }
 
@@ -30,53 +36,49 @@
     align-items: center;
 
     &.top {
-      top: 0px;
+      top: 0;
       &.hidden {
-        top: -122px;
+        top: @hidden-paper-bar-distance;
       }
     }
 
     &.bottom {
-      bottom: 0px;
+      bottom: 0;
       &.hidden {
-        bottom: -122px;
+        bottom: @hidden-paper-bar-distance;
       }
     }
   }
 
   .float-container {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     position: absolute;
     width: 100%;
-    height: 56px;
-  }
-
-  .top-toolbar {
-    align-items: flex-end;
-  }
-
-  .center-container {
-    display: flex;
+    height: @toolbar-height;
   }
 
   .toolbar {
     box-sizing: border-box;
     display: flex;
     justify-content: space-between;
-    // align-items: center;
-    max-width: 900px;
-    height: 56px;
+    max-width: @toolbar-max-width;
+    height: @toolbar-height;
     width: 100%;
-    padding: 0px 24px;
+    padding: 0 24px;
     background-color: white;
 
     &.float-toolbar {
-      height: 42px;
+      height: @small-icon-height;
       padding: 0 6px;
       align-items: center;
     }
+
+    &.top {
+      align-items: flex-end;
+    }
+
   }
 
   .time-control-toolbar.hidden {
@@ -84,7 +86,7 @@
   }
 
   .toolbar-group {
-    height: 56px;
+    height: @toolbar-height;
     display: flex;
     align-items: center;
   }
@@ -95,7 +97,7 @@
 
   .timeline {
     box-sizing: border-box;
-    flex: 1 0.5 48*7px;
+    flex: 1 0.5 @num-icons-in-timeline*@icon-height;
     padding: 16px;
   }
 }

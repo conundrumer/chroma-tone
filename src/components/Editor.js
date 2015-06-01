@@ -26,13 +26,6 @@ function randomLines() {
 
 var LINES = randomLines();
 
-var Spacer = React.createClass({
-  render() {
-    return <div/>;
-  }
-
-});
-
 var Toolbar = React.createClass({
 
   getDefaultProps() {
@@ -57,16 +50,19 @@ var PaperBar = React.createClass({
 
   getDefaultProps() {
     return {
-      top: true,
+      className: 'top',
       visible: true
     };
   },
 
   render() {
-    var alignment = this.props.top ? 'top ' : 'bottom ';
-    var visibility = this.props.visible ? 'visible' : 'hidden';
+    var visibility = this.props.visible ? 'visible ' : 'hidden ';
     return (
-      <Paper className={'paper-bar ' + alignment + visibility} zDepth={2} transitionEnabled={false}>
+      <Paper
+        className={'paper-bar ' + visibility + this.props.className}
+        zDepth={2}
+        transitionEnabled={false}
+      >
         {this.props.children}
       </Paper>
     );
@@ -78,8 +74,8 @@ var Editor = React.createClass({
 
   getInitialState() {
     return {
-      toolbarsOpen: false,
-      timeControlOpen: false
+      toolbarsVisible: false,
+      timeControlVisible: false
     };
   },
 
@@ -102,15 +98,15 @@ var Editor = React.createClass({
   },
 
   openToolbars() {
-    this.setState({ toolbarsOpen: true });
+    this.setState({ toolbarsVisible: true });
   },
 
   closeToolbars() {
-    this.setState({ toolbarsOpen: false });
+    this.setState({ toolbarsVisible: false });
   },
 
   toggleTimeControl() {
-    this.setState({ timeControlOpen: !this.state.timeControlOpen });
+    this.setState({ timeControlVisible: !this.state.timeControlVisible });
   },
 
   getStyles() {
@@ -186,7 +182,8 @@ var Editor = React.createClass({
         { icon: 'video', onClick: doNothing },
         { icon: 'movie', onClick: doNothing },
         { icon: 'help-circle', onClick: doNothing },
-        { icon: this.state.timeControlOpen ? 'chevron-down' : 'chevron-up',
+        {
+          icon: this.state.timeControlVisible ? 'chevron-down' : 'chevron-up',
           onClick: this.toggleTimeControl
         }
       ],
@@ -194,7 +191,8 @@ var Editor = React.createClass({
         { icon: 'onion-skin', onClick: doNothing },
         { icon: 'rewind', onClick: doNothing },
         { icon: 'skip-previous', onClick: doNothing },
-        { render: (i) =>
+        {
+          render: (i) =>
           <div key={i} className='timeline'>
             <input type='range' min={0} max={100} defaultValue={0} style={{width: '100%'}} />
           </div>
@@ -227,49 +225,43 @@ var Editor = React.createClass({
       <div className='LR-Editor'>
         <SvgDisplay lines={LINES} />
         <div className='float-container'>
-          <Spacer/>
-          <div className='center-container'>
-            <Paper circle={true}>
+          <Paper circle={true}>
+            {
+              this.renderButtons(buttons.floatLeft)
+            }
+          </Paper>
+          <Paper className='float-paper'>
+            <Toolbar className='float-toolbar'>
               {
-                this.renderButtons(buttons.floatLeft)
+                this.renderButtons(buttons.floatMiddle)
               }
-            </Paper>
-            <Paper className='float-paper'>
-              <Toolbar className='float-toolbar'>
-                {
-                  this.renderButtons(buttons.floatMiddle)
-                }
-              </Toolbar>
-            </Paper>
-            <Paper circle={true}>
-              {
-                this.renderButtons(buttons.floatRight)
-              }
-            </Paper>
-          </div>
-          <Spacer/>
+            </Toolbar>
+          </Paper>
+          <Paper circle={true}>
+            {
+              this.renderButtons(buttons.floatRight)
+            }
+          </Paper>
         </div>
-        <PaperBar visible={this.state.toolbarsOpen}>
-          <Toolbar className='top-toolbar'>
+        <PaperBar className='top' visible={this.state.toolbarsVisible}>
+          <Toolbar className='top'>
             {
               this.renderButtonGroups([buttons.topLeft, buttons.topMiddle, buttons.topRight])
             }
           </Toolbar>
         </PaperBar>
-        <PaperBar visible={this.state.toolbarsOpen} top={false}>
+        <PaperBar className='bottom' visible={this.state.toolbarsVisible}>
           <Toolbar>
             {
               this.renderButtonGroups([buttons.bottomLeft, buttons.bottomMiddle, buttons.bottomRight])
             }
           </Toolbar>
-          <Toolbar className='time-control-toolbar' visible={this.state.timeControlOpen}>
-            <Spacer/>
+          <Toolbar className='time-control-toolbar' visible={this.state.timeControlVisible}>
             <div className='toolbar-group time-control'>
               {
                 this.renderButtons(buttons.timeControl)
               }
             </div>
-            <Spacer/>
           </Toolbar>
         </PaperBar>
       </div>
