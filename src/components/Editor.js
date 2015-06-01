@@ -61,6 +61,7 @@ var PaperBar = React.createClass({
       <Paper
         className={'paper-bar ' + visibility + this.props.className}
         zDepth={2}
+        rounded={false}
         transitionEnabled={false}
       >
         {this.props.children}
