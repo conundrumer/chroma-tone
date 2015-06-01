@@ -27,46 +27,6 @@ function randomLines() {
 
 var LINES = randomLines();
 
-var Toolbar = React.createClass({
-
-  getDefaultProps() {
-    return {
-      className: ''
-    };
-  },
-
-  render() {
-    return (
-      <div className={'toolbar ' + this.props.className}>
-        {this.props.children}
-      </div>
-    );
-  }
-
-});
-
-var PaperBar = React.createClass({
-
-  getDefaultProps() {
-    return {
-      className: 'top'
-    };
-  },
-
-  render() {
-    return (
-      <Paper
-        className={'paper-bar ' + this.props.className}
-        rounded={false}
-        transitionEnabled={false}
-      >
-        {this.props.children}
-      </Paper>
-    );
-  }
-
-});
-
 var Editor = React.createClass({
 
   getInitialState() {
@@ -221,79 +181,139 @@ var Editor = React.createClass({
     );
   },
 
+  renderFloatBar(buttons) {
+    var floatPapersProps = [
+      { circle: true, children: this.renderButtons(buttons.floatLeft) },
+      {
+        className: 'float-paper-bar',
+        children:
+          <Toolbar className='float-toolbar'>
+            {
+              this.renderButtons(buttons.floatMiddle)
+            }
+          </Toolbar>
+      },
+      { circle: true, children: this.renderButtons(buttons.floatRight) }
+    ];
+
+    return (
+      <div className='float-container'>
+        {floatPapersProps.map((props, i) =>
+          <CSSTransitionGroup key={i} transitionName='float-paper'>
+            {
+              !this.state.toolbarsVisible ?
+                <FloatPaper {...props}>
+                  {props.children}
+                </FloatPaper>
+              : null
+            }
+          </CSSTransitionGroup>
+        )}
+      </div>
+    );
+  },
+
+  renderTopBar(buttons) {
+    return (
+      <CSSTransitionGroup transitionName='top'>
+        {
+          this.state.toolbarsVisible ?
+          <PaperBar className='top'>
+            <Toolbar className='top'>
+              {
+                this.renderButtonGroups([buttons.topLeft, buttons.topMiddle, buttons.topRight])
+              }
+            </Toolbar>
+          </PaperBar>
+          : null
+        }
+      </CSSTransitionGroup>
+    );
+  },
+
+  renderBottomBar(buttons) {
+    var bottomPaperBarClass = this.state.timeControlVisible ? 'bottom-extended' : 'bottom';
+
+    return (
+      <CSSTransitionGroup transitionName={bottomPaperBarClass}>
+        {
+          this.state.toolbarsVisible ?
+          <PaperBar className={bottomPaperBarClass}>
+            <Toolbar>
+              {
+                this.renderButtonGroups([buttons.bottomLeft, buttons.bottomMiddle, buttons.bottomRight])
+              }
+            </Toolbar>
+            <CSSTransitionGroup
+              className='toolbar time-control-toolbar'
+              transitionName='time-control-toolbar'
+            >
+              {
+                this.state.timeControlVisible ?
+                <div className='toolbar-group time-control'>
+                  {
+                    this.renderButtons(buttons.timeControl)
+                  }
+                </div>
+                : null
+              }
+            </CSSTransitionGroup>
+          </PaperBar>
+          : null
+        }
+      </CSSTransitionGroup>
+    );
+  },
+
   render() {
     var buttons = this.getButtons();
-    var floatZDepth = this.state.toolbarsVisible ? 0 : 1;
-
-    var bottomPaperBarClass = this.state.timeControlVisible ? 'bottom-extended' : 'bottom';
 
     return (
       <div className='LR-Editor'>
         <SvgDisplay lines={LINES} />
-        <CSSTransitionGroup transitionName='float-container'>
-          {
-            <div className='float-container'>
-              <Paper circle={true} zDepth={floatZDepth}>
-                {
-                  this.renderButtons(buttons.floatLeft)
-                }
-              </Paper>
-              <Paper className='float-paper' zDepth={floatZDepth}>
-                <Toolbar className='float-toolbar'>
-                  {
-                    this.renderButtons(buttons.floatMiddle)
-                  }
-                </Toolbar>
-              </Paper>
-              <Paper circle={true} zDepth={floatZDepth}>
-                {
-                  this.renderButtons(buttons.floatRight)
-                }
-              </Paper>
-            </div>
-          }
-        </CSSTransitionGroup>
-        <CSSTransitionGroup transitionName='top'>
-          {
-            this.state.toolbarsVisible ?
-            <PaperBar className='top'>
-              <Toolbar className='top'>
-                {
-                  this.renderButtonGroups([buttons.topLeft, buttons.topMiddle, buttons.topRight])
-                }
-              </Toolbar>
-            </PaperBar>
-            : null
-          }
-        </CSSTransitionGroup>
-        <CSSTransitionGroup transitionName={bottomPaperBarClass}>
-          {
-            this.state.toolbarsVisible ?
-            <PaperBar className={bottomPaperBarClass}>
-              <Toolbar>
-                {
-                  this.renderButtonGroups([buttons.bottomLeft, buttons.bottomMiddle, buttons.bottomRight])
-                }
-              </Toolbar>
-              <CSSTransitionGroup
-                className='toolbar time-control-toolbar'
-                transitionName='time-control-toolbar'
-              >
-                {
-                  this.state.timeControlVisible ?
-                  <div className='toolbar-group time-control'>
-                    {
-                      this.renderButtons(buttons.timeControl)
-                    }
-                  </div>
-                  : null
-                }
-              </CSSTransitionGroup>
-            </PaperBar>
-            : null
-          }
-        </CSSTransitionGroup>
+        { this.renderFloatBar(buttons) }
+        { this.renderTopBar(buttons) }
+        { this.renderBottomBar(buttons) }
       </div>
+    );
+  }
+});
+
+var Toolbar = React.createClass({
+  render() {
+    return (
+      <div className={'toolbar ' + (this.props.className || '')}>
+        {this.props.children}
+      </div>
+    );
+  }
+});
+
+var PaperBar = React.createClass({
+  render() {
+    return (
+      <Paper
+        className={'paper-bar ' + (this.props.className || '')}
+        rounded={false}
+        transitionEnabled={false}
+      >
+        {this.props.children}
+      </Paper>
+    );
+  }
+});
+
+var FloatPaper = React.createClass({
+  render() {
+    return (
+      <Paper
+        className={'float-paper ' + (this.props.className || '')}
+        circle={this.props.circle}
+        style={{boxShadow: 'null'}}
+        transitionEnabled={false}
+      >
+        {this.props.children}
+      </Paper>
     );
   }
 });

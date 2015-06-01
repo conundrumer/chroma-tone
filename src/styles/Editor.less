@@ -18,6 +18,10 @@
   position: relative;
 
   .float-paper {
+    .react-transition(box-shadow, @z-depth-shadow-0, @z-depth-shadow-1, ease-in, ease-out);
+  }
+
+  .float-paper-bar {
     height: @small-icon-height;
     margin: 0 12px;
   }
@@ -56,7 +60,7 @@
     position: absolute;
     width: 100%;
     height: @toolbar-height;
-    .react-transition(opacity, 0, 1);
+    .react-transition(opacity, 0.99, 1);
   }
 
   .toolbar {
