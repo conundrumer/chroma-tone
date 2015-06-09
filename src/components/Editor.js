@@ -1,6 +1,7 @@
 'use strict';
 
 var React = require('react/addons');
+var Combokeys = require('combokeys');
 var CSSTransitionGroup = React.addons.CSSTransitionGroup;
 var mui = require('material-ui');
 var ThemeManager = new mui.Styles.ThemeManager();
@@ -33,7 +34,8 @@ var Editor = React.createClass({
     return {
       debugButtons: false,
       toolbarsVisible: false,
-      timeControlVisible: false
+      timeControlVisible: false,
+      combokeys: new Combokeys(document)
     };
   },
 
@@ -53,6 +55,10 @@ var Editor = React.createClass({
         backgroundColor: 'white'
       }
     });
+  },
+
+  componentWillUnmount() {
+    this.state.combokeys.detach();
   },
 
   openToolbars() {
@@ -90,16 +96,16 @@ var Editor = React.createClass({
         onClick: this.toggleDebug
       }],
       floatMiddle: [
-        { icon: 'pencil', onClick: doNothing },
-        { icon: 'line', onClick: doNothing },
-        { icon: 'eraser', onClick: doNothing },
-        { icon: 'cursor-move', onClick: doNothing },
-        { icon: 'magnify', onClick: doNothing },
-        { icon: 'play', onClick: doNothing },
-        { icon: 'stop', onClick: doNothing },
-        { icon: 'flag-variant', onClick: doNothing },
-        { icon: 'content-save', onClick: doNothing },
-        { icon: 'help-circle', onClick: doNothing }
+        { icon: 'pencil', hotkey: 'q', onClick: doNothing },
+        { icon: 'line', hotkey: 'w', onClick: doNothing },
+        { icon: 'eraser', hotkey: 'e', onClick: doNothing },
+        { icon: 'cursor-move', hotkey: 'r', onClick: doNothing },
+        { icon: 'magnify', hotkey: 't', onClick: doNothing },
+        { icon: 'play', hotkey: 'y', onClick: doNothing },
+        { icon: 'stop', hotkey: 'u', onClick: doNothing },
+        { icon: 'flag-variant', hotkey: 'i', onClick: doNothing },
+        { icon: 'content-save', hotkey: 'o', onClick: doNothing },
+        { icon: 'help-circle', hotkey: 'p', onClick: doNothing }
       ].map(button => {
           button.style = styles.smallIcon;
           return button;
@@ -173,7 +179,7 @@ var Editor = React.createClass({
         button.render(i) :
       this.state.debugButtons ?
         <button key={i} style={{width: 48, height: 48, padding: 0}} {...button} /> :
-        <IconButton key={i} {...button} />
+        <IconButton {...button} key={i} combokeys={this.state.combokeys} />
     );
   },
 

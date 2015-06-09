@@ -9,8 +9,72 @@ var {Line, Curve, MultiLine, Viewfinder, CursorMove, OnionSkin} = require('./Svg
 
 var IconButton = React.createClass({
 
+  getInitialState() {
+    return {
+      keyPressed: false
+    };
+  },
+
+  componentWillMount() {
+    this.bindHotkey(this.props.hotkey);
+  },
+
   shouldComponentUpdate(nextProps, nextState) {
-    return this.props.icon !== nextProps.icon;
+    return this.props.icon !== nextProps.icon ||
+      this.props.hotkey !== nextProps.hotkey ||
+      this.state.keyPressed !== nextState.keyPressed;
+  },
+
+  componentWillUpdate(nextProps, nextState) {
+    if (this.props.hotkey !== nextProps.hotkey) {
+      this.unbindHotkey();
+      this.bindHotkey(nextProps.hotkey);
+    }
+
+    if (!this.state.keyPressed && nextState.keyPressed) {
+      this.startRipple();
+    }
+
+    if (this.state.keyPressed && !nextState.keyPressed) {
+      this.endRipple();
+    }
+  },
+
+  componentWillUnmount() {
+    if (this.unbindHotkey) {
+      this.unbindHotkey();
+    }
+  },
+
+  bindHotkey(hotkey) {
+    if (!hotkey) {
+      return;
+    }
+    var combokeys = this.props.combokeys;
+    combokeys.bind(hotkey, this.onHotkeyDown, 'keydown');
+    combokeys.bind(hotkey, this.onHotkeyUp, 'keyup');
+
+    this.unbindHotkey = () => {
+      combokeys.unbind(hotkey, 'keydown');
+      combokeys.unbind(hotkey, 'keyup');
+    };
+  },
+
+  onHotkeyDown() {
+    this.setState({ keyPressed: true });
+  },
+
+  onHotkeyUp() {
+    this.setState({ keyPressed: false });
+  },
+
+  // lol
+  startRipple() {
+    this.refs.iconButton.refs.button.refs.touchRipple.start();
+  },
+
+  endRipple() {
+    this.refs.iconButton.refs.button.refs.touchRipple.end();
   },
 
   getIcon(icon) {
@@ -35,13 +99,13 @@ var IconButton = React.createClass({
     var icon = this.getIcon(this.props.icon);
     if (icon) {
       return (
-        <MuiIconButton {...this.props}>
+        <MuiIconButton ref='iconButton' {...this.props}>
           {icon}
         </MuiIconButton>
       );
     }
     return (
-      <MuiIconButton {...this.props}>
+      <MuiIconButton ref='iconButton' {...this.props}>
         <FontIcon className={'mdi mdi-' + this.props.icon} />
       </MuiIconButton>
     );
