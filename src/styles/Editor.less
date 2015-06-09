@@ -104,4 +104,22 @@
     flex: 1 0.5 @num-icons-in-timeline * @icon-height;
     padding: 16px;
   }
+
+  .select-ring {
+    box-sizing: border-box;
+    transition: ease-out @transition-time;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    border-radius: 50%;
+    border: 1px solid @grey-500;
+    opacity: 0;
+    &.selected {
+      transition: ease-in @transition-time;
+      opacity: 1;
+    }
+  }
+
 }

@@ -22,7 +22,8 @@ var IconButton = React.createClass({
   shouldComponentUpdate(nextProps, nextState) {
     return this.props.icon !== nextProps.icon ||
       this.props.hotkey !== nextProps.hotkey ||
-      this.state.keyPressed !== nextState.keyPressed;
+      this.state.keyPressed !== nextState.keyPressed ||
+      this.props.selected !== nextProps.selected;
   },
 
   componentWillUpdate(nextProps, nextState) {
@@ -37,6 +38,7 @@ var IconButton = React.createClass({
 
     if (this.state.keyPressed && !nextState.keyPressed) {
       this.endRipple();
+      this.props.onTouchTap();
     }
   },
 
@@ -97,15 +99,18 @@ var IconButton = React.createClass({
 
   render() {
     var icon = this.getIcon(this.props.icon);
+    var selectRing = <div className={'select-ring' + (this.props.selected ? ' selected' : '')} />;
     if (icon) {
       return (
         <MuiIconButton ref='iconButton' {...this.props}>
+          {selectRing}
           {icon}
         </MuiIconButton>
       );
     }
     return (
       <MuiIconButton ref='iconButton' {...this.props}>
+        {selectRing}
         <FontIcon className={'mdi mdi-' + this.props.icon} />
       </MuiIconButton>
     );

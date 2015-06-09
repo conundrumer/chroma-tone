@@ -108,6 +108,8 @@ var Editor = React.createClass({
         { icon: 'help-circle', hotkey: 'p', onClick: doNothing }
       ].map(button => {
           button.style = styles.smallIcon;
+          button.onTouchTap = () => this.setState({pressed: button.hotkey});
+          button.selected = (this.state.pressed === button.hotkey);
           return button;
       }),
       floatRight: [{
