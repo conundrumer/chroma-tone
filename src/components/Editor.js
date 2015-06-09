@@ -80,7 +80,7 @@ var Editor = React.createClass({
   getStyles() {
     var styles = {
       floatCircle: { padding: '0px', width: 42, height: 42 },
-      smallIcon: { padding: '9px', width: 42, height: 42 }
+      smallIcon: { padding: '6px', width: 36, height: 36, margin: '3px' }
     };
 
     return styles;
