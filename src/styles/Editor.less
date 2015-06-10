@@ -105,21 +105,21 @@
     padding: 16px;
   }
 
-  .select-ring {
-    box-sizing: border-box;
+  .icon-button {
     transition: ease-out @transition-time;
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 100%;
     border-radius: 50%;
-    border: 1px solid @grey-500;
-    opacity: 0;
+    background-color: transparent;
     &.selected {
       transition: ease-in @transition-time;
-      opacity: 1;
+      &.blue{
+        background-color: @light-blue-a100;
+      }
+      &.red{
+        background-color: @red-a100;
+      }
+      &.green {
+        background-color: @light-green-a100;
+      }
     }
   }
-
 }

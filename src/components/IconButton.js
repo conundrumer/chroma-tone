@@ -98,19 +98,21 @@ var IconButton = React.createClass({
   },
 
   render() {
+    var style = this.props.style || {};
+    style.background = 'null';
+    style.transition = '0';
+    var className = 'icon-button' + (this.props.selected ? ' selected blue' : '');
     var icon = this.getIcon(this.props.icon);
-    var selectRing = <div className={'select-ring' + (this.props.selected ? ' selected' : '')} />;
+    // var selectRing = <div className={'select-ring' + (this.props.selected ? ' selected' : '')} />;
     if (icon) {
       return (
-        <MuiIconButton ref='iconButton' {...this.props}>
-          {selectRing}
+        <MuiIconButton className={className} ref='iconButton' {...this.props} style={style}>
           {icon}
         </MuiIconButton>
       );
     }
     return (
-      <MuiIconButton ref='iconButton' {...this.props}>
-        {selectRing}
+      <MuiIconButton className={className} ref='iconButton' {...this.props} style={style}>
         <FontIcon className={'mdi mdi-' + this.props.icon} />
       </MuiIconButton>
     );
