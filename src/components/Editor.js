@@ -20,8 +20,9 @@ function randomLines() {
   var lines = [];
   var limits = 900;
   var getNum = () => Math.random() * limits - 100;
+  var getLineType = () => Math.floor(3 * Math.random());
   for (let i = 0; i < 40; i++) {
-    lines.push([2 * getNum(), getNum(), 2 * getNum(), getNum()]);
+    lines.push([2 * getNum(), getNum(), 2 * getNum(), getNum(), getLineType()]);
   }
   return lines;
 }
