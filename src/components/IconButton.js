@@ -43,9 +43,11 @@ var IconButton = React.createClass({
   },
 
   componentWillUnmount() {
-    if (this.unbindHotkey) {
-      this.unbindHotkey();
-    }
+    // don't unbind since you can only bind one function at a time
+    // TODO: fix opening and closing rapidly causing stuff to not get binded
+    // if (this.unbindHotkey) {
+    //   this.unbindHotkey();
+    // }
   },
 
   bindHotkey(hotkey) {
@@ -56,18 +58,22 @@ var IconButton = React.createClass({
     combokeys.bind(hotkey, this.onHotkeyDown, 'keydown');
     combokeys.bind(hotkey, this.onHotkeyUp, 'keyup');
 
-    this.unbindHotkey = () => {
-      combokeys.unbind(hotkey, 'keydown');
-      combokeys.unbind(hotkey, 'keyup');
-    };
+    // this.unbindHotkey = () => {
+    //   combokeys.unbind(hotkey, 'keydown');
+    //   combokeys.unbind(hotkey, 'keyup');
+    // };
   },
 
   onHotkeyDown() {
-    this.setState({ keyPressed: true });
+    if (this.isMounted()) {
+      this.setState({ keyPressed: true });
+    }
   },
 
   onHotkeyUp() {
-    this.setState({ keyPressed: false });
+    if (this.isMounted()) {
+      this.setState({ keyPressed: false });
+    }
   },
 
   // lol
