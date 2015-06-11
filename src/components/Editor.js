@@ -50,23 +50,15 @@ var Editor = React.createClass({
     };
   },
 
-  componentWillMount() {
-    ThemeManager.setComponentThemes({
-      toolbar: {
-        backgroundColor: 'white'
-      }
-    });
-  },
-
   componentWillUnmount() {
     this.state.combokeys.detach();
   },
 
-  openToolbars() {
+  showToolbars() {
     this.setState({ toolbarsVisible: true });
   },
 
-  closeToolbars() {
+  hideToolbars() {
     this.setState({ toolbarsVisible: false });
   },
 
@@ -91,89 +83,92 @@ var Editor = React.createClass({
     var styles = this.getStyles();
 
     return {
-      floatLeft: [{
-        icon: 'undo-variant',
-        style: styles.floatCircle,
-        onClick: this.toggleDebug
-      }],
+      // editing tool group
+      line: { icon: 'line', hotkey: 'w', onClick: doNothing },
+      pencil: { icon: 'pencil', hotkey: 'q', onClick: doNothing },
+      brush: { icon: 'brush', onClick: doNothing },
+      curve: { icon: 'curve', onClick: doNothing },
+      multiLine: { icon: 'multi-line', onClick: doNothing },
+      select: { icon: 'cursor-default', onClick: doNothing },
+      eraser: { icon: 'eraser', hotkey: 'e', onClick: doNothing },
+      // track state group
+      save: { icon: 'content-save', hotkey: 'o', onClick: doNothing },
+      undo: { icon: 'undo-variant', style: styles.floatCircle, onClick: this.toggleDebug },
+      redo: { icon: 'redo-variant', onClick: doNothing },
+      // space navigation group
+      pan: { icon: 'cursor-move', hotkey: 'r', onClick: doNothing },
+      zoom: { icon: 'magnify', hotkey: 't', onClick: doNothing },
+      viewfinder: { icon: 'viewfinder', onClick: doNothing },
+      layers: { icon: 'layers', onClick: doNothing },
+      // time navigation group
+      play: { icon: 'play', hotkey: 'y', onClick: doNothing },
+      pause: { icon: 'pause', onClick: doNothing },
+      stop: { icon: 'stop', hotkey: 'u', onClick: doNothing },
+      rewind: { icon: 'rewind', onClick: doNothing },
+      fastFoward: { icon: 'fast-forward', onClick: doNothing },
+      stepBack: { icon: 'skip-previous', onClick: doNothing },
+      stepForward: { icon: 'skip-next', onClick: doNothing },
+      flag: { icon: 'flag-variant', hotkey: 'i', onClick: doNothing },
+      multiFlag: { icon: 'flag-outline-variant', onClick: doNothing },
+      onionSkin: { icon: 'onion-skin', onClick: doNothing },
+      // special feature group
+      camera: { icon: 'video', onClick: doNothing },
+      music: { icon: 'music-note', onClick: doNothing },
+      record: { icon: 'movie', onClick: doNothing },
+      // toolbar visibility group
+      showToolbars: { icon: 'chevron-down', style: styles.floatCircle, onClick: this.showToolbars },
+      hideToolbars: { icon: 'chevron-up', onClick: this.hideToolbars },
+      toggleTimeControl: { icon: this.state.timeControlVisible ? 'chevron-down' : 'chevron-up', onClick: this.toggleTimeControl },
+      // misc
+      chat: { icon: 'message', onClick: doNothing },
+      settings: { icon: 'settings', onClick: doNothing },
+      help: { icon: 'help-circle', hotkey: 'p', onClick: doNothing }
+    };
+  },
+
+  getButtonGroups() {
+    var b = this.getButtons();
+    var styles = this.getStyles();
+
+    var timeline = {
+      render: (i) =>
+      <div key={i} className='timeline'>
+        <input type='range' min={0} max={100} defaultValue={0} style={{width: '100%'}} />
+      </div>
+    };
+
+    var buttonGroups = {
+      floatLeft: [
+        b.undo
+      ],
       floatMiddle: [
-        { icon: 'pencil', hotkey: 'q', onClick: doNothing },
-        { icon: 'line', hotkey: 'w', onClick: doNothing },
-        { icon: 'eraser', hotkey: 'e', onClick: doNothing },
-        { icon: 'cursor-move', hotkey: 'r', onClick: doNothing },
-        { icon: 'magnify', hotkey: 't', onClick: doNothing },
-        { icon: 'play', hotkey: 'y', onClick: doNothing },
-        { icon: 'stop', hotkey: 'u', onClick: doNothing },
-        { icon: 'flag-variant', hotkey: 'i', onClick: doNothing },
-        { icon: 'content-save', hotkey: 'o', onClick: doNothing },
-        { icon: 'help-circle', hotkey: 'p', onClick: doNothing }
-      ].map(button => {
-          button.style = styles.smallIcon;
-          button.onTouchTap = () => this.setState({pressed: button.hotkey});
-          button.selected = (this.state.pressed === button.hotkey);
-          return button;
-      }),
-      floatRight: [{
-        icon: 'chevron-down',
-        style: styles.floatCircle,
-        onClick: this.openToolbars
-      }],
-      topLeft: [
-        { icon: 'content-save', onClick: doNothing },
-        { icon: 'undo-variant', onClick: doNothing },
-        { icon: 'redo-variant', onClick: doNothing }
+        b.pencil, b.line, b.eraser, b.pan, b.zoom, b.play, b.stop, b.flag, b.save, b.help
       ],
-      topMiddle: [
-        { icon: 'cursor-default', onClick: doNothing },
-        { icon: 'pencil', onClick: doNothing },
-        { icon: 'brush', onClick: doNothing },
-        { icon: 'line', onClick: doNothing },
-        { icon: 'curve', onClick: doNothing },
-        { icon: 'multi-line', onClick: doNothing },
-        { icon: 'eraser', onClick: doNothing }
+      floatRight: [
+        b.showToolbars
       ],
-      topRight: [
-        { icon: 'settings', onClick: doNothing },
-        { icon: 'message', onClick: doNothing },
-        { icon: 'chevron-up', onClick: this.closeToolbars }
+      topGroups: [
+        [ b.save, b.undo, b.redo ],
+        [ b.select, b.pencil, b.brush, b.line, b.curve, b.multiLine, b.eraser ],
+        [ b.settings, b.chat, b.hideToolbars ]
       ],
-      bottomLeft: [
-        { icon: 'layers', onClick: doNothing },
-        { icon: 'viewfinder', onClick: doNothing },
-        { icon: 'cursor-move', onClick: doNothing },
-        { icon: 'magnify', onClick: doNothing }
-      ],
-      bottomMiddle: [
-        { icon: 'flag-outline-variant', onClick: doNothing },
-        { icon: 'flag-variant', onClick: doNothing },
-        { icon: 'play', onClick: doNothing },
-        { icon: 'stop', onClick: doNothing },
-        { icon: 'pause', onClick: doNothing }
-      ],
-      bottomRight: [
-        { icon: 'video', onClick: doNothing },
-        { icon: 'movie', onClick: doNothing },
-        { icon: 'help-circle', onClick: doNothing },
-        {
-          icon: this.state.timeControlVisible ? 'chevron-down' : 'chevron-up',
-          onClick: this.toggleTimeControl
-        }
+      bottomGroups: [
+        [ b.layers, b.viewfinder, b.pan, b.zoom ],
+        [ b.multiFlag, b.flag, b.play, b.stop, b.pause ],
+        [ b.camera, b.record, b.help, b.toggleTimeControl ]
       ],
       timeControl: [
-        { icon: 'onion-skin', onClick: doNothing },
-        { icon: 'rewind', onClick: doNothing },
-        { icon: 'skip-previous', onClick: doNothing },
-        {
-          render: (i) =>
-          <div key={i} className='timeline'>
-            <input type='range' min={0} max={100} defaultValue={0} style={{width: '100%'}} />
-          </div>
-        },
-        { icon: 'skip-next', onClick: doNothing },
-        { icon: 'fast-forward', onClick: doNothing },
-        { icon: 'music-note', onClick: doNothing }
+        b.onionSkin, b.rewind, b.stepBack, timeline, b.stepForward, b.fastFoward, b.music
       ]
     };
+
+    buttonGroups.floatMiddle.forEach(button => {
+      button.style = styles.smallIcon;
+      button.onTouchTap = () => this.setState({pressed: button.hotkey});
+      button.selected = (this.state.pressed === button.hotkey);
+    });
+
+    return buttonGroups;
   },
 
   renderButtons(buttons) {
@@ -194,19 +189,19 @@ var Editor = React.createClass({
     );
   },
 
-  renderFloatBar(buttons) {
+  renderFloatBar(buttonGroups) {
     var floatPapersProps = [
-      { circle: true, children: this.renderButtons(buttons.floatLeft) },
+      { circle: true, children: this.renderButtons(buttonGroups.floatLeft) },
       {
         className: 'float-paper-bar',
         children:
           <Toolbar className='float-toolbar'>
             {
-              this.renderButtons(buttons.floatMiddle)
+              this.renderButtons(buttonGroups.floatMiddle)
             }
           </Toolbar>
       },
-      { circle: true, children: this.renderButtons(buttons.floatRight) }
+      { circle: true, children: this.renderButtons(buttonGroups.floatRight) }
     ];
 
     return (
@@ -226,7 +221,7 @@ var Editor = React.createClass({
     );
   },
 
-  renderTopBar(buttons) {
+  renderTopBar(buttonGroups) {
     return (
       <CSSTransitionGroup transitionName='top'>
         {
@@ -234,7 +229,7 @@ var Editor = React.createClass({
           <PaperBar className='top'>
             <Toolbar className='top'>
               {
-                this.renderButtonGroups([buttons.topLeft, buttons.topMiddle, buttons.topRight])
+                this.renderButtonGroups(buttonGroups.topGroups)
               }
             </Toolbar>
           </PaperBar>
@@ -244,7 +239,7 @@ var Editor = React.createClass({
     );
   },
 
-  renderBottomBar(buttons) {
+  renderBottomBar(buttonGroups) {
     var bottomPaperBarClass = this.state.timeControlVisible ? 'bottom-extended' : 'bottom';
 
     return (
@@ -254,7 +249,7 @@ var Editor = React.createClass({
           <PaperBar className={bottomPaperBarClass}>
             <Toolbar>
               {
-                this.renderButtonGroups([buttons.bottomLeft, buttons.bottomMiddle, buttons.bottomRight])
+                this.renderButtonGroups(buttonGroups.bottomGroups)
               }
             </Toolbar>
             <CSSTransitionGroup
@@ -265,7 +260,7 @@ var Editor = React.createClass({
                 this.state.timeControlVisible ?
                 <div className='toolbar-group time-control'>
                   {
-                    this.renderButtons(buttons.timeControl)
+                    this.renderButtons(buttonGroups.timeControl)
                   }
                 </div>
                 : null
@@ -279,14 +274,14 @@ var Editor = React.createClass({
   },
 
   render() {
-    var buttons = this.getButtons();
+    var buttonGroups = this.getButtonGroups();
 
     return (
       <div className='LR-Editor'>
         <SvgDisplay lines={LINES} />
-        { this.renderFloatBar(buttons) }
-        { this.renderTopBar(buttons) }
-        { this.renderBottomBar(buttons) }
+        { this.renderFloatBar(buttonGroups) }
+        { this.renderTopBar(buttonGroups) }
+        { this.renderBottomBar(buttonGroups) }
       </div>
     );
   }
