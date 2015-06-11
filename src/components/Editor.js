@@ -10,12 +10,11 @@ var ThemeManager = new mui.Styles.ThemeManager();
 var {Paper} = mui;
 var SvgDisplay = require('./SvgDisplay');
 var IconButton = require('./IconButton');
+var editorButtons = require('./editorButtons');
 
 //var Actions = require('actions/xxx')
 
 require('styles/Editor.less');
-
-function doNothing() {}
 
 function randomLines() {
   var lines = [];
@@ -37,6 +36,7 @@ var Editor = React.createClass({
       debugButtons: false,
       toolbarsVisible: false,
       timeControlVisible: false,
+      helpEnabled: false,
       combokeys: new Combokeys(document)
     };
   },
@@ -68,7 +68,15 @@ var Editor = React.createClass({
   },
 
   toggleDebug() {
-    this.setState({debugButtons: !this.state.debugButtons});
+    // this.setState({debugButtons: !this.state.debugButtons});
+  },
+
+  toggleHelp() {
+    this.setState({ helpEnabled: !this.state.helpEnabled });
+  },
+
+  setCursor(hotkey) {
+    this.setState({cursor: hotkey});
   },
 
   getStyles() {
@@ -82,60 +90,21 @@ var Editor = React.createClass({
   },
 
   getButtons() {
-    return {
-      // editing tool group
-      line: { icon: 'line', hotkey: 'w', onClick: doNothing },
-      pencil: { icon: 'pencil', hotkey: 'q', onClick: doNothing },
-      brush: { icon: 'brush', onClick: doNothing },
-      curve: { icon: 'curve', onClick: doNothing },
-      multiLine: { icon: 'multi-line', onClick: doNothing },
-      select: { icon: 'cursor-default', onClick: doNothing },
-      eraser: { icon: 'eraser', hotkey: 'e', onClick: doNothing },
-      // track state group
-      save: { icon: 'content-save', hotkey: 'o', onClick: doNothing },
-      undo: { icon: 'undo-variant', onClick: this.toggleDebug },
-      redo: { icon: 'redo-variant', onClick: doNothing },
-      // space navigation group
-      pan: { icon: 'cursor-move', hotkey: 'r', onClick: doNothing },
-      zoom: { icon: 'magnify', hotkey: 't', onClick: doNothing },
-      viewfinder: { icon: 'viewfinder', onClick: doNothing },
-      layers: { icon: 'layers', onClick: doNothing },
-      // time navigation group
-      play: { icon: 'play', hotkey: 'y', onClick: doNothing },
-      pause: { icon: 'pause', onClick: doNothing },
-      stop: { icon: 'stop', hotkey: 'u', onClick: doNothing },
-      rewind: { icon: 'rewind', onClick: doNothing },
-      fastFoward: { icon: 'fast-forward', onClick: doNothing },
-      stepBack: { icon: 'skip-previous', onClick: doNothing },
-      stepForward: { icon: 'skip-next', onClick: doNothing },
-      flag: { icon: 'flag-variant', hotkey: 'i', onClick: doNothing },
-      multiFlag: { icon: 'flag-outline-variant', onClick: doNothing },
-      onionSkin: { icon: 'onion-skin', onClick: doNothing },
-      // special feature group
-      camera: { icon: 'video', onClick: doNothing },
-      music: { icon: 'music-note', onClick: doNothing },
-      record: { icon: 'movie', onClick: doNothing },
-      // toolbar visibility group
-      showToolbars: { icon: 'chevron-down', onClick: this.showToolbars },
-      hideToolbars: { icon: 'chevron-up', onClick: this.hideToolbars },
-      toggleTimeControl: { icon: 'chevron-down', onClick: this.toggleTimeControl },
-      // misc
-      chat: { icon: 'message', onClick: doNothing },
-      settings: { icon: 'settings', onClick: doNothing },
-      help: { icon: 'help-circle', hotkey: 'p', onClick: doNothing }
-    };
+    return editorButtons(this);
   },
 
   getButtonGroups() {
     var b = this.getButtons();
     var styles = this.getStyles();
 
-    b.toggleTimeControl.style = styles.defaultIcon;
-    b.toggleTimeControl.style.transform = this.state.timeControlVisible ? 'rotate(0deg)' : 'rotate(180deg)';
+    b.toggleTimeControl.iconStyle = {};
+    b.toggleTimeControl.iconStyle.transform = this.state.timeControlVisible ? 'rotate(0deg)' : 'rotate(180deg)';
 
     var floatUndo = _.clone(b.undo);
     floatUndo.style = styles.floatCircle;
     b.showToolbars.style = styles.floatCircle;
+    b.help.selected = this.state.helpEnabled;
+    b.help.selectedColor = 'green';
 
     var timeline = {
       render: (i) =>
@@ -175,6 +144,12 @@ var Editor = React.createClass({
       return button;
     });
 
+    buttonGroups.bottomGroups.concat([buttonGroups.timeControl]).forEach(buttonGroup => {
+      buttonGroup.forEach(button => {
+        button.upwardsTooltip = true;
+      });
+    });
+
     return buttonGroups;
   },
 
@@ -188,8 +163,8 @@ var Editor = React.createClass({
           key={i}
           style={button.style || this.getStyles().defaultIcon}
           combokeys={this.state.combokeys}
-          selected={this.state.pressed && this.state.pressed === button.hotkey}
-          onTouchTap={button.hotkey && (() => this.setState({pressed: button.hotkey}))}
+          showTooltip={this.state.helpEnabled}
+          selected={button.selected || this.state.cursor && this.state.cursor === button.hotkey}
         />
     );
   },
