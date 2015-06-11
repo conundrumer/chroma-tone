@@ -11,6 +11,7 @@
   "mainOutput": "main",
   "dependencies": {
     "combokeys": "^2.4.3",
+    "lodash": "^3.9.3",
     "material-ui": "^0.8.0",
     "mdi": "^1.0.62-beta",
     "normalize.css": "~3.0.3",

@@ -23,7 +23,8 @@ var IconButton = React.createClass({
     return this.props.icon !== nextProps.icon ||
       this.props.hotkey !== nextProps.hotkey ||
       this.state.keyPressed !== nextState.keyPressed ||
-      this.props.selected !== nextProps.selected;
+      this.props.selected !== nextProps.selected ||
+      !!this.props.style && !!nextProps.style && this.props.style.transform !== nextProps.style.transform;
   },
 
   componentWillUpdate(nextProps, nextState) {

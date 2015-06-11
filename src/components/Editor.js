@@ -1,5 +1,6 @@
 'use strict';
 
+var _ = require('lodash');
 var React = require('react/addons');
 var Combokeys = require('combokeys');
 var CSSTransitionGroup = React.addons.CSSTransitionGroup;
@@ -73,15 +74,14 @@ var Editor = React.createClass({
   getStyles() {
     var styles = {
       floatCircle: { padding: '0px', width: 42, height: 42 },
-      smallIcon: { padding: '6px', width: 36, height: 36, margin: '3px' }
+      smallIcon: { padding: '6px', width: 36, height: 36, margin: '3px' },
+      defaultIcon: { padding: '9px', width: 42, height: 42, margin: '3px' }
     };
 
     return styles;
   },
 
   getButtons() {
-    var styles = this.getStyles();
-
     return {
       // editing tool group
       line: { icon: 'line', hotkey: 'w', onClick: doNothing },
@@ -93,7 +93,7 @@ var Editor = React.createClass({
       eraser: { icon: 'eraser', hotkey: 'e', onClick: doNothing },
       // track state group
       save: { icon: 'content-save', hotkey: 'o', onClick: doNothing },
-      undo: { icon: 'undo-variant', style: styles.floatCircle, onClick: this.toggleDebug },
+      undo: { icon: 'undo-variant', onClick: this.toggleDebug },
       redo: { icon: 'redo-variant', onClick: doNothing },
       // space navigation group
       pan: { icon: 'cursor-move', hotkey: 'r', onClick: doNothing },
@@ -116,9 +116,9 @@ var Editor = React.createClass({
       music: { icon: 'music-note', onClick: doNothing },
       record: { icon: 'movie', onClick: doNothing },
       // toolbar visibility group
-      showToolbars: { icon: 'chevron-down', style: styles.floatCircle, onClick: this.showToolbars },
+      showToolbars: { icon: 'chevron-down', onClick: this.showToolbars },
       hideToolbars: { icon: 'chevron-up', onClick: this.hideToolbars },
-      toggleTimeControl: { icon: this.state.timeControlVisible ? 'chevron-down' : 'chevron-up', onClick: this.toggleTimeControl },
+      toggleTimeControl: { icon: 'chevron-down', onClick: this.toggleTimeControl },
       // misc
       chat: { icon: 'message', onClick: doNothing },
       settings: { icon: 'settings', onClick: doNothing },
@@ -130,6 +130,14 @@ var Editor = React.createClass({
     var b = this.getButtons();
     var styles = this.getStyles();
 
+    b.toggleTimeControl.style = {
+      transform: this.state.timeControlVisible ? 'rotate(0deg)' : 'rotate(180deg)'
+    };
+
+    var floatUndo = _.clone(b.undo);
+    floatUndo.style = styles.floatCircle;
+    b.showToolbars.style = styles.floatCircle;
+
     var timeline = {
       render: (i) =>
       <div key={i} className='timeline'>
@@ -139,7 +147,7 @@ var Editor = React.createClass({
 
     var buttonGroups = {
       floatLeft: [
-        b.undo
+        floatUndo
       ],
       floatMiddle: [
         b.pencil, b.line, b.eraser, b.pan, b.zoom, b.play, b.stop, b.flag, b.save, b.help
@@ -162,10 +170,10 @@ var Editor = React.createClass({
       ]
     };
 
-    buttonGroups.floatMiddle.forEach(button => {
+    buttonGroups.floatMiddle = buttonGroups.floatMiddle.map(button => {
+      button = _.clone(button);
       button.style = styles.smallIcon;
-      button.onTouchTap = () => this.setState({pressed: button.hotkey});
-      button.selected = (this.state.pressed === button.hotkey);
+      return button;
     });
 
     return buttonGroups;
@@ -177,7 +185,13 @@ var Editor = React.createClass({
         button.render(i) :
       this.state.debugButtons ?
         <button key={i} style={{width: 48, height: 48, padding: 0}} {...button} /> :
-        <IconButton {...button} key={i} combokeys={this.state.combokeys} />
+        <IconButton {...button}
+          key={i}
+          style={button.style || this.getStyles().defaultIcon}
+          combokeys={this.state.combokeys}
+          selected={this.state.pressed && this.state.pressed === button.hotkey}
+          onTouchTap={button.hotkey && (() => this.setState({pressed: button.hotkey}))}
+        />
     );
   },
 
