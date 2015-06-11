@@ -130,9 +130,8 @@ var Editor = React.createClass({
     var b = this.getButtons();
     var styles = this.getStyles();
 
-    b.toggleTimeControl.style = {
-      transform: this.state.timeControlVisible ? 'rotate(0deg)' : 'rotate(180deg)'
-    };
+    b.toggleTimeControl.style = styles.defaultIcon;
+    b.toggleTimeControl.style.transform = this.state.timeControlVisible ? 'rotate(0deg)' : 'rotate(180deg)';
 
     var floatUndo = _.clone(b.undo);
     floatUndo.style = styles.floatCircle;
