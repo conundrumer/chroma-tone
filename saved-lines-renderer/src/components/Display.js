@@ -2,6 +2,11 @@
 
 var React = require('react');
 var LINE_WIDTH = 2;
+var LINE_WIDTH_ZOOM_FACTOR = 0.001;
+
+function getZoomFactor(zoom) {
+  return Math.max(1, Math.pow(zoom * LINE_WIDTH_ZOOM_FACTOR, 0.5));
+}
 
 function getViewBox(lines) {
     // console.log('lines', lines)
@@ -59,7 +64,7 @@ var Line = React.createClass({
         x2={this.props.x2}
         y2={this.props.y2}
         stroke={this.props.color}
-        strokeWidth={LINE_WIDTH}
+        strokeWidth={LINE_WIDTH * getZoomFactor(this.props.zoom)}
         strokeLinecap='round'
       />
     );
@@ -78,11 +83,14 @@ var Display = React.createClass({
   render() {
     var lines = this.props.track.lines;
     var viewBox = this.props.viewBox || getViewBox(lines).join(' ');
+    var dim = viewBox.split(' ');
+    var zoom = dim[2]; // width
+    // console.log(getZoomFactor(zoom));
     return (
       <svg style={displayStyle} viewBox={viewBox}>
       {
         lines.map((line, i) =>
-          <Line {...line} key={i} color={this.props.color ? getColor(line.type) : 'black'}/>
+          <Line {...line} key={i} color={this.props.color ? getColor(line.type) : 'black'} zoom={zoom}/>
         )
       }
       </svg>
