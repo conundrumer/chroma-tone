@@ -17,6 +17,6 @@
   },
   "homepage": "https://github.com/conundrumer/lr-legacy-core",
   "dependencies": {
-    "amf": "^0.1.0"
+    "amf": "TooTallNate/node-amf"
   }
 }

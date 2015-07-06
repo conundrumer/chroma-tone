@@ -14,7 +14,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "amf": "^0.1.0",
+    "amf": "TooTallNate/node-amf",
     "buffer": "^3.2.2",
     "lodash": "^3.9.1",
     "normalize-css": "^2.3.1",
