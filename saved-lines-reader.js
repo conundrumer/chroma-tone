@@ -13,8 +13,8 @@ saved lines schema:
         y2: float,
         extension: int (0-3),
         flipped: int (0-1),
-        snap1: int,
-        snap2: int,
+        prevLine: int,
+        nextLine: int,
         id: int,
         type: int (0-2)
       },
@@ -34,8 +34,8 @@ var LINE_ATTRIBUTES = [
 'y2',
 'extension',
 'flipped',
-'snap1',
-'snap2',
+'prevLine',
+'nextLine',
 'id',
 'type'
 ];
