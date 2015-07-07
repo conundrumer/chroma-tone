@@ -11,7 +11,7 @@ saved lines schema:
         y1: float,
         x2: float,
         y2: float,
-        extension: int (0-3),
+        extended: int (0-3),
         flipped: int (0-1),
         prevLine: int,
         nextLine: int,
