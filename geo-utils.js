@@ -25,6 +25,15 @@ module.exports = {
         [left, top], [left, bottom], [right, top], [right, bottom]
       ].map( c => { return {x: c[0], y: c[1]}; } )
     };
+  },
+
+  inBounds(p, box) {
+    return (
+         p.x >= box.left
+      && p.x <= box.right
+      && p.y >= box.top
+      && p.y <= box.bottom
+    );
   }
 
 };
