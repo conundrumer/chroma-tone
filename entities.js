@@ -3,8 +3,6 @@
  */
 var _ = require('lodash');
 
-var id = 0;
-
 /* Point
  *
  * public:
@@ -20,7 +18,8 @@ var id = 0;
  */
 function Point(x, y, friction, airFriction) {
 
-  this.id = id++; // debug
+  // TODO: should I use point IDs???
+  // this.id = id++; // debug
 
   // position
   this.x = x;
