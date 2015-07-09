@@ -221,8 +221,6 @@ Rider.prototype = {
         }
       });
 
-      console.log('iteration:', i);
-
       if (this.debug) {
         this.points.forEach( (p, pIdx) => collideFn(p, (line, j) => {
           // onCollide
