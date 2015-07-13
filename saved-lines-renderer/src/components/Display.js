@@ -3,6 +3,8 @@
 var React = require('react');
 var _ = require('lodash');
 
+var Rider = require('./Rider');
+
 var LINE_WIDTH = 2;
 var LINE_WIDTH_ZOOM_FACTOR = 0.001;
 var MARGIN = 20;
@@ -189,6 +191,7 @@ var Display = React.createClass({
     return (
       <svg style={displayStyle} viewBox={this.getViewBox()}>
         { _.flatten(this.props.track.lines.map(this.renderLineArray)) }
+        <Rider rider={this.props.rider} zoom={this.getZoomFactor()} />
       </svg>
     );
   }

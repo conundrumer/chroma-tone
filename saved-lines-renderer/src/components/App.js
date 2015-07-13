@@ -11,6 +11,7 @@ var App = React.createClass({
 
   getInitialState() {
     return {
+      rider: null,
       tracks: [],
       track: null,
       selected: '',
@@ -28,7 +29,8 @@ var App = React.createClass({
     track.label = trackData.label;
     this.setState({
       track: track,
-      selected: e.target.value
+      selected: e.target.value,
+      rider: track.getRiderAtFrame(0)
     });
   },
 
