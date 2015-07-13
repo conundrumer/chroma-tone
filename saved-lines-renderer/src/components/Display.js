@@ -3,6 +3,13 @@
 var React = require('react');
 var LINE_WIDTH = 2;
 var LINE_WIDTH_ZOOM_FACTOR = 0.001;
+var MARGIN = 20;
+
+function getLength(x1, y1, x2, y2) {
+  let dx = x2 - x1;
+  let dy = y2 - y1;
+  return Math.sqrt(dx * dx + dy * dy);
+}
 
 function getZoomFactor(zoom) {
   return Math.max(1, Math.pow(zoom * LINE_WIDTH_ZOOM_FACTOR, 0.5));
@@ -36,10 +43,10 @@ function getViewBox(lines) {
         Number.MIN_VALUE
     ]);
     return [
-        box[0] - LINE_WIDTH, // top
-        box[1] - LINE_WIDTH, // left
-        box[2] - box[0] + 2 * LINE_WIDTH, // width
-        box[3] - box[1] + 2 * LINE_WIDTH // height
+        box[0] - LINE_WIDTH - MARGIN, // top
+        box[1] - LINE_WIDTH - MARGIN, // left
+        box[2] - box[0] + 2 * MARGIN, // width
+        box[3] - box[1] + 2 * MARGIN // height
     ];
 }
 
