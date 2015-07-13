@@ -5,7 +5,7 @@ var React = require('react');
 var Display = require('./Display');
 require('buffer');
 
-var NoGridTrack = require('../track').NoGridTrack;
+var Track = require('../track').Track;
 
 var App = React.createClass({
 
@@ -16,6 +16,7 @@ var App = React.createClass({
       selected: '',
       timer: false,
       frame: 0,
+      grid: false,
       slowmo: false,
       floor: false,
       accArrow: false,
@@ -27,7 +28,7 @@ var App = React.createClass({
   onSelectTrack(e) {
     let trackData = this.state.tracks[e.target.value];
     let startPos = trackData.startPosition;
-    let track = new NoGridTrack(trackData.lines, { x: startPos[0], y: startPos[1] });
+    let track = new Track(trackData.lines, { x: startPos[0], y: startPos[1] });
     track.label = trackData.label;
     this.setState({
       track: track,
@@ -119,7 +120,7 @@ var App = React.createClass({
               : null
           }
         </p>
-        { this.renderToggle('color') }
+        { ['grid', 'color'].map(this.renderToggle) }
         {
           this.state.color ?
             ['floor', 'accArrow', 'snapDot'].map(this.renderToggle)

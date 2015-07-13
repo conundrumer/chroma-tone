@@ -3,6 +3,7 @@
 var React = require('react');
 
 var Rider = require('./Rider');
+var Grid = require('./Grid');
 
 var LINE_WIDTH = 2;
 var LINE_WIDTH_ZOOM_FACTOR = 0.001;
@@ -222,6 +223,11 @@ var Display = React.createClass({
   render() {
     return (
       <svg style={displayStyle} viewBox={this.getViewBox()}>
+        {
+          this.props.grid ?
+            <Grid grid={this.props.track.store.grid} zoom={this.getZoomFactor()} />
+          : null
+        }
         <LineDisplay {...this.props} zoom={this.getZoomFactor()} lines={this.props.track.lines} />
         <Rider rider={this.props.rider} zoom={this.getZoomFactor()} />
       </svg>
