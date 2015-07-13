@@ -12,6 +12,9 @@ var App = React.createClass({
       tracks: [],
       track: null,
       selected: '',
+      floor: false,
+      accArrow: false,
+      snapDot: false,
       color: false
     };
   },
@@ -25,6 +28,18 @@ var App = React.createClass({
 
   onToggleColor() {
     this.setState({color: !this.state.color});
+  },
+
+  onToggleFloor() {
+    this.setState({floor: !this.state.floor});
+  },
+
+  onToggleAccArrow() {
+    this.setState({accArrow: !this.state.accArrow});
+  },
+
+  onToggleSnapDot() {
+    this.setState({snapDot: !this.state.snapDot});
   },
 
   onFileInput(e) {
@@ -69,11 +84,25 @@ var App = React.createClass({
           }
         </p>
         <p>
-          Toggle color: <input type="checkbox" onChange={this.onToggleColor} />
+          Toggle color: <input type="checkbox" checked={this.state.color} onChange={this.onToggleColor} />
         </p>
         {
+          this.state.color ?
+          <div>
+            <p>
+              Toggle floor: <input type="checkbox" checked={this.state.floor} onChange={this.onToggleFloor} />
+            </p>
+            <p>
+              Toggle acceleration arrow: <input type="checkbox" checked={this.state.accArrow} onChange={this.onToggleAccArrow} />
+            </p>
+            <p>
+              Toggle snap dot: <input type="checkbox" checked={this.state.snapDot} onChange={this.onToggleSnapDot} />
+            </p>
+          </div> : null
+        }
+        {
           this.state.track ?
-            <Display track={this.state.track} color={this.state.color} />
+            <Display {...this.state} />
             : null
         }
       </div>
