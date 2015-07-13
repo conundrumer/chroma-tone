@@ -155,11 +155,15 @@ SolidLine.prototype = _.create(Line.prototype, {
 
   type: LINE.SOLID,
 
+  // this getter is not working :| because lodash isn't doing it right
   // ratio of line length
   // max absolute length: 10
   // ^ this happens when the line length is at least 40
-  get extension() {
-    Math.min(MIN_EXTENSION_RATIO, MAX_NORMAL_FORCE_LENGTH / this.length);
+  // get extension() {
+  //   return Math.min(MIN_EXTENSION_RATIO, MAX_NORMAL_FORCE_LENGTH / this.length);
+  // },
+  getExtension() {
+    return Math.min(MIN_EXTENSION_RATIO, MAX_NORMAL_FORCE_LENGTH / this.length);
   },
 
   // wtf why doesn't this setter work
@@ -170,8 +174,8 @@ SolidLine.prototype = _.create(Line.prototype, {
   // },
   setExtended(extended) {
     this.extendedType = extended;
-    this.leftBound = (LEFT_EXTENDED & extended) ? -this.extension : 0;
-    this.rightBound = (RIGHT_EXTENDED & extended) ? 1 + this.extension : 1;
+    this.leftBound = (LEFT_EXTENDED & extended) ? -this.getExtension() : 0;
+    this.rightBound = (RIGHT_EXTENDED & extended) ? 1 + this.getExtension() : 1;
   },
 
   // aka g-well, returns the area under the influence of the normal force
