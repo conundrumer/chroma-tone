@@ -225,7 +225,7 @@ var Display = React.createClass({
       <svg style={displayStyle} viewBox={this.getViewBox()}>
         {
           this.props.grid ?
-            <Grid grid={this.props.track.store.grid} zoom={this.getZoomFactor()} />
+            <Grid {...this.props} grid={this.props.track.store.grid} zoom={this.getZoomFactor()} />
           : null
         }
         <LineDisplay {...this.props} zoom={this.getZoomFactor()} lines={this.props.track.lines} />

@@ -96,7 +96,7 @@ var App = React.createClass({
     }
     return (
       <p key={key}>
-        Toggle {key}: <input type="checkbox" checked={this.state[key]} onChange={this.onToggle(key)} />
+        {key}: <input type="checkbox" checked={this.state[key]} onChange={this.onToggle(key)} />
       </p>
     );
   },
