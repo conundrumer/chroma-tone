@@ -1,7 +1,6 @@
 'use strict';
 
 var React = require('react');
-var _ = require('lodash');
 
 var Rider = require('./Rider');
 
@@ -133,11 +132,80 @@ var AccArrow = React.createClass({
 
 });
 
+var TrackLine = React.createClass({
+  render() {
+    let {
+      line,
+      zoom,
+      color,
+      floor,
+      accArrow,
+      snapDot
+    } = this.props;
+
+    let r = LINE_WIDTH * zoom / 2;
+    let isScenery = (line.type === 2);
+    if (!color || isScenery) {
+      return <Line {...line} color={ color ? getColor(2) : 'black'} zoom={zoom}/>;
+    }
+    let parts = [
+      <Line key={1} {...line} color={getColor(line.type)} zoom={zoom}/>
+    ];
+    if (floor) {
+      parts = parts.concat([
+        <FloorLine key={2} {...line} zoom={zoom}/>
+      ]);
+    }
+    if (accArrow && line.type === 1) {
+      parts = [
+        <AccArrow key={3} {...line} zoom={zoom} />
+      ].concat(parts);
+    }
+    if (!snapDot) {
+      return <g>{parts}</g>;
+    }
+    if (line.extendedType & 1) { // left extension
+      parts = parts.concat([
+        <circle key={4} cx={line.x1} cy={line.y1} r={r} fill='black' />
+      ]);
+    }
+    if (line.extendedType & 2) { // right extension
+      parts = parts.concat([
+        <circle key={5} cx={line.x2} cy={line.y2} r={r} fill='black' />
+      ]);
+    }
+    return <g>{parts}</g>;
+  }
+});
+
 var displayStyle = {
   position: 'absolute',
   width: '100%',
   height: '100%'
 };
+
+var LineDisplay = React.createClass({
+
+  shouldComponentUpdate(nextProps, nextState) {
+    let keys = ['zoom', 'color', 'floor', 'accArrow', 'snapDot'];
+
+    return this.props.track.label !== nextProps.track.label ||
+      keys.some((key) => this.props[key] !== nextProps[key]) ||
+      this.props.lines.length !== nextProps.lines.length;
+  },
+
+  render() {
+    return (
+      <g>
+        {
+          this.props.lines.map((line, i) =>
+            <TrackLine {...this.props} key={i} line={line} zoom={this.props.zoom} />
+          )
+        }
+      </g>
+    );
+  }
+});
 
 var Display = React.createClass({
 
@@ -151,46 +219,10 @@ var Display = React.createClass({
     return Math.max(1, Math.pow(zoom * LINE_WIDTH_ZOOM_FACTOR, 0.5));
   },
 
-  renderLineArray(line, i) {
-    let zoom = this.getZoomFactor();
-    let r = LINE_WIDTH * zoom / 2;
-    let isScenery = (line.type === 2);
-    if (!this.props.color || isScenery) {
-      return [ <Line {...line} key={i} color={ this.props.color ? getColor(2) : 'black'} zoom={zoom}/> ];
-    }
-    let parts = [
-      <Line {...line} key={i} color={getColor(line.type)} zoom={zoom}/>
-    ];
-    if (this.props.floor) {
-      parts = parts.concat([
-        <FloorLine {...line} key={-i - 1} zoom={zoom}/>
-      ]);
-    }
-    if (this.props.accArrow && line.type === 1) {
-      parts = [
-        <AccArrow {...line} key={'_' + i} zoom={zoom} />
-      ].concat(parts);
-    }
-    if (!this.props.snapDot) {
-      return parts;
-    }
-    if (line.extendedType & 1) { // left extension
-      parts = parts.concat([
-        <circle key={'e'+i} cx={line.x1} cy={line.y1} r={r} fill='black' />
-      ]);
-    }
-    if (line.extendedType & 2) { // right extension
-      parts = parts.concat([
-        <circle key={'e'+(-i-1)} cx={line.x2} cy={line.y2} r={r} fill='black' />
-      ]);
-    }
-    return parts;
-  },
-
   render() {
     return (
       <svg style={displayStyle} viewBox={this.getViewBox()}>
-        { _.flatten(this.props.track.lines.map(this.renderLineArray)) }
+        <LineDisplay {...this.props} zoom={this.getZoomFactor()} lines={this.props.track.lines} />
         <Rider rider={this.props.rider} zoom={this.getZoomFactor()} />
       </svg>
     );
