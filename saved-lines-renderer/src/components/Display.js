@@ -172,12 +172,12 @@ var Display = React.createClass({
     if (!this.props.snapDot) {
       return parts;
     }
-    if (line.extended & 1) { // left extension
+    if (line.extendedType & 1) { // left extension
       parts = parts.concat([
         <circle key={'e'+i} cx={line.x1} cy={line.y1} r={r} fill='black' />
       ]);
     }
-    if (line.extended & 2) { // right extension
+    if (line.extendedType & 2) { // right extension
       parts = parts.concat([
         <circle key={'e'+(-i-1)} cx={line.x2} cy={line.y2} r={r} fill='black' />
       ]);

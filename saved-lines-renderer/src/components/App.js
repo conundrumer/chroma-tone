@@ -5,6 +5,8 @@ var React = require('react');
 var Display = require('./Display');
 require('buffer');
 
+var NoGridTrack = require('../track').NoGridTrack;
+
 var App = React.createClass({
 
   getInitialState() {
@@ -20,8 +22,12 @@ var App = React.createClass({
   },
 
   onSelectTrack(e) {
+    let trackData = this.state.tracks[e.target.value];
+    let startPos = trackData.startPosition;
+    let track = new NoGridTrack(trackData.lines, { x: startPos[0], y: startPos[1] });
+    track.label = trackData.label;
     this.setState({
-      track: this.state.tracks[e.target.value],
+      track: track,
       selected: e.target.value
     });
   },
