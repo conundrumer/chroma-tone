@@ -13,8 +13,8 @@ saved lines schema:
         y2: float,
         extended: int (0-3),
         flipped: int (0-1),
-        prevLine: int,
-        nextLine: int,
+        leftLine: int,
+        rightLine: int,
         id: int,
         type: int (0-2)
       },
@@ -32,10 +32,10 @@ var LINE_ATTRIBUTES = [
 'y1',
 'x2',
 'y2',
-'extension',
+'extended',
 'flipped',
-'prevLine',
-'nextLine',
+'leftLine',
+'rightLine',
 'id',
 'type'
 ];
@@ -146,6 +146,8 @@ module.exports = savedLinesReader;
 //     var lines = track.lines;
 //     delete track.lines;
 //     console.log(track);
-//     console.log('Line count:', lines.length);
+//     // console.log('Line count:', lines.length);
+//     console.log('--- Lines ---');
+//     console.log(lines);
 //   });
 // });
