@@ -109,6 +109,7 @@ GridStore.prototype = _.create(LineStore.prototype, {
 
     this.addLineToCell(line, cellPosStart);
     if (line.dx === 0 && line.dy === 0 || cellPosStart.x === cellPosEnd.x && cellPosStart.y === cellPosEnd.y) {
+      // console.log('added xy line cell');
       return; // done
     }
 
@@ -117,10 +118,10 @@ GridStore.prototype = _.create(LineStore.prototype, {
     let getNextPos;
 
     if (line.dx === 0) {
-      getNextPos = (x, y, dx, dy) => { return { x: x, y: y + dy }; };
+      getNextPos = (l, x, y, dx, dy) => { return { x: x, y: y + dy }; };
 
     } else if (line.dy === 0) {
-      getNextPos = (x, y, dx, dy) => { return { x: x + dx, y: y }; };
+      getNextPos = (l, x, y, dx, dy) => { return { x: x + dx, y: y }; };
 
     } else {
       getNextPos = this.getNextPos;
@@ -129,11 +130,11 @@ GridStore.prototype = _.create(LineStore.prototype, {
     let addNextCell = (cellPos, pos) => {
       let d = this.getDelta(line, cellPos);
 
-      let nextPos = getNextPos(pos.x, pos.y, d.x, d.y);
+      let nextPos = getNextPos(line, pos.x, pos.y, d.x, d.y);
       let nextCellPos = getCellPos(nextPos.x, nextPos.y);
 
       if (inBounds(nextCellPos, box)) {
-        this.addLineToCell(line, nextCellPos.x, nextCellPos.y);
+        this.addLineToCell(line, nextCellPos);
         addNextCell(nextCellPos, nextPos);
       }
     };
@@ -197,6 +198,7 @@ GridStore.prototype = _.create(LineStore.prototype, {
       return; // no duplicates!!!
     }
 
+    // TODO: separate these grids
     if (line.type !== LINE.SCENERY) {
       this.grid[cellPos.x][cellPos.y].solidLines.push(line);
     }
@@ -293,6 +295,7 @@ OldGridStore.prototype = _.create(GridStore.prototype, {
 });
 
 module.exports = {
+  GRIDSIZE: GRIDSIZE,
   LineStore: LineStore,
   GridStore: GridStore,
   OldGridStore: OldGridStore
