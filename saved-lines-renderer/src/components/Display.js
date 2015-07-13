@@ -51,18 +51,20 @@ function getViewBox(lines) {
 }
 
 function getColor(type) {
+  var blue500 = '#2196F3';
+  var red500 = '#F44336';
+  var lightGreen500 = '#8BC34A';
   switch (type) {
     case 0: // normal
-      return 'blue';
+      return blue500;
     case 1: // acc
-      return 'red';
+      return red500;
     case 2: // scenery
-      return 'green';
+      return lightGreen500;
   }
 }
 
 var Line = React.createClass({
-
   render() {
     return (
       <line
