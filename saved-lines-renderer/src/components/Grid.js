@@ -3,6 +3,10 @@ var _ = require('lodash');
 
 var GRIDSIZE = require('../line-store').GRIDSIZE;
 
+function parseCellCor(x) {
+  return parseInt(x.toString().replace(/[^\d.-]/g, ''));
+}
+
 var Grid = React.createClass({
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -13,19 +17,20 @@ var Grid = React.createClass({
       this.props.track.lines.length !== nextProps.track.lines.length;
   },
 
-  renderCell(x, y) {
-    let k = this.props.zoom;
-    let numLines = this.props.grid[x][y].solidLines.length;
+  renderCell(keyX, keyY, x, y) {
+    let cell = this.props.grid[keyX][keyY];
+    let lines = cell.solidLines || cell.storage2;
+    let numLines = Object.keys(lines).length;
     let numLinesRed = (numLines > 0) ? 255 : 230;
     let numLinesBlue = numLines > 0 ? Math.round(255 / Math.pow(1+numLines, 0.4)) : 230;
     let numLinesGreen = numLines > 0 ? Math.round(255 / Math.pow(1+numLines, 0.2)) : 240;
     return (
       <rect
         key={`${x}_${y}`}
-        x={k * x * GRIDSIZE}
-        y={k * y * GRIDSIZE}
-        width={k * GRIDSIZE}
-        height={k * GRIDSIZE}
+        x={x * GRIDSIZE}
+        y={y * GRIDSIZE}
+        width={GRIDSIZE}
+        height={GRIDSIZE}
         fill={`rgb(${numLinesRed}, ${numLinesGreen}, ${numLinesBlue})`}
       />
     );
@@ -39,7 +44,7 @@ var Grid = React.createClass({
           _.flatten(
             _.keys(g).map( x =>
               _.keys(g[x]).map( y =>
-                this.renderCell(parseInt(x), parseInt(y))
+                this.renderCell(x, y, parseCellCor(x), parseCellCor(y))
               )
             )
           )
