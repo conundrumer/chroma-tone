@@ -56,7 +56,7 @@ var SOL_NAME_OFFSETS = {
 };
 
 var HEADER = {
-  MAGIC: 0X00bf,
+  MAGIC: 0x00bf,
   MARKER_TAG: 'TCSO',
   MARKER: 0x000400000000,
   PADDING: 0x00000000,
@@ -64,56 +64,77 @@ var HEADER = {
   DATA_NAME: 'trackList'
 };
 
+function getTracksDataOffset(data) {
+  var fileSize, nameLength, paddingOffset, tracksDataOffset;
+
+  [{
+    name: 'Magic Number',
+    value: HEADER.MAGIC,
+    read: () => data.readUInt16BE(OFFSETS.MAGIC)
+  }, {
+    name: 'Marker Tag',
+    value: HEADER.MARKER_TAG,
+    read: () => {
+      fileSize = data.readUInt32BE(OFFSETS.FILE_SIZE);
+      return data.toString('utf8', OFFSETS.TAG, OFFSETS.MARKER);
+    }
+  }, {
+    name: 'Marker',
+    value: HEADER.MARKER,
+    read: () => data.readUIntBE(OFFSETS.MARKER, OFFSETS.SOL_NAME_LENGTH - OFFSETS.MARKER)
+  }, {
+    name: 'Shared Object Name',
+    value: HEADER.SOL_NAME,
+    read: () => {
+      nameLength = data.readUInt16BE(OFFSETS.SOL_NAME_LENGTH);
+      paddingOffset = OFFSETS.SOL_NAME + nameLength + SOL_NAME_OFFSETS.PADDING;
+      return data.toString('utf8', OFFSETS.SOL_NAME, paddingOffset);
+    }
+  }, {
+    name: 'Padding',
+    value: HEADER.PADDING,
+    read: () => data.readUInt32BE(paddingOffset)
+  }, {
+    name: 'Data Name',
+    value: HEADER.DATA_NAME,
+    read: () => {
+      let dataNameLengthOffset = OFFSETS.SOL_NAME + nameLength + SOL_NAME_OFFSETS.DATA_NAME_LENGTH;
+      let dataNameOffset = OFFSETS.SOL_NAME + nameLength + SOL_NAME_OFFSETS.DATA_NAME;
+      let dataNameLength = data.readUInt16BE(dataNameLengthOffset);
+      tracksDataOffset = dataNameOffset + dataNameLength;
+      return data.toString('utf8', dataNameOffset, dataNameOffset + dataNameLength);
+    }
+  }
+  ].forEach( bytes => {
+    let readBytes = bytes.read();
+    if (bytes.value !== readBytes) {
+      let expectedValue = bytes.value;
+      let actualValue = readBytes;
+      if (typeof expectedValue !== 'string') {
+        expectedValue = expectedValue.toString(16);
+        actualValue = actualValue.toString(16);
+      }
+      throw new Error(`Invalid header. Expected ${bytes.name} to be ${expectedValue}. Instead, got ${actualValue}.`);
+    }
+  });
+
+  return tracksDataOffset;
+}
+
+function isValidTrack(track) {
+  return track !== null && track !== undefined && track.data instanceof Array;
+}
+
 function savedLinesReader(data) {
 
-  let magic = data.readUInt16BE(OFFSETS.MAGIC);
-
-  if (magic !== HEADER.MAGIC) {
-    throw new Error('Header magic number does not match: ' + magic.toString(16));
+  let tracksData = amf.read(data, getTracksDataOffset(data));
+  if (!(tracksData instanceof Array)) {
+    throw new Error('This .sol does not contain tracks: ' + tracksData);
   }
-
-  let file_size = data.readUInt32BE(OFFSETS.FILE_SIZE);
-
-  let markerTag = data.toString('utf8', OFFSETS.TAG, OFFSETS.MARKER);
-
-  if (markerTag !== HEADER.MARKER_TAG) {
-    throw new Error('Header marker tag does not match: ' + markerTag);
-  }
-
-  let markerLength = OFFSETS.SOL_NAME_LENGTH - OFFSETS.MARKER;
-  let marker = data.readUIntBE(OFFSETS.MARKER, markerLength);
-
-  if( marker !== HEADER.MARKER) {
-    throw new Error('Header marker does not match: ' + marker.toString(16));
-  }
-
-  let nameLength = data.readUInt16BE(OFFSETS.SOL_NAME_LENGTH);
-  let paddingOffset = OFFSETS.SOL_NAME + nameLength + SOL_NAME_OFFSETS.PADDING;
-  let solName = data.toString('utf8', OFFSETS.SOL_NAME, paddingOffset);
-
-  if (solName !== HEADER.SOL_NAME) {
-    throw new Error('Header sol name does not match: ' + solName);
-  }
-
-  let padding = data.readUInt32BE(paddingOffset);
-
-  if (padding !== HEADER.PADDING) {
-    throw new Error('Header padding does not match: ' + padding.toString(16));
-  }
-
-  var dataNameLengthOffset = OFFSETS.SOL_NAME + nameLength + SOL_NAME_OFFSETS.DATA_NAME_LENGTH;
-  var dataNameOffset = OFFSETS.SOL_NAME + nameLength + SOL_NAME_OFFSETS.DATA_NAME;
-  let dataNameLength = data.readUInt16BE(dataNameLengthOffset);
-  var tracksDataOffset = dataNameOffset + dataNameLength;
-  let dataName = data.toString('utf8', dataNameOffset, dataNameOffset + dataNameLength);
-
-  if (dataName !== HEADER.DATA_NAME) {
-    throw new Error('Header data name does not match: ' + dataName);
-  }
-
-
-  let tracksData = amf.read(data, tracksDataOffset);
   return tracksData.map(track => {
+    if (!isValidTrack(track)) {
+      return null;
+    }
     return {
       label: track.label,
       version: track.version,
@@ -126,7 +147,7 @@ function savedLinesReader(data) {
         return lineObj;
       })
     };
-  });
+  }).filter(track => track !== null);
 }
 
 module.exports = savedLinesReader;
