@@ -26,18 +26,18 @@ const GRIDSIZE = 14;
  * - getLines(x1, y1, x2 | r, [y2])
  * - selectCollidingLines(x, y, handler(line))
  */
-function LineStore() {
-  this.lines = [];
-}
-LineStore.prototype = {
+class LineStore {
+  constructor() {
+    this.lines = [];
+  }
 
   addLine(line) {
     this.lines.push(line);
-  },
+  }
 
   removeLine(line) {
     this.lines = _.without(this.lines, line);
-  },
+  }
 
   // returns an array of lines in this bounding box or radius
   getLines(x1, y1, x2, y2) {
@@ -46,15 +46,15 @@ LineStore.prototype = {
       return this.getLinesInRadius(x1, y1, r);
     }
     return this.getLinesInBox(x1, y1, x2, y2);
-  },
+  }
 
   getLinesInRadius(x, y, r) {
     return this.lines.filter(line => line.inCircle(x, y, r));
-  },
+  }
 
   getLinesInBox(x1, y1, x2, y2) {
     return this.lines.filter(line => line.inBox(x1, y1, x2, y2));
-  },
+  }
 
   // does something with each line around (x, y)
   // like do collisions on points
@@ -67,7 +67,7 @@ LineStore.prototype = {
     });
   }
 
-};
+}
 
 
 function getCellPos (px, py) {
@@ -94,18 +94,28 @@ function getCellPos (px, py) {
  * private:
  * - grid
  */
-function GridStore() {
-  LineStore.call(this);
-  this.grid = {};
-}
-GridStore.prototype = _.create(LineStore.prototype, {
-  constructor: GridStore,
+class GridStore extends LineStore {
+  constructor() {
+    super();
+    this.grid = {};
+  }
+
+  static getCellPos(px, py) {
+    let x = Math.floor(px / GRIDSIZE);
+    let y = Math.floor(py / GRIDSIZE);
+    return {
+      x: x,
+      y: y,
+      gx: px - GRIDSIZE * x,
+      gy: py - GRIDSIZE * y
+    };
+  }
 
   addLine(line) {
-    LineStore.prototype.addLine.call(this, line);
+    super.addLine(line);
 
-    let cellPosStart = getCellPos(line.x1, line.y1);
-    let cellPosEnd = getCellPos(line.x2, line.y2);
+    let cellPosStart = GridStore.getCellPos(line.x1, line.y1);
+    let cellPosEnd = GridStore.getCellPos(line.x2, line.y2);
 
     this.addLineToCell(line, cellPosStart);
     if (line.dx === 0 && line.dy === 0 || cellPosStart.x === cellPosEnd.x && cellPosStart.y === cellPosEnd.y) {
@@ -131,7 +141,7 @@ GridStore.prototype = _.create(LineStore.prototype, {
       let d = this.getDelta(line, cellPos);
 
       let nextPos = getNextPos(line, pos.x, pos.y, d.x, d.y);
-      let nextCellPos = getCellPos(nextPos.x, nextPos.y);
+      let nextCellPos = GridStore.getCellPos(nextPos.x, nextPos.y);
 
       if (inBounds(nextCellPos, box)) {
         this.addLineToCell(line, nextCellPos);
@@ -140,10 +150,10 @@ GridStore.prototype = _.create(LineStore.prototype, {
     };
 
     addNextCell(cellPosStart, { x: line.x1, y: line.y1 });
-  },
+  }
 
   removeLine(line) {
-    LineStore.prototype.removeLine.call(this, line);
+    super.removeLine(line);
 
     line.cells.forEach( cellPos => {
       let cell = this.grid[cellPos.x][cellPos.y];
@@ -153,10 +163,10 @@ GridStore.prototype = _.create(LineStore.prototype, {
         cell.solidLines = _.without(cell.solidLines, line);
       }
     });
-  },
+  }
 
   selectCollidingLines(x, y, handler) {
-    let cellPos = getCellPos(x, y);
+    let cellPos = GridStore.getCellPos(x, y);
     let range = [-1, 0, 1];
 
     range.forEach( i => {
@@ -170,10 +180,10 @@ GridStore.prototype = _.create(LineStore.prototype, {
         if (cell === undefined) {
           return;
         }
-        cell.solidLines.forEach( line => handler(line) );
+        cell.solidLines.forEach( line => handler(line, i, j) );
       });
     });
-  },
+  }
 
   addLineToCell(line, cellPos) {
     if (line.cells === undefined) {
@@ -203,7 +213,7 @@ GridStore.prototype = _.create(LineStore.prototype, {
       this.grid[cellPos.x][cellPos.y].solidLines.push(line);
     }
     this.grid[cellPos.x][cellPos.y].lines.push(line);
-  },
+  }
 
   getDelta(line, cellPos) {
     let dx, dy;
@@ -218,7 +228,7 @@ GridStore.prototype = _.create(LineStore.prototype, {
       dy = -cellPos.gy + (line.dy > 0 ? GRIDSIZE : -1);
     }
     return { x: dx, y: dy };
-  },
+  }
 
   getNextPos(line, x, y, dx, dy) {
     let slope = line.dy / line.dx;
@@ -241,7 +251,7 @@ GridStore.prototype = _.create(LineStore.prototype, {
     };
   }
 
-});
+}
 
 /* OldGridStore
  * - revision 6.1
@@ -257,18 +267,17 @@ GridStore.prototype = _.create(LineStore.prototype, {
  * private:
  * - grid
  */
-function OldGridStore() {
-  GridStore.call(this);
-}
-OldGridStore.prototype = _.create(GridStore.prototype, {
-  constructor: OldGridStore,
+class OldGridStore extends GridStore {
+  constructor() {
+    GridStore.call(this);
+  }
 
   getDelta(line, cellPos) {
     return {
       x: -cellPos.gx + (line.dx > 0 ? GRIDSIZE : -1),
       y: -cellPos.gy + (line.dy > 0 ? GRIDSIZE : -1)
     };
-  },
+  }
 
   getNextPos(line, x, y, dx, dy) {
     let slope = line.dy / line.dx;
@@ -292,7 +301,7 @@ OldGridStore.prototype = _.create(GridStore.prototype, {
     };
   }
 
-});
+}
 
 module.exports = {
   GRIDSIZE: GRIDSIZE,
