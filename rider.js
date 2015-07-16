@@ -4,6 +4,7 @@
 
 /*eslint no-multi-spaces: 0 comma-spacing: 0*/
 /*eslint no-loop-func: 0*/
+'use strict';
 
 var _ = require('lodash');
 var clone = require('clone');
@@ -87,6 +88,8 @@ const
     segmentLength: 2
   };
 
+// var oldCollisions = [];
+
 /* Rider
  * - creates a new rider at (x,y) and gives the rider velocity (vx, vy)
  *
@@ -103,63 +106,67 @@ const
  * - scarfPoints
  * - scarfConstraints
  */
-function Rider(x, y, vx, vy, debug) {
-  this.debug = debug || false;
-  this.crashed = false;
+class Rider {
+  constructor(x, y, vx, vy, debug) {
+    // oldCollisions = [];
 
-  vx = vx || (vx === 0 ? vx : VX_INIT);
-  vy = vy || (vy === 0 ? vy : VY_INIT);
+    this.debug = debug || false;
+    this.crashed = false;
 
-  this.points = POINTS.map( p =>
-    new Point(p.xInit, p.yInit, p.friction)
-  );
+    vx = vx || (vx === 0 ? vx : VX_INIT);
+    vy = vy || (vy === 0 ? vy : VY_INIT);
 
-  this.constraints = CONSTRAINTS.map( c => {
-    let p = this.points[c.p.id];
-    let q = this.points[c.q.id];
-    switch(c.type) {
-      case STICK:
-        return new Stick(p, q);
-      case BIND_STICK:
-        return new BindStick(p, q, ENDURANCE);
-      case REPEL_STICK:
-        let stick = new RepelStick(p, q);
-        stick.restLength *= 0.5;
-        return stick;
+    this.points = POINTS.map( p =>
+      new Point(p.xInit, p.yInit, p.friction)
+    );
+
+    this.constraints = CONSTRAINTS.map( c => {
+      let p = this.points[c.p.id];
+      let q = this.points[c.q.id];
+      switch(c.type) {
+        case STICK:
+          return new Stick(p, q);
+        case BIND_STICK:
+          return new BindStick(p, q, ENDURANCE);
+        case REPEL_STICK:
+          let stick = new RepelStick(p, q);
+          stick.restLength *= 0.5;
+          return stick;
+      }
+      throw new Error('Unknown constraint type');
+    });
+
+    this.scarfPoints = [];
+    this.scarfConstraints = [];
+
+    for (let i = 0; i < SCARF.numSegments; i++) {
+      let p = (i === 0) ? this.points[SHOULDER.id] : this.scarfPoints[i-1];
+      let q = new Point(p.x - SCARF.segmentLength, p.y, 0, SCARF.airFriction);
+      this.scarfPoints.push(q);
+      this.scarfConstraints.push(new ScarfStick(p, q));
     }
-    throw new Error('Unknown constraint type');
-  });
 
-  this.scarfPoints = [];
-  this.scarfConstraints = [];
+    this.points.concat(this.scarfPoints).forEach(p => {
+      p.x += x;
+      p.y += y;
+      p.vx = p.x - vx;
+      p.vy = p.y - vy;
+    });
 
-  for (let i = 0; i < SCARF.numSegments; i++) {
-    let p = (i === 0) ? this.points[SHOULDER.id] : this.scarfPoints[i-1];
-    let q = new Point(p.x - SCARF.segmentLength, p.y, 0, SCARF.airFriction);
-    this.scarfPoints.push(q);
-    this.scarfConstraints.push(new ScarfStick(p, q));
   }
-
-  this.points.concat(this.scarfPoints).forEach(p => {
-    p.x += x;
-    p.y += y;
-    p.vx = p.x - vx;
-    p.vy = p.y - vy;
-  });
-
-}
-Rider.prototype = {
 
   jiggleScarf() {
     let shoulder = this.points[SHOULDER.id];
     let points = this.scarfPoints;
     points[1].x = points[1].x + Math.random() * 0.3 * -Math.min(shoulder.dx, 125);
     points[1].y = points[1].y + Math.random() * 0.3 * -Math.min(shoulder.dy, 125);
-  },
+  }
 
   clone() {
-    return clone(this);
-  },
+    let copy = clone(this);
+    delete copy.states;
+    return copy;
+  }
 
   get bodyParts() {
     let getPosition = (p, q) => {
@@ -184,25 +191,27 @@ Rider.prototype = {
       bodyParts.scarf.push(getPosition(p, q));
     }
     return bodyParts;
-  },
+  }
 
   step(collideFn, gravity) {
+    var collisions = [];
+
     gravity = gravity || GRAVITY;
 
     this.debugResetSavedStates();
-    this.debugSaveState('start');
+    // this.debugSaveState('start');
 
     this.points.forEach( p => p.step(gravity) );
 
-    this.debugSaveState('points stepped', {
-      points: this.points.map( (p, i) => i )
-    });
+    // this.debugSaveState('points stepped', {
+    //   points: this.points.map( (p, i) => i )
+    // });
 
     this.jiggleScarf();
 
-    this.debugSaveState('pre-iterate (scarf jiggled)', {
-      scarfPoints: this.scarfPoints.map( (p, i) => i )
-    });
+    // this.debugSaveState('pre-iterate (scarf jiggled)', {
+    //   scarfPoints: this.scarfPoints.map( (p, i) => i )
+    // });
 
     this.scarfPoints.forEach( p => p.step(gravity) );
 
@@ -212,22 +221,27 @@ Rider.prototype = {
         let alreadyCrashed = this.crashed;
         this.crashed = c.resolve(this.crashed);
 
-        this.debugSaveState(i.toString() + ': resolved constraint ' + j, {
-          constraints: [j]
-        });
+        // this.debugSaveState(i.toString() + ': resolved constraint ' + j, {
+        //   constraints: [j]
+        // });
 
         if (!alreadyCrashed && this.crashed) {
           console.log('craSHED!12UI4!!~');
+          if (this.debug) {
+            // console.log(this.states);
+          }
+
         }
       });
 
       if (this.debug) {
-        this.points.forEach( (p, pIdx) => collideFn(p, (line, j) => {
+        this.points.forEach( (p, pIdx) => collideFn(p, (line, j, gi, gj) => {
+          collisions.push('iter ' + i.toString() + ', point ' + pIdx + ', line ' + j + ', cellxy ' + gi + ' ' + gj);
           // onCollide
-          this.debugSaveState(i.toString() + ': point ' + p.id + ' collided with line ' + j, {
-            points: [pIdx],
-            lines: [line]
-          });
+          // self.debugSaveState(i.toString() + ': point ' + p.id + ' collided with line ' + j, {
+          //   points: [pIdx],
+          //   lines: [line]
+          // });
         }) );
       }
       else {
@@ -237,24 +251,36 @@ Rider.prototype = {
 
     this.scarfConstraints.forEach( c => c.resolve() );
 
-    this.debugSaveState('end (scarf resolved)', {
-      scarfConstraints: this.scarfConstraints.map( (c, i) => i )
-    });
-  },
+    // this.debugSaveState('end (scarf resolved)', {
+    //   scarfConstraints: this.scarfConstraints.map( (c, i) => i )
+    // });
+    // oldCollisions = collisions;
+  }
 
   debugResetSavedStates() {
     if (this.debug) {
       this.states = [];
     }
-  },
+  }
 
   // when you need to debug the debugger.......
   debugSaveState(description, changed) {
     if (this.debug) {
-      let state = this.clone();
+      // console.log(description, changed);
+      changed = changed || {};
+
+      let points = clone(this.points);
+
+      let state = {
+        points: points,
+        crashed: this.crashed,
+        constraints: []
+      };
+      // console.log(state);
+
       let lines = changed.lines;
       delete changed.lines;
-      _.forEach(changed).forEach( (entityIDs, entitiesName) => {
+      _.map(changed, (entityIDs, entitiesName) => {
         changed[entitiesName] = entityIDs.map( i => state[entitiesName][i] );
       });
       this.states.push({
@@ -271,7 +297,7 @@ Rider.prototype = {
     }
   }
 
-};
+}
 
 
 module.exports = Rider;
