@@ -100,6 +100,9 @@ var Line = React.createClass({
 var FloorLine = React.createClass({
   render() {
     let {x1, y1, x2, y2} = this.props;
+    if (x1 === x2 && y1 === y2) {
+      return null;
+    }
     let width = LINE_WIDTH * this.props.zoom / 2;
     let offset = width / 2 * (this.props.flipped ? -1 : 1);
     return (
@@ -181,8 +184,7 @@ var TrackLine = React.createClass({
 
 var displayStyle = {
   position: 'absolute',
-  width: '100%',
-  height: '100%'
+  width: '100%'
 };
 
 var LineDisplay = React.createClass({
