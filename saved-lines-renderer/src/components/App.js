@@ -3,7 +3,6 @@
 var savedLinesReader = require('../saved-lines-reader');
 var React = require('react');
 var Display = require('./Display');
-var _
 require('buffer');
 
 var { Track, OldTrack } = require('../track');
