@@ -154,6 +154,14 @@ var App = React.createClass({
               : null
           }
         </p>
+        {
+          this.state.track ?
+          <p>
+            <b>Track name:</b> { this.state.tracks[this.state.selected].label } <br/>
+            <b>Version:</b> { this.state.tracks[this.state.selected].version }
+          </p>
+          : null
+        }
         { ['grid', 'color'].map(this.renderToggle) }
         {
           this.state.color ?
