@@ -9,12 +9,9 @@ var _ = require('lodash');
 
 var LINE = require('./line').LINE;
 
-var GeoUtils = require('./geo-utils');
-var
-  getBox = GeoUtils.getBox,
-  inBounds = GeoUtils.inBounds;
+var { Grid, GridV62, GridV61 } = require('./grid');
 
-const GRIDSIZE = 14;
+const GRID_SIZE = 14;
 
 /* LineStore
  * - basic line store, no grid
@@ -65,20 +62,9 @@ class LineStore {
         handler(line);
       }
     });
+    // return this.lines
   }
 
-}
-
-
-function getCellPos (px, py) {
-  let x = Math.floor(px / GRIDSIZE);
-  let y = Math.floor(py / GRIDSIZE);
-  return {
-    x: x,
-    y: y,
-    gx: px - GRIDSIZE * x,
-    gy: py - GRIDSIZE * y
-  };
 }
 
 /* GridStore
@@ -97,158 +83,48 @@ function getCellPos (px, py) {
 class GridStore extends LineStore {
   constructor() {
     super();
-    this.grid = {};
-  }
 
-  static getCellPos(px, py) {
-    let x = Math.floor(px / GRIDSIZE);
-    let y = Math.floor(py / GRIDSIZE);
-    return {
-      x: x,
-      y: y,
-      gx: px - GRIDSIZE * x,
-      gy: py - GRIDSIZE * y
-    };
+    // for solid lines
+    this.grid = new GridV62(GRID_SIZE, true);
+
+    // for all lines
+    // darn there was a clever data structure for this stuff what was it
+    // i think it was 2d sorted arrays?
+    // i'll do it later
+    this.renderGrid = new Grid(GRID_SIZE * 4, false);
   }
 
   addLine(line) {
     super.addLine(line);
 
-    let cellPosStart = GridStore.getCellPos(line.x1, line.y1);
-    let cellPosEnd = GridStore.getCellPos(line.x2, line.y2);
+    this.renderGrid.addLine(line);
 
-    this.addLineToCell(line, cellPosStart);
-    if (line.dx === 0 && line.dy === 0 || cellPosStart.x === cellPosEnd.x && cellPosStart.y === cellPosEnd.y) {
-      // console.log('added xy line cell');
-      return; // done
+    if (line.isSolid) {
+      this.grid.addLine(line);
     }
-
-    let box = getBox(cellPosStart.x, cellPosStart.y, cellPosEnd.x, cellPosEnd.y);
-
-    let getNextPos;
-
-    if (line.dx === 0) {
-      getNextPos = (l, x, y, dx, dy) => { return { x: x, y: y + dy }; };
-
-    } else if (line.dy === 0) {
-      getNextPos = (l, x, y, dx, dy) => { return { x: x + dx, y: y }; };
-
-    } else {
-      getNextPos = this.getNextPos;
-    }
-
-    let addNextCell = (cellPos, pos) => {
-      let d = this.getDelta(line, cellPos);
-
-      let nextPos = getNextPos(line, pos.x, pos.y, d.x, d.y);
-      let nextCellPos = GridStore.getCellPos(nextPos.x, nextPos.y);
-
-      if (inBounds(nextCellPos, box)) {
-        this.addLineToCell(line, nextCellPos);
-        addNextCell(nextCellPos, nextPos);
-      }
-    };
-
-    addNextCell(cellPosStart, { x: line.x1, y: line.y1 });
   }
 
   removeLine(line) {
     super.removeLine(line);
 
-    line.cells.forEach( cellPos => {
-      let cell = this.grid[cellPos.x][cellPos.y];
-      cell.lines = _.without(cell.lines, line);
+    this.renderGrid.removeLine(line);
 
-      if (line.type !== LINE.SCENERY) {
-        cell.solidLines = _.without(cell.solidLines, line);
-      }
-    });
+    if (line.isSolid) {
+      this.grid.removeLine(line);
+    }
   }
 
   selectCollidingLines(x, y, handler) {
-    let cellPos = GridStore.getCellPos(x, y);
+    let cellPos = this.grid.getCellPos(x, y);
     let range = [-1, 0, 1];
 
-    range.forEach( i => {
-      let cellX = i + cellPos.x;
-      if (this.grid[cellX] === undefined) {
-        return;
-      }
-      range.forEach( j => {
-        let cellY = j + cellPos.y;
-        let cell = this.grid[cellX][cellY];
-        if (cell === undefined) {
-          return;
-        }
-        cell.solidLines.forEach( line => handler(line, i, j) );
-      });
-    });
-  }
+    let lines = _.flattenDeep(range.map( i => range.map( j =>
+        this.grid.getLinesFromCell({ x: i + cellPos.x, y: j + cellPos.y })
+    )));
 
-  addLineToCell(line, cellPos) {
-    if (line.cells === undefined) {
-      line.cells = [];
-    }
+    lines.forEach( line => handler(line));
 
-    line.cells.push({ x: cellPos.x, y: cellPos.y });
-
-    if (this.grid[cellPos.x] === undefined) {
-      this.grid[cellPos.x] = {};
-    }
-    if (this.grid[cellPos.x][cellPos.y] === undefined) {
-      this.grid[cellPos.x][cellPos.y] = {
-        lines: [],
-        solidLines: []
-      };
-    }
-
-    let cell = this.grid[cellPos.x][cellPos.y];
-
-    if (_.includes(cell.lines, line)) {
-      return; // no duplicates!!!
-    }
-
-    // TODO: separate these grids
-    if (line.type !== LINE.SCENERY) {
-      this.grid[cellPos.x][cellPos.y].solidLines.push(line);
-    }
-    this.grid[cellPos.x][cellPos.y].lines.push(line);
-  }
-
-  getDelta(line, cellPos) {
-    let dx, dy;
-    if (cellPos.x < 0) {
-      dx = (GRIDSIZE + cellPos.gx) * (line.dx > 0 ? 1 : -1);
-    } else {
-      dx = -cellPos.gx + (line.dx > 0 ? GRIDSIZE : -1);
-    }
-    if (cellPos.y < 0) {
-      dy = (GRIDSIZE + cellPos.gy) * (line.dy > 0 ? 1 : -1);
-    } else {
-      dy = -cellPos.gy + (line.dy > 0 ? GRIDSIZE : -1);
-    }
-    return { x: dx, y: dy };
-  }
-
-  getNextPos(line, x, y, dx, dy) {
-    let slope = line.dy / line.dx;
-    let yNext = y + slope * dx;
-    if (Math.abs(yNext - y) < Math.abs(dy)) {
-      return {
-        x: x + dx,
-        y: yNext
-      };
-    }
-    if (Math.abs(yNext - y) === Math.abs(dy)) {
-      return {
-        x: x + dx,
-        y: y + dy
-      };
-    }
-    return {
-      x: x + line.dx * dy / line.dy,
-      y: y + dy
-    };
+    // return lines;
   }
 
 }
@@ -269,42 +145,15 @@ class GridStore extends LineStore {
  */
 class OldGridStore extends GridStore {
   constructor() {
-    GridStore.call(this);
-  }
+    super();
 
-  getDelta(line, cellPos) {
-    return {
-      x: -cellPos.gx + (line.dx > 0 ? GRIDSIZE : -1),
-      y: -cellPos.gy + (line.dy > 0 ? GRIDSIZE : -1)
-    };
-  }
-
-  getNextPos(line, x, y, dx, dy) {
-    let slope = line.dy / line.dx;
-    let yIsThisBelowActualY0 = line.y1 - slope * line.x1;
-    let yDoesThisEvenWork = Math.round(slope * (x + dx) + yIsThisBelowActualY0);
-    if (Math.abs(yDoesThisEvenWork - y) < Math.abs(dy)) {
-      return {
-        x: x + dx,
-        y: yDoesThisEvenWork
-      };
-    }
-    if (Math.abs(yDoesThisEvenWork - y) === Math.abs(dy)) {
-      return {
-        x: x + dx,
-        y: y + dy
-      };
-    }
-    return {
-      x: Math.round((y + dy - yIsThisBelowActualY0) / slope),
-      y: y + dy
-    };
+    this.grid = new GridV61(GRID_SIZE, true);
   }
 
 }
 
 module.exports = {
-  GRIDSIZE: GRIDSIZE,
+  GRID_SIZE: GRID_SIZE,
   LineStore: LineStore,
   GridStore: GridStore,
   OldGridStore: OldGridStore
