@@ -155,7 +155,7 @@ var App = React.createClass({
           }
         </p>
         {
-          this.state.track ?
+          this.state.selected ?
           <p>
             <b>Track name:</b> { this.state.tracks[this.state.selected].label } <br/>
             <b>Version:</b> { this.state.tracks[this.state.selected].version }
