@@ -212,8 +212,16 @@ var LineDisplay = React.createClass({
 
 var Display = React.createClass({
 
+  getInitialState() {
+    return { viewBox: null };
+  },
+
+  resetViewBox(track) {
+    this.setState({ viewBox: getViewBox(track.lines).join(' ') });
+  },
+
   getViewBox() {
-    return this.props.viewBox || getViewBox(this.props.track.lines).join(' ');
+    return this.props.viewBox || this.state.viewBox || '0 0 0 0';
   },
 
   getZoomFactor() {
@@ -222,17 +230,34 @@ var Display = React.createClass({
     return Math.max(1, Math.pow(zoom * LINE_WIDTH_ZOOM_FACTOR, 0.5));
   },
 
+  componentDidMount() {
+    this.resetViewBox(this.props.track);
+  },
+
+  componentWillReceiveProps(nextProps) {
+    if (!this.props.track) {
+      this.setState({ viewBox: null });
+    } else if(this.props.track !== nextProps.track ||
+      this.props.track.lines.length !== nextProps.track.lines.length) {
+        this.resetViewBox(nextProps.track);
+    }
+  },
+
   render() {
     return (
-      <svg style={displayStyle} viewBox={this.getViewBox()}>
-        {
-          this.props.grid ?
-            <Grid {...this.props} grid={this.props.track.store.solidGrid} zoom={this.getZoomFactor()} />
-          : null
-        }
-        <LineDisplay {...this.props} zoom={this.getZoomFactor()} lines={this.props.track.lines} />
-        <Rider rider={this.props.rider} zoom={this.getZoomFactor()} />
-      </svg>
+      <div style={displayStyle} >
+        <svg style={displayStyle} viewBox={this.getViewBox()}>
+          {
+            this.props.grid ?
+              <Grid {...this.props} grid={this.props.track.store.solidGrid} zoom={this.getZoomFactor()} />
+            : null
+          }
+          <LineDisplay {...this.props} zoom={this.getZoomFactor()} lines={this.props.track.lines} />
+        </svg>
+        <svg style={displayStyle} viewBox={this.getViewBox()}>
+          <Rider rider={this.props.rider} zoom={this.getZoomFactor()} />
+        </svg>
+      </div>
     );
   }
 
