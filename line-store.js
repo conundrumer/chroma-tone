@@ -85,41 +85,41 @@ class GridStore extends LineStore {
     super();
 
     // for solid lines
-    this.grid = new GridV62(GRID_SIZE, true);
+    this.solidGrid = new GridV62(GRID_SIZE, true);
 
     // for all lines
     // darn there was a clever data structure for this stuff what was it
     // i think it was 2d sorted arrays?
     // i'll do it later
-    this.renderGrid = new Grid(GRID_SIZE * 4, false);
+    this.grid = new Grid(GRID_SIZE * 4, false);
   }
 
   addLine(line) {
     super.addLine(line);
 
-    this.renderGrid.addLine(line);
+    this.grid.addLine(line);
 
     if (line.isSolid) {
-      this.grid.addLine(line);
+      this.solidGrid.addLine(line);
     }
   }
 
   removeLine(line) {
     super.removeLine(line);
 
-    this.renderGrid.removeLine(line);
+    this.grid.removeLine(line);
 
     if (line.isSolid) {
-      this.grid.removeLine(line);
+      this.solidGrid.removeLine(line);
     }
   }
 
   selectCollidingLines(x, y, handler) {
-    let cellPos = this.grid.getCellPos(x, y);
+    let cellPos = this.solidGrid.getCellPos(x, y);
     let range = [-1, 0, 1];
 
     let lines = _.flattenDeep(range.map( i => range.map( j =>
-        this.grid.getLinesFromCell({ x: i + cellPos.x, y: j + cellPos.y })
+        this.solidGrid.getLinesFromCell({ x: i + cellPos.x, y: j + cellPos.y })
     )));
 
     lines.forEach( line => handler(line));
@@ -147,7 +147,7 @@ class OldGridStore extends GridStore {
   constructor() {
     super();
 
-    this.grid = new GridV61(GRID_SIZE, true);
+    this.solidGrid = new GridV61(GRID_SIZE, true);
   }
 
 }
