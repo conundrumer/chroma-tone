@@ -123,7 +123,7 @@ class Stick {
  * - restLength
  * - endurance
  */
-class BindStick {
+class BindStick extends Stick {
 
   constructor(p, q, endurance) {
     super(p, q);
@@ -150,11 +150,7 @@ class BindStick {
  * - q
  * - restLength
  */
-class RepelStick {
-
-  constructor (p, q) {
-    super(p, q);
-  }
+class RepelStick extends Stick {
 
   shouldResolve() {
     return this.length < this.restLength;
@@ -172,11 +168,7 @@ class RepelStick {
  * - q
  * - restLength
  */
-class ScarfStick {
-
-  constructor (p, q) {
-    super(p, q);
-  }
+class ScarfStick extends Stick {
 
   doResolve() {
     this.q.x += this.dx * this.diff * 2;
