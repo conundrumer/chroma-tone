@@ -28,7 +28,8 @@ const
   };
 
 class Line {
-  constructor(x1, y1, x2, y2) {
+  constructor(id, x1, y1, x2, y2) {
+    this.id = id;
     this.x1 = x1;
     this.y1 = y1;
     this.x2 = x2;
@@ -127,8 +128,8 @@ class Line {
 }
 
 class SolidLine extends Line {
-  constructor(x1, y1, x2, y2, inv, lim) {
-    super(x1, y1, x2, y2);
+  constructor(id, x1, y1, x2, y2, inv, lim) {
+    super(id, x1, y1, x2, y2);
     this.flipped = inv;
     this.lim = lim === undefined ? 0 : lim;
   }
@@ -182,9 +183,6 @@ class SolidLine extends Line {
 
 }
 class AccLine extends SolidLine {
-  constructor(x1, y1, x2, y2, inv, lim) {
-    super(x1, y1, x2, y2, inv, lim);
-  }
 
   get type() {
     return LINE.ACC;
@@ -204,9 +202,6 @@ class AccLine extends SolidLine {
 }
 
 class FloorScenery extends Line {
-  constructor(x1, y1, x2, y2) {
-    super(x1, y1, x2, y2);
-  }
 
   get type() {
     return LINE.SCENERY;
