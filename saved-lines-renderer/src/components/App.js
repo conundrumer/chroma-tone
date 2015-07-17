@@ -6,13 +6,30 @@ var Display = require('./Display');
 require('buffer');
 
 var Track = require('../track').Track;
+var OldTrack = require('../track').OldTrack;
 
+var DEBUG = false;
+
+var defaultLines = [
+  {
+    x1: 15,
+    y1: 180,
+    x2: 190,
+    y2: 190,
+    extended: 0,
+    flipped: false,
+    leftLine: null,
+    rightLine: null,
+    id: 0,
+    type: 0
+  }
+];
 var App = React.createClass({
 
   getInitialState() {
     return {
       tracks: [],
-      track: null,
+      track: new Track(defaultLines, {x: 0, y: 0}, DEBUG),
       selected: '',
       timer: false,
       frame: 0,
@@ -28,12 +45,19 @@ var App = React.createClass({
   onSelectTrack(e) {
     let trackData = this.state.tracks[e.target.value];
     let startPos = trackData.startPosition;
-    let track = new Track(trackData.lines, { x: startPos[0], y: startPos[1] });
+    let version = trackData.version;
+    let VersionedTrack = Track;
+    if (version === '6.1') {
+      VersionedTrack = OldTrack;
+    }
+    let track = new VersionedTrack(trackData.lines, { x: startPos[0], y: startPos[1] }, DEBUG);
+    console.log(track)
     track.label = trackData.label;
     this.setState({
       track: track,
-      selected: e.target.value,
+      selected: e.target.value
     });
+    this.stopPlayback();
   },
 
   onTogglePlayback() {
@@ -46,9 +70,18 @@ var App = React.createClass({
       step();
 
     } else {
-      clearTimeout(this.state.timer);
-      this.setState({ frame: 0, timer: null });
+      this.stopPlayback();
     }
+  },
+
+  stopPlayback() {
+    clearTimeout(this.state.timer);
+    this.setState({ frame: 0, timer: null });
+  },
+
+  onPause() {
+    clearTimeout(this.state.timer);
+    this.setState({ timer: null });
   },
 
   onToggle(key) {
@@ -73,8 +106,9 @@ var App = React.createClass({
           track: null,
           selected: ''
         });
+        this.stopPlayback();
       } catch (e) {
-        alert(`This is probably not a .sol! ${e}`);
+        alert(`There is something wrong with this .sol!\n${e}`);
       }
     };
 
@@ -129,9 +163,12 @@ var App = React.createClass({
         {
           this.state.track ?
             <div>
+              { this.renderToggle('slowmo') }
               <button onClick={() => {console.log(this.state.track.lines)}}>Print lines</button>
               <button onClick={this.onTogglePlayback}>{ this.state.timer ? 'Stop' : 'Play'}</button>
-              { this.renderToggle('slowmo') }
+              <button onClick={this.onPause}>Pause</button>
+              <button onClick={() => this.setState({ frame: this.state.frame + 1 })}>Step forward</button>
+              <button onClick={() => this.setState({ frame: Math.max(0, this.state.frame - 1) })}>Step backward</button>
             </div>
             : null
         }
@@ -143,119 +180,6 @@ var App = React.createClass({
       </div>
     );
   }
-
-  // hacking time
-
-  // componentDidMount() {
-  //   // var collide = (p) => {
-  //   //   if (p.x < 0) {
-  //   //     p.x = 0;
-  //   //   }
-  //   //   if (p.x > 250) {
-  //   //     p.x = 250;
-  //   //   }
-  //   //   if (p.y < 0) {
-  //   //     p.y = 0;
-  //   //   }
-  //   //   if (p.y > 210) {
-  //   //     p.y = 210;
-  //   //   }
-  //   //   this.state.theLine.collide(p);
-  //   // };
-  //   var i = 0;
-  //   var step = () => {
-  //     if (i > 130) {
-  //       // this.setState({
-  //       //   rider: makeRider()
-  //       // });
-  //       i = 0;
-  //       // return;
-  //     }
-  //     // temp bounding box
-  //     // this.state.rider.step(collide);
-  //     let rider = theTrack.getRiderAtFrame(i);
-  //     this.setState({rider: rider});
-  //     i++;
-  //   };
-  //   step();
-  //   setInterval(step, 1000/40);
-  // },
-
-  // render() {
-  //   let scale = 1;
-  //   let rider = this.state.rider;
-  //   // let rider = theTrack.initRider;
-  //   let {
-  //     sled,
-  //     body,
-  //     rightArm,
-  //     leftArm,
-  //     rightLeg,
-  //     leftLeg,
-  //     scarf
-  //   } = rider.bodyParts;
-  //   let parts = [sled, body, rightArm, leftArm, rightLeg, leftLeg];
-  //   // console.log(rider.bodyParts);
-  //   // console.log(theTrack.lines);
-  //   // rider.constraints.forEach((c) => console.log(c))
-  //   // rider.scarfConstraints.forEach((c) => console.log(c))
-  //   // parts.forEach((c) => console.log(c))
-  //   // theTrack.lines.forEach((c) => console.log(c))
-  //   return (
-  //     <svg style={displayStyle} >
-  //       {
-  //         theTrack.lines.map( (line, i) =>
-  //           <line  key={-10000+i}
-  //             x1={scale * line.x1}
-  //             y1={scale * line.y1}
-  //             x2={scale * line.x2}
-  //             y2={scale * line.y2}
-  //             stroke='blue'
-  //           />
-  //         )
-  //       }
-  //       {
-  //         rider.scarfConstraints.map((c, i) =>
-  //           <line key={-i}
-  //             x1={scale * c.p.x}
-  //             y1={scale * c.p.y}
-  //             x2={scale * c.q.x}
-  //             y2={scale * c.q.y}
-  //             stroke={'#ff8888'}
-  //           />
-  //         )
-  //       }
-  //       {
-  //         rider.constraints.map((c, i) =>
-  //           <line key={i}
-  //             x1={scale * c.p.x}
-  //             y1={scale * c.p.y}
-  //             x2={scale * c.q.x}
-  //             y2={scale * c.q.y}
-  //             stroke={'#cccccc'}
-  //           />
-  //         )
-  //       }
-  //       {
-  //         parts.map( (part, i) =>
-  //           <line key={100+i}
-  //             x1={scale * part.x}
-  //             y1={scale * part.y}
-  //             x2={scale * (part.x + 10 * Math.cos(part.angle))}
-  //             y2={scale * (part.y + 10 * Math.sin(part.angle))}
-  //             stroke='black'
-  //             strokeWidth={scale * 1}
-  //           />
-  //         )
-  //       }
-  //       <circle
-  //         cx={scale * (body.x + 10 * Math.cos(body.angle))}
-  //         cy={scale * (body.y + 10 * Math.sin(body.angle))}
-  //         r={scale * 3}
-  //       />
-  //     </svg>
-  //   );
-  // }
 
 });
 

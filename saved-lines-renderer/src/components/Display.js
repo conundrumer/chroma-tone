@@ -168,12 +168,12 @@ var TrackLine = React.createClass({
     if (!snapDot) {
       return <g>{parts}</g>;
     }
-    if (line.extendedType & 1) { // left extension
+    if (line.leftExtended) {
       parts = parts.concat([
         <circle key={4} cx={line.x1} cy={line.y1} r={r} fill='black' />
       ]);
     }
-    if (line.extendedType & 2) { // right extension
+    if (line.rightExtended) {
       parts = parts.concat([
         <circle key={5} cx={line.x2} cy={line.y2} r={r} fill='black' />
       ]);
@@ -227,7 +227,7 @@ var Display = React.createClass({
       <svg style={displayStyle} viewBox={this.getViewBox()}>
         {
           this.props.grid ?
-            <Grid {...this.props} grid={this.props.track.store.grid} zoom={this.getZoomFactor()} />
+            <Grid {...this.props} grid={this.props.track.store.solidGrid} zoom={this.getZoomFactor()} />
           : null
         }
         <LineDisplay {...this.props} zoom={this.getZoomFactor()} lines={this.props.track.lines} />
