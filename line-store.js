@@ -114,7 +114,7 @@ class GridStore extends LineStore {
     }
   }
 
-  selectCollidingLines(x, y, handler) {
+  getSolidLinesAt(x, y) {
     let cellPos = this.solidGrid.getCellPos(x, y);
     let range = [-1, 0, 1];
 
@@ -122,9 +122,7 @@ class GridStore extends LineStore {
         this.solidGrid.getLinesFromCell({ x: i + cellPos.x, y: j + cellPos.y })
     )));
 
-    lines.forEach( line => handler(line));
-
-    // return lines;
+    return lines;
   }
 
 }

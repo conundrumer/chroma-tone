@@ -9,13 +9,13 @@
 var _ = require('lodash');
 var clone = require('clone');
 
-var Entities = require('./entities');
-var
-  Point = Entities.Point,
-  Stick = Entities.Stick,
-  BindStick = Entities.BindStick,
-  RepelStick = Entities.RepelStick,
-  ScarfStick = Entities.ScarfStick;
+var {
+  Point,
+  Stick,
+  BindStick,
+  RepelStick,
+  ScarfStick
+} = require('./entities');
 
 // I should figure out a way to generalize bodies
 const
@@ -193,12 +193,12 @@ class Rider {
     return bodyParts;
   }
 
-  step(collideFn, gravity) {
-    var collisions = [];
+  step(lineStore, gravity) {
+    // var collisions = [];
 
     gravity = gravity || GRAVITY;
 
-    this.debugResetSavedStates();
+    // this.debugResetSavedStates();
     // this.debugSaveState('start');
 
     this.points.forEach( p => p.step(gravity) );
@@ -234,19 +234,12 @@ class Rider {
         }
       });
 
-      if (this.debug) {
-        this.points.forEach( (p, pIdx) => collideFn(p, (line, j, gi, gj) => {
-          collisions.push('iter ' + i.toString() + ', point ' + pIdx + ', line ' + j + ', cellxy ' + gi + ' ' + gj);
-          // onCollide
-          // self.debugSaveState(i.toString() + ': point ' + p.id + ' collided with line ' + j, {
-          //   points: [pIdx],
-          //   lines: [line]
-          // });
-        }) );
-      }
-      else {
-        this.points.forEach( p => collideFn(p) );
-      }
+      this.points.forEach( p => lineStore.getSolidLinesAt(p.x, p.y).forEach( line => {
+        line.collide(p);
+        // if (this.debug) {
+        //   collisions.push('iter ' + i.toString() + ', point ' + p.id + ', line ' + line.id);
+        // }
+      } ) );
     }
 
     this.scarfConstraints.forEach( c => c.resolve() );
@@ -257,45 +250,45 @@ class Rider {
     // oldCollisions = collisions;
   }
 
-  debugResetSavedStates() {
-    if (this.debug) {
-      this.states = [];
-    }
-  }
+  // debugResetSavedStates() {
+  //   if (this.debug) {
+  //     this.states = [];
+  //   }
+  // }
 
-  // when you need to debug the debugger.......
-  debugSaveState(description, changed) {
-    if (this.debug) {
-      // console.log(description, changed);
-      changed = changed || {};
+  // // when you need to debug the debugger.......
+  // debugSaveState(description, changed) {
+  //   if (this.debug) {
+  //     // console.log(description, changed);
+  //     changed = changed || {};
 
-      let points = clone(this.points);
+  //     let points = clone(this.points);
 
-      let state = {
-        points: points,
-        crashed: this.crashed,
-        constraints: []
-      };
-      // console.log(state);
+  //     let state = {
+  //       points: points,
+  //       crashed: this.crashed,
+  //       constraints: []
+  //     };
+  //     // console.log(state);
 
-      let lines = changed.lines;
-      delete changed.lines;
-      _.map(changed, (entityIDs, entitiesName) => {
-        changed[entitiesName] = entityIDs.map( i => state[entitiesName][i] );
-      });
-      this.states.push({
-        description: description,
-        changed: _.assign({
-          points: [],
-          constraints: [],
-          scarfPoints: [],
-          scarfConstraints: [],
-          lines: lines || []
-        }, changed),
-        state: state
-      });
-    }
-  }
+  //     let lines = changed.lines;
+  //     delete changed.lines;
+  //     _.map(changed, (entityIDs, entitiesName) => {
+  //       changed[entitiesName] = entityIDs.map( i => state[entitiesName][i] );
+  //     });
+  //     this.states.push({
+  //       description: description,
+  //       changed: _.assign({
+  //         points: [],
+  //         constraints: [],
+  //         scarfPoints: [],
+  //         scarfConstraints: [],
+  //         lines: lines || []
+  //       }, changed),
+  //       state: state
+  //     });
+  //   }
+  // }
 
 }
 
