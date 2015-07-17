@@ -3,10 +3,10 @@
 var savedLinesReader = require('../saved-lines-reader');
 var React = require('react');
 var Display = require('./Display');
+var _
 require('buffer');
 
-var Track = require('../track').Track;
-var OldTrack = require('../track').OldTrack;
+var { Track, OldTrack } = require('../track');
 
 var DEBUG = false;
 
@@ -51,7 +51,6 @@ var App = React.createClass({
       VersionedTrack = OldTrack;
     }
     let track = new VersionedTrack(trackData.lines, { x: startPos[0], y: startPos[1] }, DEBUG);
-    console.log(track)
     track.label = trackData.label;
     this.setState({
       track: track,
@@ -158,7 +157,8 @@ var App = React.createClass({
           this.state.selected ?
           <p>
             <b>Track name:</b> { this.state.tracks[this.state.selected].label } <br/>
-            <b>Version:</b> { this.state.tracks[this.state.selected].version }
+            <b>Version:</b> { this.state.tracks[this.state.selected].version } <br/>
+            <b>Line count:</b> { this.state.track.lines.length }
           </p>
           : null
         }
