@@ -17,7 +17,7 @@
     "amf": "TooTallNate/node-amf",
     "buffer": "^3.2.2",
     "clone": "^1.0.2",
-    "lodash": "^3.9.1",
+    "lodash": "^3.10.0",
     "normalize-css": "^2.3.1",
     "react": "^0.13.3"
   },
