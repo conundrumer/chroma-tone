@@ -104,6 +104,11 @@ class Stick extends Constraint {
   }
 
   get diff() {
+    // prevent division by zero
+    // this will allow interesting behavior but w/e
+    if (this.length === 0) {
+      return 0;
+    }
     return (this.length - this.restLength) / this.length * 0.5;
   }
 
