@@ -6,7 +6,6 @@
 /*eslint no-loop-func: 0*/
 'use strict';
 
-var _ = require('lodash');
 var clone = require('clone');
 
 var {
@@ -30,6 +29,8 @@ const
   ENDURANCE = 0.057,
   VX_INIT = 0.4,
   VY_INIT = 0,
+  SCARF_JIGGLE_INTENSITY = 0.2,
+  SPEED_THRESHOLD_JIGGLE = 125, // as this gets smaller, the scarf intensifies faster while speed increases
   // points
   PEG      = { id: 0 , xInit: 0    , yInit: 0    , friction: 0.8 },
   TAIL     = { id: 1 , xInit: 0    , yInit: 5    , friction: 0   },
@@ -83,7 +84,7 @@ const
   ],
   // scarf
   SCARF = {
-    airFriction: 0.9,
+    airFriction: 0.85,
     p: SHOULDER,
     numSegments: 7,
     segmentLength: 2
@@ -179,8 +180,16 @@ class Rider {
   jiggleScarf() {
     let shoulder = this.points[SHOULDER.id];
     let points = this.scarfPoints;
-    points[1].x = points[1].x + Math.random() * 0.3 * -Math.min(shoulder.dx, 125);
-    points[1].y = points[1].y + Math.random() * 0.3 * -Math.min(shoulder.dy, 125);
+    // deterministic psuedo-random number
+    let p = points[this.scarfPoints.length-1];
+    let speed = Math.sqrt(shoulder.dx * shoulder.dx + shoulder.dy * shoulder.dy);
+    let randMag = (p.x * p.y) % 1;
+    let randAng = (p.x + p.y) % 1;
+    speed *= 1 - Math.pow(2, -speed / SPEED_THRESHOLD_JIGGLE);
+    randMag *= SCARF_JIGGLE_INTENSITY * speed;
+    randAng *= 2 * Math.PI;
+    points[1].x += randMag * Math.cos(randAng);
+    points[1].y += randMag * Math.sin(randAng);
   }
 
   // TODO: make this more efficient

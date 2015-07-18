@@ -52,7 +52,7 @@ class Track {
   set startPosition(pos) {
     this.startX = pos.x;
     this.startY = pos.y;
-    this.initRider = new Rider(pos.x, pos.y, null, null, this.debug);
+    this.initRider = new Rider(pos.x, pos.y, undefined, undefined, this.debug);
   }
 
   get startPosition() {
