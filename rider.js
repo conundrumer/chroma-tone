@@ -108,19 +108,26 @@ const
  * - scarfConstraints
  */
 class Rider {
-  constructor(x, y, vx, vy, debug) {
-    // oldCollisions = [];
-
-    this.debug = debug || false;
+  constructor(x, y, vx = VX_INIT, vy = VY_INIT, debug = false) {
+    this.debug = debug;
     this.crashed = false;
+    this.sledBroken = false;
 
-    vx = vx || (vx === 0 ? vx : VX_INIT);
-    vy = vy || (vy === 0 ? vy : VY_INIT);
+    this.makePoints();
+    this.makeConstraints();
+    this.makeScarf();
+    this.makeJoints();
 
+    this.initPosAndVel(x, y, vx, vy);
+  }
+
+  makePoints() {
     this.points = POINTS.map( p =>
       new Point(p.xInit, p.yInit, p.friction)
     );
+  }
 
+  makeConstraints() {
     this.constraints = CONSTRAINTS.map( c => {
       let p = this.points[c.p.id];
       let q = this.points[c.q.id];
@@ -136,7 +143,9 @@ class Rider {
       }
       throw new Error('Unknown constraint type');
     });
+  }
 
+  makeScarf() {
     this.scarfPoints = [];
     this.scarfConstraints = [];
 
@@ -146,14 +155,9 @@ class Rider {
       this.scarfPoints.push(q);
       this.scarfConstraints.push(new ScarfStick(p, q));
     }
+  }
 
-    this.points.concat(this.scarfPoints).forEach(p => {
-      p.x += x;
-      p.y += y;
-      p.vx = p.x - vx;
-      p.vy = p.y - vy;
-    });
-
+  makeJoints() {
     let pegTail = this.constraints[PEG_TAIL.id];
     let stringPeg = this.constraints[STRING_PEG.id];
     let shoulderButt = this.constraints[SHOULDER_BUTT.id];
@@ -161,7 +165,15 @@ class Rider {
       new ClockwiseCrashJoint(pegTail, stringPeg),
       new ClockwiseCrashJoint(shoulderButt, stringPeg)
     ];
+  }
 
+  initPosAndVel(x, y, vx, vy) {
+    this.points.concat(this.scarfPoints).forEach(p => {
+      p.x += x;
+      p.y += y;
+      p.vx = p.x - vx;
+      p.vy = p.y - vy;
+    });
   }
 
   jiggleScarf() {
@@ -171,6 +183,7 @@ class Rider {
     points[1].y = points[1].y + Math.random() * 0.3 * -Math.min(shoulder.dy, 125);
   }
 
+  // TODO: make this more efficient
   clone() {
     let copy = clone(this);
     delete copy.states;
@@ -262,7 +275,12 @@ class Rider {
       let alreadyCrashed = this.crashed;
       this.crashed = joint.resolve(this.crashed);
       if (!alreadyCrashed && this.crashed) {
-        console.log('crashed because ' + (i === 0 ? 'sled broken. !!!' : ' attempt at The Cripple!@#$'));
+        if (i === 0) {
+          this.sledBroken = true;
+          console.log('crashed because the sled broke!!2e1r');
+        } else {
+          console.log('bosh attempted The Cripple. now he crashed !@#$');
+        }
       }
     });
   }
