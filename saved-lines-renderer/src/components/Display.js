@@ -33,6 +33,9 @@ function getOffset(x1, y1, x2, y2, offset) {
 }
 
 function getViewBox(lines) {
+    if (lines.length === 0) {
+      return [0, 0, 0, 0];
+    }
     // console.log('lines', lines)
     var box = [].concat.apply([], lines.map(line =>
       [{
