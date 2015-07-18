@@ -84,6 +84,8 @@ class Constraint {
 class Stick extends Constraint {
 
   constructor (p, q) {
+    super();
+
     this.p = p;
     this.q = q;
     this.restLength = this.length;
@@ -193,6 +195,8 @@ class ScarfStick extends Stick {
 class Joint extends Constraint {
 
   constructor(s, t, p = null) {
+    super();
+
     this.s = s;
     this.t = t;
     this.p = p;
