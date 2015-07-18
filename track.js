@@ -2,25 +2,22 @@
  * contains the rider and track lines
  * acts as line storage and physics sim
  */
+'use strict';
 
-var _ = require('lodash');
+var {
+  LineStore,
+  GridStore,
+  OldGridStore
+} = require('./line-store');
 
-// var Line = require('./line');
-var Line = require('./line');
-var
-  LINE = Line.LINE,
-  SolidLine = Line.SolidLine,
-  AccLine = Line.AccLine,
-  SceneryLine = Line.SceneryLine;
+var {
+  LINE,
+  SolidLine,
+  AccLine,
+  SceneryLine
+} = require('./line');
 
 var Rider = require('./rider');
-
-var Store = require('./line-store');
-var
-  LineStore = Store.LineStore,
-  GridStore = Store.GridStore,
-  OldGridStore = Store.OldGridStore;
-
 
 /* Track
  * revision 6.2
