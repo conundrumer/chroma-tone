@@ -29,8 +29,8 @@ const
   ENDURANCE = 0.057,
   VX_INIT = 0.4,
   VY_INIT = 0,
-  SCARF_JIGGLE_INTENSITY = 0.2,
-  SPEED_THRESHOLD_JIGGLE = 125, // as this gets smaller, the scarf intensifies faster while speed increases
+  SCARF_FLUTTER_INTENSITY = 0.2,
+  SPEED_THRESHOLD_FLUTTER = 125, // as this gets smaller, the scarf intensifies faster while speed increases
   // points
   PEG      = { id: 0 , xInit: 0    , yInit: 0    , friction: 0.8 },
   TAIL     = { id: 1 , xInit: 0    , yInit: 5    , friction: 0   },
@@ -177,7 +177,7 @@ class Rider {
     });
   }
 
-  jiggleScarf() {
+  flutterScarf() {
     let shoulder = this.points[SHOULDER.id];
     let points = this.scarfPoints;
     // deterministic psuedo-random number
@@ -185,8 +185,8 @@ class Rider {
     let speed = Math.sqrt(shoulder.dx * shoulder.dx + shoulder.dy * shoulder.dy);
     let randMag = (p.x * p.y) % 1;
     let randAng = (p.x + p.y) % 1;
-    speed *= 1 - Math.pow(2, -speed / SPEED_THRESHOLD_JIGGLE);
-    randMag *= SCARF_JIGGLE_INTENSITY * speed;
+    speed *= 1 - Math.pow(2, -speed / SPEED_THRESHOLD_FLUTTER);
+    randMag *= SCARF_FLUTTER_INTENSITY * speed;
     randAng *= 2 * Math.PI;
     points[1].x += randMag * Math.cos(randAng);
     points[1].y += randMag * Math.sin(randAng);
@@ -238,9 +238,9 @@ class Rider {
     //   points: this.points.map( (p, i) => i )
     // });
 
-    this.jiggleScarf();
+    this.flutterScarf();
 
-    // this.debugSaveState('pre-iterate (scarf jiggled)', {
+    // this.debugSaveState('pre-iterate (scarf fluttered)', {
     //   scarfPoints: this.scarfPoints.map( (p, i) => i )
     // });
 
