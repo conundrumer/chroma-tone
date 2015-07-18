@@ -18,7 +18,7 @@
  */
 class Point {
 
-  constructor(x, y, friction, airFriction) {
+  constructor(x, y, friction = 0, airFriction = 1) {
 
     // TODO: should I use point IDs???
     // this.id = id++; // debug
@@ -33,8 +33,8 @@ class Point {
     this.vx = x;
     this.vy = y;
 
-    this.friction = friction || 0;
-    this.airFriction = (airFriction !== undefined) ? airFriction : 1;
+    this.friction = friction;
+    this.airFriction = airFriction;
   }
 
   step(gravity) {
@@ -44,6 +44,29 @@ class Point {
     this.vy = this.y;
     this.x += this.dx;
     this.y += this.dy;
+  }
+
+}
+
+class Constraint {
+
+  shouldCrash(crashed) {
+    return crashed;
+  }
+
+  shouldResolve() {
+    return true;
+  }
+
+  doResolve() {
+    throw new Error('Not implemented');
+  }
+
+  resolve(crashed) {
+    if (this.shouldResolve(crashed)) {
+      this.doResolve();
+    }
+    return this.shouldCrash(crashed);
   }
 
 }
@@ -58,7 +81,7 @@ class Point {
  * - q
  * - restLength
  */
-class Stick {
+class Stick extends Constraint {
 
   constructor (p, q) {
     this.p = p;
@@ -86,14 +109,6 @@ class Stick {
 
   // set dx(x) {}, set dy(x) {}, set length(x) {}, set diff(x) {},
 
-  shouldCrash(crashed) {
-    return crashed;
-  }
-
-  shouldResolve() {
-    return true;
-  }
-
   doResolve() {
     let dx = this.dx * this.diff;
     let dy = this.dy * this.diff;
@@ -101,13 +116,6 @@ class Stick {
     this.p.y -= dy;
     this.q.x += dx;
     this.q.y += dy;
-  }
-
-  resolve(crashed) {
-    if (this.shouldResolve(crashed)) {
-      this.doResolve();
-    }
-    return this.shouldCrash(crashed);
   }
 
 }
@@ -177,10 +185,42 @@ class ScarfStick extends Stick {
 
 }
 
+class Joint extends Constraint {
+
+  constructor(s, t, p = null) {
+    this.s = s;
+    this.t = t;
+    this.p = p;
+  }
+
+}
+
+// allow kramuals
+class ClockwiseCrashJoint extends Joint {
+
+  constructor(s, t) {
+    super(s, t);
+  }
+
+  isClockwise() {
+    return this.s.dx * this.t.dy - this.s.dy * this.t.dx >= 0;
+  }
+
+  shouldResolve() {
+    return false;
+  }
+
+  shouldCrash(crashed) {
+    return crashed || !this.isClockwise();
+  }
+
+}
+
 module.exports = {
-  Point: Point,
-  Stick: Stick,
-  BindStick: BindStick,
-  RepelStick: RepelStick,
-  ScarfStick: ScarfStick
+  Point,
+  Stick,
+  BindStick,
+  RepelStick,
+  ScarfStick,
+  ClockwiseCrashJoint
 };
