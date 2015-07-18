@@ -14,7 +14,8 @@ var {
   Stick,
   BindStick,
   RepelStick,
-  ScarfStick
+  ScarfStick,
+  ClockwiseCrashJoint
 } = require('./entities');
 
 // I should figure out a way to generalize bodies
@@ -153,6 +154,14 @@ class Rider {
       p.vy = p.y - vy;
     });
 
+    let pegTail = this.constraints[PEG_TAIL.id];
+    let stringPeg = this.constraints[STRING_PEG.id];
+    let shoulderButt = this.constraints[SHOULDER_BUTT.id];
+    this.joints = [
+      new ClockwiseCrashJoint(pegTail, stringPeg),
+      new ClockwiseCrashJoint(shoulderButt, stringPeg)
+    ];
+
   }
 
   jiggleScarf() {
@@ -248,6 +257,14 @@ class Rider {
     //   scarfConstraints: this.scarfConstraints.map( (c, i) => i )
     // });
     // oldCollisions = collisions;
+
+    this.joints.forEach( (joint, i) => {
+      let alreadyCrashed = this.crashed;
+      this.crashed = joint.resolve(this.crashed);
+      if (!alreadyCrashed && this.crashed) {
+        console.log('crashed because ' + (i === 0 ? 'sled broken. !!!' : ' attempt at The Cripple!@#$'));
+      }
+    });
   }
 
   // debugResetSavedStates() {
