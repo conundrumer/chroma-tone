@@ -17,7 +17,7 @@ var {
   SceneryLine
 } = require('./line');
 
-var Rider = require('./rider');
+var {Rider, DebugRider} = require('./rider');
 
 /* Track
  * revision 6.2
@@ -35,8 +35,8 @@ var Rider = require('./rider');
  * - store
  */
 class Track {
-  constructor(lineData, startPosition, debug) {
-    this.debug = debug || false;
+  constructor(lineData, startPosition, debug = false) {
+    this.debug = debug;
 
     this.startPosition = startPosition || { x: 0, y: 0 };
     this.resetFrameCache();
@@ -49,7 +49,7 @@ class Track {
   set startPosition(pos) {
     this.startX = pos.x;
     this.startY = pos.y;
-    this.initRider = new Rider(pos.x, pos.y, undefined, undefined, this.debug);
+    this.initRider = new (this.debug ? DebugRider : Rider)(pos.x, pos.y);
   }
 
   get startPosition() {
