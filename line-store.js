@@ -25,6 +25,7 @@ const GRID_SIZE = 14;
  */
 class LineStore {
   constructor() {
+    // if performance problems, will make this array sorted
     this.lines = [];
   }
 
@@ -114,13 +115,19 @@ class GridStore extends LineStore {
     }
   }
 
-  getSolidLinesAt(x, y) {
+  getSolidLinesAt(x, y, debug = false) {
     let cellPos = this.solidGrid.getCellPos(x, y);
     let range = [-1, 0, 1];
+    let lines = [];
 
-    let lines = _.flattenDeep(range.map( i => range.map( j =>
-        this.solidGrid.getLinesFromCell({ x: i + cellPos.x, y: j + cellPos.y })
-    )));
+    _.forEach(range, i =>
+      _.forEach(range, j => {
+        let cPos = {x: i + cellPos.x, y: j + cellPos.y };
+        _.forEach(this.solidGrid.getLinesFromCell(cPos), line =>
+          lines.push(debug ? { line: line, cellPos: cPos } : line)
+        );
+      })
+    );
 
     return lines;
   }
