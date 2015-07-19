@@ -3,9 +3,9 @@
  */
 
 /*eslint no-multi-spaces: 0 comma-spacing: 0*/
-/*eslint no-loop-func: 0*/
 'use strict';
 
+var _ = require('lodash');
 var clone = require('clone');
 
 var {
@@ -109,8 +109,7 @@ const
  * - scarfConstraints
  */
 class Rider {
-  constructor(x, y, vx = VX_INIT, vy = VY_INIT, debug = false) {
-    this.debug = debug;
+  constructor(x, y, vx = VX_INIT, vy = VY_INIT) {
     this.crashed = false;
     this.sledBroken = false;
 
@@ -123,26 +122,35 @@ class Rider {
   }
 
   makePoints() {
-    this.points = POINTS.map( p =>
-      new Point(p.xInit, p.yInit, p.friction)
-    );
+    this.points = POINTS.map( (p, i) => {
+      let point = new Point(p.xInit, p.yInit, p.friction);
+      point.id = i; // ok sure let's have IDs
+      return point;
+    });
   }
 
   makeConstraints() {
-    this.constraints = CONSTRAINTS.map( c => {
+    this.constraints = CONSTRAINTS.map( (c, i) => {
+      let stick;
       let p = this.points[c.p.id];
       let q = this.points[c.q.id];
       switch(c.type) {
         case STICK:
-          return new Stick(p, q);
+          stick = new Stick(p, q);
+          break;
         case BIND_STICK:
-          return new BindStick(p, q, ENDURANCE);
+          stick = new BindStick(p, q, ENDURANCE);
+          break;
         case REPEL_STICK:
           let stick = new RepelStick(p, q);
           stick.restLength *= 0.5;
-          return stick;
+          stick = stick;
+          break;
+        default:
+          throw new Error('Unknown constraint type');
       }
-      throw new Error('Unknown constraint type');
+      stick.id = i; // ok sure let's have IDs
+      return stick;
     });
   }
 
@@ -177,21 +185,6 @@ class Rider {
     });
   }
 
-  flutterScarf() {
-    let shoulder = this.points[SHOULDER.id];
-    let points = this.scarfPoints;
-    // deterministic psuedo-random number
-    let p = points[this.scarfPoints.length-1];
-    let speed = Math.sqrt(shoulder.dx * shoulder.dx + shoulder.dy * shoulder.dy);
-    let randMag = (p.x * p.y) % 1;
-    let randAng = (p.x + p.y) % 1;
-    speed *= 1 - Math.pow(2, -speed / SPEED_THRESHOLD_FLUTTER);
-    randMag *= SCARF_FLUTTER_INTENSITY * speed;
-    randAng *= 2 * Math.PI;
-    points[1].x += randMag * Math.cos(randAng);
-    points[1].y += randMag * Math.sin(randAng);
-  }
-
   // TODO: make this more efficient
   clone() {
     let copy = clone(this);
@@ -224,117 +217,122 @@ class Rider {
     return bodyParts;
   }
 
-  step(lineStore, gravity) {
-    // var collisions = [];
-
-    gravity = gravity || GRAVITY;
-
-    // this.debugResetSavedStates();
-    // this.debugSaveState('start');
-
-    this.points.forEach( p => p.step(gravity) );
-
-    // this.debugSaveState('points stepped', {
-    //   points: this.points.map( (p, i) => i )
-    // });
-
-    this.flutterScarf();
-
-    // this.debugSaveState('pre-iterate (scarf fluttered)', {
-    //   scarfPoints: this.scarfPoints.map( (p, i) => i )
-    // });
-
-    this.scarfPoints.forEach( p => p.step(gravity) );
-
-    for (let i = 0; i < ITERATE; i++) {
-
-      this.constraints.forEach( (c, j) => {
-        let alreadyCrashed = this.crashed;
-        this.crashed = c.resolve(this.crashed);
-
-        // this.debugSaveState(i.toString() + ': resolved constraint ' + j, {
-        //   constraints: [j]
-        // });
-
-        if (!alreadyCrashed && this.crashed) {
-          console.log('craSHED!12UI4!!~');
-          if (this.debug) {
-            // console.log(this.states);
-          }
-
-        }
-      });
-
-      this.points.forEach( p => lineStore.getSolidLinesAt(p.x, p.y).forEach( line => {
-        line.collide(p);
-        // if (this.debug) {
-        //   collisions.push('iter ' + i.toString() + ', point ' + p.id + ', line ' + line.id);
-        // }
-      } ) );
-    }
-
-    this.scarfConstraints.forEach( c => c.resolve() );
-
-    // this.debugSaveState('end (scarf resolved)', {
-    //   scarfConstraints: this.scarfConstraints.map( (c, i) => i )
-    // });
-    // oldCollisions = collisions;
-
-    this.joints.forEach( (joint, i) => {
-      let alreadyCrashed = this.crashed;
-      this.crashed = joint.resolve(this.crashed);
-      if (!alreadyCrashed && this.crashed) {
-        if (i === 0) {
-          this.sledBroken = true;
-          console.log('crashed because the sled broke!!2e1r');
-        } else {
-          console.log('bosh attempted The Cripple. now he crashed !@#$');
-        }
-      }
-    });
+  static getFlutter(base, seed) {
+    let speed = Math.sqrt(base.dx * base.dx + base.dy * base.dy);
+    let randMag = (seed.x * seed.y) % 1;
+    let randAng = (seed.x + seed.y) % 1;
+    speed *= 1 - Math.pow(2, -speed / SPEED_THRESHOLD_FLUTTER);
+    randMag *= SCARF_FLUTTER_INTENSITY * speed;
+    randAng *= 2 * Math.PI;
+    return {
+      x: randMag * Math.cos(randAng),
+      y: randMag * Math.sin(randAng)
+    };
   }
 
-  // debugResetSavedStates() {
-  //   if (this.debug) {
-  //     this.states = [];
-  //   }
-  // }
+  step(lineStore, gravity = GRAVITY) {
 
-  // // when you need to debug the debugger.......
-  // debugSaveState(description, changed) {
-  //   if (this.debug) {
-  //     // console.log(description, changed);
-  //     changed = changed || {};
+    _.forEach(this.points, point =>
+      this.stepPoint(point, gravity)
+    );
 
-  //     let points = clone(this.points);
+    _.times(ITERATE, i => {
+      _.forEach(this.constraints, constraint =>
+        this.stepConstraint(constraint, i)
+      );
+      _.forEach(this.points, point =>
+        _.forEach(this.getSolidLines(lineStore, point), line =>
+          this.stepCollision(point, line, i)
+        )
+      );
+    });
 
-  //     let state = {
-  //       points: points,
-  //       crashed: this.crashed,
-  //       constraints: []
-  //     };
-  //     // console.log(state);
+    this.stepScarf(gravity);
 
-  //     let lines = changed.lines;
-  //     delete changed.lines;
-  //     _.map(changed, (entityIDs, entitiesName) => {
-  //       changed[entitiesName] = entityIDs.map( i => state[entitiesName][i] );
-  //     });
-  //     this.states.push({
-  //       description: description,
-  //       changed: _.assign({
-  //         points: [],
-  //         constraints: [],
-  //         scarfPoints: [],
-  //         scarfConstraints: [],
-  //         lines: lines || []
-  //       }, changed),
-  //       state: state
-  //     });
-  //   }
-  // }
+    _.forEach(this.joints, (joint, i) =>
+      this.stepJoint(joint, i)
+    );
+  }
 
+  stepPoint(point, gravity) {
+    point.step(gravity);
+  }
+
+  stepScarf(gravity) {
+    let base = this.points[SHOULDER.id];
+    let seed = this.points[this.scarfPoints.length-1];
+    let flutter = Rider.getFlutter(base, seed);
+    this.scarfPoints[1].x += flutter.x;
+    this.scarfPoints[1].y += flutter.y;
+
+    _.forEach(this.scarfPoints, p => p.step(gravity) );
+    _.forEach(this.scarfConstraints, c => c.resolve() );
+  }
+
+  stepConstraint(constraint, i) {
+    this.crashed = constraint.resolve(this.crashed);
+  }
+
+  getSolidLines(lineStore, point) {
+    return lineStore.getSolidLinesAt(point.x, point.y);
+  }
+
+  stepCollision(point, line, i) {
+    line.collide(point);
+  }
+
+  stepJoint(joint, i) {
+    let didCrash = joint.resolve();
+
+    this.crashed = this.crashed || didCrash;
+    this.sledBroken = this.sledBroken || i === 0 && didCrash;
+  }
 }
 
+class DebugRider extends Rider {
 
-module.exports = Rider;
+  step(lineStore, gravity) {
+    // this.initializeDebuggingthing();
+    super.step(lineStore, gravity);
+  }
+
+  stepPoint(point, gravity) {
+    super.stepPoint(point, gravity);
+  }
+
+  stepConstraint(constraint, i) {
+    let hasCrashed = this.crashed;
+
+    super.stepConstraint(constraint, i);
+
+    if (!hasCrashed && this.crashed) {
+      console.log('craSHED!12UI4!!~');
+    }
+  }
+
+  getSolidLines(lineStore, point) {
+    return lineStore.getSolidLinesAt(point.x, point.y, true);
+  }
+
+  stepCollision(point, lineData, i) {
+    // lineData.cellPos
+    super.stepCollision(point, lineData.line, i);
+  }
+
+  stepJoint(joint, i) {
+    let hasCrashed = this.crashed;
+
+    super.stepJoint(joint, i);
+
+    if (!hasCrashed && this.crashed) {
+      if (i === 0) {
+        console.log('crashed because the sled broke!!2e1r');
+      } else {
+        console.log('bosh attempted The Cripple. now he crashed !@#$');
+      }
+    }
+
+  }
+}
+
+module.exports = {Rider, DebugRider};
