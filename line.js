@@ -107,6 +107,10 @@ class Line {
     return (this.leftExtended << 0) | (this.rightExtended << 1);
   }
 
+  get extended() {
+    return this.lim;
+  }
+
   ox(p) {
     return p.x - this.x1;
   }
