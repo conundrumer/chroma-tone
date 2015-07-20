@@ -3,6 +3,14 @@
  */
 'use strict';
 
+class Entity {
+
+  constructor(id) {
+    this.id = id;
+  }
+
+}
+
 /* Point
  *
  * public:
@@ -16,12 +24,10 @@
  * - dx
  * - dy
  */
-class Point {
+class Point extends Entity {
 
-  constructor(x, y, friction = 0, airFriction = 1) {
-
-    // TODO: should I use point IDs???
-    // this.id = id++; // debug
+  constructor(id, x, y, friction = 0, airFriction = 1) {
+    super(id);
 
     // position
     this.x = x;
@@ -48,7 +54,7 @@ class Point {
 
 }
 
-class Constraint {
+class Constraint extends Entity {
 
   shouldCrash(crashed) {
     return crashed;
@@ -83,8 +89,8 @@ class Constraint {
  */
 class Stick extends Constraint {
 
-  constructor (p, q) {
-    super();
+  constructor (id, p, q) {
+    super(id);
 
     this.p = p;
     this.q = q;
@@ -140,8 +146,8 @@ class Stick extends Constraint {
  */
 class BindStick extends Stick {
 
-  constructor(p, q, endurance) {
-    super(p, q);
+  constructor(id, p, q, endurance) {
+    super(id, p, q);
     this.endurance = endurance * this.restLength * 0.5;
   }
 
@@ -194,8 +200,8 @@ class ScarfStick extends Stick {
 
 class Joint extends Constraint {
 
-  constructor(s, t, p = null) {
-    super();
+  constructor(id, s, t, p = null) {
+    super(id);
 
     this.s = s;
     this.t = t;
@@ -206,10 +212,6 @@ class Joint extends Constraint {
 
 // allow kramuals
 class ClockwiseCrashJoint extends Joint {
-
-  constructor(s, t) {
-    super(s, t);
-  }
 
   isClockwise() {
     return this.s.dx * this.t.dy - this.s.dy * this.t.dx >= 0;

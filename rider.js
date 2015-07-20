@@ -122,34 +122,31 @@ class Rider {
   }
 
   makePoints() {
-    this.points = POINTS.map( (p, i) => {
-      let point = new Point(p.xInit, p.yInit, p.friction);
-      point.id = i; // ok sure let's have IDs
+    this.points = POINTS.map( p => {
+      let point = new Point(p.id, p.xInit, p.yInit, p.friction);
       return point;
     });
   }
 
   makeConstraints() {
-    this.constraints = CONSTRAINTS.map( (c, i) => {
+    this.constraints = CONSTRAINTS.map( c => {
       let stick;
       let p = this.points[c.p.id];
       let q = this.points[c.q.id];
       switch(c.type) {
         case STICK:
-          stick = new Stick(p, q);
+          stick = new Stick(c.id, p, q);
           break;
         case BIND_STICK:
-          stick = new BindStick(p, q, ENDURANCE);
+          stick = new BindStick(c.id, p, q, ENDURANCE);
           break;
         case REPEL_STICK:
-          let stick = new RepelStick(p, q);
+          stick = new RepelStick(c.id, p, q);
           stick.restLength *= 0.5;
-          stick = stick;
           break;
         default:
           throw new Error('Unknown constraint type');
       }
-      stick.id = i; // ok sure let's have IDs
       return stick;
     });
   }
@@ -160,9 +157,9 @@ class Rider {
 
     for (let i = 0; i < SCARF.numSegments; i++) {
       let p = (i === 0) ? this.points[SHOULDER.id] : this.scarfPoints[i-1];
-      let q = new Point(p.x - SCARF.segmentLength, p.y, 0, SCARF.airFriction);
+      let q = new Point(-i - 1, p.x - SCARF.segmentLength, p.y, 0, SCARF.airFriction);
       this.scarfPoints.push(q);
-      this.scarfConstraints.push(new ScarfStick(p, q));
+      this.scarfConstraints.push(new ScarfStick(-i - 1, p, q));
     }
   }
 
@@ -171,8 +168,8 @@ class Rider {
     let stringPeg = this.constraints[STRING_PEG.id];
     let shoulderButt = this.constraints[SHOULDER_BUTT.id];
     this.joints = [
-      new ClockwiseCrashJoint(pegTail, stringPeg),
-      new ClockwiseCrashJoint(shoulderButt, stringPeg)
+      new ClockwiseCrashJoint(0, pegTail, stringPeg),
+      new ClockwiseCrashJoint(1, shoulderButt, stringPeg)
     ];
   }
 
