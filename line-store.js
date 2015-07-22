@@ -7,9 +7,7 @@
 
 var _ = require('lodash');
 
-var LINE = require('./line').LINE;
-
-var { Grid, GridV62, GridV61 } = require('./grid');
+var { Grid, GridV62, GridV61, getCellHash } = require('./grid');
 
 const GRID_SIZE = 14;
 
@@ -47,23 +45,16 @@ class LineStore {
   }
 
   getLinesInRadius(x, y, r) {
-    return this.lines.filter(line => line.inCircle(x, y, r));
+    return _.filter(this.lines, line => line.inCircle(x, y, r));
   }
 
   getLinesInBox(x1, y1, x2, y2) {
-    return this.lines.filter(line => line.inBox(x1, y1, x2, y2));
+    return _.filter(this.lines, line => line.inBox(x1, y1, x2, y2));
   }
 
-  // does something with each line around (x, y)
-  // like do collisions on points
   // the ordering of the lines affects the physics
-  selectCollidingLines(x, y, handler) {
-    this.lines.forEach((line) => {
-      if (line.type !== LINE.SCENERY) {
-        handler(line);
-      }
-    });
-    // return this.lines
+  getSolidLinesAt(x, y, debug = false) {
+    return _.filter(this.lines, line => line.isSolid);
   }
 
 }
@@ -93,6 +84,9 @@ class GridStore extends LineStore {
     // i think it was 2d sorted arrays?
     // i'll do it later
     this.grid = new Grid(GRID_SIZE * 4, false);
+
+    // for some reason, querying the grid is time consuming, so caching improves performance
+    this.resetSolidLinesCache();
   }
 
   addLine(line) {
@@ -117,19 +111,37 @@ class GridStore extends LineStore {
 
   getSolidLinesAt(x, y, debug = false) {
     let cellPos = this.solidGrid.getCellPos(x, y);
-    let range = [-1, 0, 1];
-    let lines = [];
 
-    _.forEach(range, i =>
-      _.forEach(range, j => {
-        let cPos = {x: i + cellPos.x, y: j + cellPos.y };
-        _.forEach(this.solidGrid.getLinesFromCell(cPos), line =>
-          lines.push(debug ? { line: line, cellPos: cPos } : line)
-        );
-      })
-    );
+    let key = getCellHash(cellPos.x, cellPos.y);
+    let lines = this.solidLinesCache[key];
+    if (lines) {
+      return lines;
+    }
+    lines = [];
+
+    let addLine = line => lines.push(line);
+
+    // normally i would avoid for loops but lots of iterations here
+    for (let i = -1; i <= 1; i++) {
+      for (let j = -1; j <= 1; j++) {
+        let lines = this.solidGrid.getLinesFromCell(i + cellPos.x, j + cellPos.y);
+        for (let k = 0; k < lines.length; k++) {
+          addLine(lines[k]);
+        }
+      }
+    }
+
+    this.solidLinesCache[key] = lines;
 
     return lines;
+  }
+
+  getLines(cPos) {
+    return this.solidGrid.getLinesFromCell(cPos);
+  }
+
+  resetSolidLinesCache() {
+    this.solidLinesCache = Object.create(null);
   }
 
 }
