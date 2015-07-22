@@ -10,6 +10,8 @@
 
 'use strict';
 
+var Vector = require('./vector');
+
 const
   // physics
   MAX_FORCE_LENGTH = 10,
@@ -30,10 +32,8 @@ const
 class Line {
   constructor(id, x1, y1, x2, y2) {
     this.id = id;
-    this.x1 = x1;
-    this.y1 = y1;
-    this.x2 = x2;
-    this.y2 = y2;
+    this.p = new Vector(x1, y1);
+    this.q = new Vector(x2, y2);
     this.flipped = false;
   }
 
@@ -45,57 +45,51 @@ class Line {
     return undefined;
   }
 
+  getConstants() {
+    let vec = this.q.clone().subtract(this.p);
+    let lengthSq = vec.lengthSq();
+    let invLengthSq = 1 / lengthSq;
+    let length = Math.sqrt(lengthSq);
+    let invLength = 1 / length;
+    let norm = vec.clone().rotateRight().mulS(invLength * this.flip);
+    let extension = Math.min(MIN_EXTENSION_RATIO, MAX_FORCE_LENGTH / length);
+    let leftBound = this.leftExtended ? -extension : 0;
+    let rightBound = this.rightExtended ? 1 + extension : 1;
+    return { vec, norm, invLengthSq, length, extension, leftBound, rightBound };
+  }
+
+  get x1() {
+    return this.p.x;
+  }
+  get y1() {
+    return this.p.y;
+  }
+  get x2() {
+    return this.q.x;
+  }
+  get y2() {
+    return this.q.y;
+  }
+
   get flip() {
     return 1;
   }
 
-  get dx() {
-    return this.x2 - this.x1;
+  get vec() {
+    return this.c.vec;
   }
-  get dy() {
-    return this.y2 - this.y1;
+  get norm() {
+    return this.c.norm;
   }
-  // get cross() {
-  //     return this.dy * this.x1 - this.dx * this.y1;
-  // }
-  get sqrDst() {
-    return Math.pow(this.dx, 2) + Math.pow(this.dy, 2);
+  get length() {
+    return this.c.length;
   }
-  get invSqrDst() {
-    return 1 / this.sqrDst;
-  }
-  get dst() {
-    return Math.sqrt(this.sqrDst);
-  }
-  get invDst() {
-    return 1 / this.dst;
-  }
-  get nx() {
-    return this.dy * this.invDst * -this.flip;
-  }
-  get ny() {
-    return this.dx * this.invDst * this.flip;
-  }
-  // get x() {
-  //   return this.x1 + this.dx * 0.5;
-  // }
-  // get y() {
-  //   return this.y1 + this.dy * 0.5;
-  // }
-  // get hx() {
-  //   return Math.abs(this.dx) * 0.5;
-  // }
-  // get hy() {
-  //   return Math.abs(this.dy) * 0.5;
-  // }
-  get extension() {
-    return Math.min(MIN_EXTENSION_RATIO, MAX_FORCE_LENGTH / this.dst);
-  }
+
   get leftBound() {
-    return this.leftExtended ? -this.extension : 0;
+    return this.leftExtended ? -this.c.extension : 0;
   }
   get rightBound() {
-    return this.rightExtended ? 1 + this.extension : 1;
+    return this.rightExtended ? 1 + this.c.extension : 1;
   }
 
   // legacy thing, to remove
@@ -111,31 +105,41 @@ class Line {
     return this.lim;
   }
 
-  ox(p) {
-    return p.x - this.x1;
-  }
-
-  oy(p) {
-    return p.y - this.y1;
+  offset(p) {
+    Line.tempVec.set(p.pos).subtract(this.p);
+    return Line.tempVec;
   }
 
   // perpendicular component
-  perpComp(p) {
-    return this.nx * this.ox(p) + this.ny * this.oy(p);
+  perpComp(offset) {
+    return this.c.norm.dot(offset);
   }
 
   // normalized parallel component
   // or closest relative position on the line to the point
-  linePos(p) {
-    return (this.ox(p) * this.dx + this.oy(p) * this.dy) * this.invSqrDst;
+  // this is the slowest function
+  // so maybe come up with a faster boundary checking algo
+  linePos(offset) {
+    return this.c.vec.dot(offset) * this.c.invLengthSq;
   }
+
+  inCircle(x, y, r) {
+    throw new Error('not implemented');
+  }
+
+  inBox(x1, y1, x2, y2) {
+    throw new Error('not implemented');
+  }
+
 }
+Line.tempVec = new Vector(0, 0);
 
 class SolidLine extends Line {
   constructor(id, x1, y1, x2, y2, inv, lim) {
     super(id, x1, y1, x2, y2);
     this.flipped = inv;
     this.lim = lim === undefined ? 0 : lim;
+    this.c = this.getConstants();
   }
 
   get type() {
@@ -149,63 +153,70 @@ class SolidLine extends Line {
     return this.flipped ? -1 : 1;
   }
 
-  shouldCollide(p) {
-    let pntDirection = p.dx * this.nx + p.dy * this.ny;
-    let perpComp = this.perpComp(p);
-    let linePos = this.linePos(p);
+  shouldCollide(perpComp, linePos, p) {
+    let pntDirection = this.c.norm.dot(p.vel);
 
     let pointMovingIntoLine = pntDirection > 0;
     let pointInForceBounds = perpComp > 0 && perpComp < MAX_FORCE_LENGTH &&
-      linePos >= this.leftBound && linePos <= this.rightBound;
+      linePos >= this.c.leftBound && linePos <= this.c.rightBound;
 
     return pointMovingIntoLine && pointInForceBounds;
   }
 
-  doCollide(p) {
-    // perpendicular component
-    var perpComp = this.perpComp(p);
-    p.x -= perpComp * this.nx;
-    p.y -= perpComp * this.ny;
-    p.vx += this.ny * p.friction * perpComp * (p.vx < p.x ? 1 : -1);
-    p.vy -= this.nx * p.friction * perpComp * (p.vy < p.y ? -1 : 1);
+  doCollide(perpComp, p) {
+    let vec = Line.tempVec;
 
+    vec.set(this.c.norm).mulS(perpComp);
+    p.pos.subtract(vec);
+
+    // move the previous point closer to reduce inertia and simulate friction
+    // retain multiplication order because order matters
+    vec.set(this.c.norm).rotateLeft().mulS(p.friction).mulS(perpComp).mulV({
+      x: p.prevPos.x < p.pos.x ? 1 : -1,
+      y: p.prevPos.y < p.pos.y ? -1 : 1
+    });
+    p.prevPos.add(vec);
   }
 
-  postCollide(p) {
+  postCollide(perpComp, p) {
     return; // do nothing
   }
 
   collide(p) {
-    if (this.shouldCollide(p)) {
-      this.doCollide(p);
-      this.postCollide(p);
+    let offset = this.offset(p);
+    var perpComp = this.perpComp(offset);
+    var linePos = this.linePos(offset);
+    if (this.shouldCollide(perpComp, linePos, p)) {
+      this.doCollide(perpComp, p);
+      this.postCollide(perpComp, p);
       return true;
-    } // end if
+    }
     return false;
   }
 
 
 }
 class AccLine extends SolidLine {
+  constructor(id, x1, y1, x2, y2, inv, lim) {
+    super(id, x1, y1, x2, y2, inv, lim);
+    this.c.acc = this.c.norm.clone().rotateRight().mulS(ACC * this.flip);
+  }
 
   get type() {
     return LINE.ACC;
   }
 
-  get accx() {
-    return this.ny * ACC * -this.flip;
-  }
-  get accy() {
-    return this.nx * ACC * this.flip;
-  }
-
-  postCollide(p) {
-    p.vx += this.accx;
-    p.vy += this.accy;
+  postCollide(perpComp, p) {
+    p.prevPos.add(this.c.acc);
   }
 }
 
 class FloorScenery extends Line {
+
+  constructor(id, x1, y1, x2, y2) {
+    super(id, x1, y1, x2, y2);
+    this.c = this.getConstants();
+  }
 
   get type() {
     return LINE.SCENERY;
