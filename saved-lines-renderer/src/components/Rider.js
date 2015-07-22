@@ -12,7 +12,7 @@ var Rider = React.createClass({
       rightLeg,
       leftLeg,
       scarf
-    } = this.props.rider.bodyParts;
+    } = this.props.rider.getBodyParts();
 
     let scarfPart = this.props.rider.scarfConstraints.map((c, i) =>
       <line key={-i}
