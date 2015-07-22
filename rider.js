@@ -90,8 +90,6 @@ const
     segmentLength: 2
   };
 
-// var oldCollisions = [];
-
 /* Rider
  * - creates a new rider at (x,y) and gives the rider velocity (vx, vy)
  *
@@ -114,6 +112,7 @@ class Rider extends Entity {
     this.crashed = false;
     this.sledBroken = false;
 
+    // TODO: separate rider state creation/management and physics
     this.makePoints();
     this.makeConstraints();
     this.makeScarf();
@@ -128,7 +127,6 @@ class Rider extends Entity {
       return point;
     });
   }
-
   makeConstraints() {
     this.constraints = CONSTRAINTS.map( c => {
       let stick;
@@ -151,7 +149,6 @@ class Rider extends Entity {
       return stick;
     });
   }
-
   makeScarf() {
     this.scarfPoints = [];
     this.scarfConstraints = [];
@@ -163,7 +160,6 @@ class Rider extends Entity {
       this.scarfConstraints.push(new ScarfStick(-i - 1, p, q));
     }
   }
-
   makeJoints() {
     let pegTail = this.constraints[PEG_TAIL.id];
     let stringPeg = this.constraints[STRING_PEG.id];
@@ -173,50 +169,15 @@ class Rider extends Entity {
       new ClockwiseCrashJoint(1, shoulderButt, stringPeg)
     ];
   }
-
   initPosAndVel(x, y, vx, vy) {
     this.points.concat(this.scarfPoints).forEach(p => {
-      p.x += x;
-      p.y += y;
-      p.vx = p.x - vx;
-      p.vy = p.y - vy;
+      p.pos.add({ x: x, y: y });
+      p.prevPos.set(p.pos).subtract({ x: vx, y: vy });
     });
-  }
-
-  // TODO: make this more efficient
-  clone() {
-    let copy = clone(this);
-    delete copy.states;
-    return copy;
-  }
-
-  get bodyParts() {
-    let getPosition = (p, q) => {
-      return {
-        x: p.x,
-        y: p.y,
-        angle: Math.atan2(q.y - p.y, q.x - p.x)
-      };
-    };
-
-    let bodyParts = {};
-    BODY_PARTS.forEach(bodyPart => {
-      let p = this.points[bodyPart.p.id];
-      let q = this.points[bodyPart.q.id];
-      bodyParts[bodyPart.name] = getPosition(p, q);
-    });
-
-    bodyParts.scarf = [];
-    for (let i = 0; i < this.scarfConstraints.length; i++) {
-      let p = (i === 0) ? this.points[SHOULDER.id] : this.scarfPoints[i-1];
-      let q = this.scarfPoints[i];
-      bodyParts.scarf.push(getPosition(p, q));
-    }
-    return bodyParts;
   }
 
   static getFlutter(base, seed) {
-    let speed = Math.sqrt(base.dx * base.dx + base.dy * base.dy);
+    let speed = Math.sqrt(base.vel.magnitude());
     let randMag = (seed.x * seed.y) % 1;
     let randAng = (seed.x + seed.y) % 1;
     speed *= 1 - Math.pow(2, -speed / SPEED_THRESHOLD_FLUTTER);
@@ -227,64 +188,140 @@ class Rider extends Entity {
       y: randMag * Math.sin(randAng)
     };
   }
-
-  step(lineStore, gravity = GRAVITY) {
-
-    _.forEach(this.points, point =>
-      this.stepPoint(point, gravity)
-    );
-
-    _.times(ITERATE, i => {
-      _.forEach(this.constraints, constraint =>
-        this.stepConstraint(constraint, i)
-      );
-      _.forEach(this.points, point =>
-        _.forEach(this.getSolidLines(lineStore, point), line =>
-          this.stepCollision(point, line, i)
-        )
-      );
-    });
-
-    this.stepScarf(gravity);
-
-    _.forEach(this.joints, (joint, i) =>
-      this.stepJoint(joint, i)
-    );
-  }
-
   stepPoint(point, gravity) {
     point.step(gravity);
   }
-
   stepScarf(gravity) {
     let base = this.points[SHOULDER.id];
     let seed = this.points[this.scarfPoints.length-1];
     let flutter = Rider.getFlutter(base, seed);
-    this.scarfPoints[1].x += flutter.x;
-    this.scarfPoints[1].y += flutter.y;
+    this.scarfPoints[1].pos.add(flutter);
 
-    _.forEach(this.scarfPoints, p => p.step(gravity) );
-    _.forEach(this.scarfConstraints, c => c.resolve() );
+    for (let i = 0; i < this.scarfPoints.length; i++) {
+      this.scarfPoints[i].step(gravity);
+    }
+    for (let i = 0; i < this.scarfConstraints.length; i++) {
+      this.scarfConstraints[i].resolve();
+    }
   }
-
   stepConstraint(constraint, i) {
     this.crashed = constraint.resolve(this.crashed);
   }
-
   getSolidLines(lineStore, point) {
     return lineStore.getSolidLinesAt(point.x, point.y);
   }
-
   stepCollision(point, line, i) {
     line.collide(point);
   }
-
   stepJoint(joint, i) {
     let didCrash = joint.resolve();
 
     this.crashed = this.crashed || didCrash;
     this.sledBroken = this.sledBroken || i === 0 && didCrash;
   }
+  step(lineStore, gravity = GRAVITY) {
+    // normally i would avoid for loops but lots of iterations here
+    for (let i = 0; i < this.points.length; i++) {
+      this.stepPoint(this.points[i], gravity);
+    }
+    for (let i = 0; i < ITERATE; i++) {
+      for (let idx = 0; idx < this.constraints.length; idx++) {
+        this.stepConstraint(this.constraints[idx], i);
+      }
+      for(let idx = 0; idx < this.points.length; idx++) {
+        let point = this.points[idx];
+        let lines = this.getSolidLines(lineStore, point);
+        for (let j = 0; j < lines.length; j++) {
+          this.stepCollision(point, lines[j], i);
+        }
+      }
+    }
+
+    this.stepScarf(gravity);
+
+    for (let i = 0; i < this.joints.length; i++) {
+      this.stepJoint(this.joints[i], i);
+    }
+  }
+
+  copyState() {
+    let copy = {};
+    copy.points = _.map(this.points, point => point.clone());
+    copy.constraints = _.map(this.constraints, (c, i) => {
+      let cProps = CONSTRAINTS[i];
+      return c.clone(copy.points[cProps.p.id], copy.points[cProps.q.id]);
+    });
+
+    copy.scarfPoints = _.map(this.scarfPoints, point => point.clone());
+    copy.scarfConstraints = _.map(this.scarfConstraints, (c, i) => {
+      let p = (i === 0) ? copy.points[SHOULDER.id] : copy.scarfPoints[i-1];
+      let q = copy.scarfPoints[i];
+      return c.clone(p, q);
+    });
+
+    let pegTail = copy.constraints[PEG_TAIL.id];
+    let stringPeg = copy.constraints[STRING_PEG.id];
+    let shoulderButt = copy.constraints[SHOULDER_BUTT.id];
+    copy.joints = [
+      this.joints[0].clone(pegTail, stringPeg),
+      this.joints[1].clone(shoulderButt, stringPeg)
+    ];
+
+    copy.crashed = this.crashed;
+    copy.sledBroken = this.sledBroken;
+    return copy;
+  }
+
+  getState() {
+    return {
+      crashed: this.crashed,
+      sledBroken: this.sledBroken,
+      // lazy atm, i can use arrays instead of cloned points
+      points: _.map(this.points, point => point.copyState()),
+      scarfPoints: _.map(this.scarfPoints, point => point.copyState())
+    };
+  }
+  setState(state) {
+    this.crashed = state.crashed;
+    this.sledBroken = state.sledBroken;
+    _.forEach(this.points, (point, i) => {
+      point.setState(state.points[i]);
+    });
+    _.forEach(this.scarfPoints, (point, i) => {
+      point.setState(state.scarfPoints[i]);
+    });
+  }
+
+  static getBodyParts(state) {
+    let getPosition = (p, q) => {
+      let vec = q.pos.clone().subtract(p.pos);
+      return {
+        x: p.x,
+        y: p.y,
+        angle: Math.atan2(vec.y, vec.x)
+      };
+    };
+
+    let bodyParts = {};
+    BODY_PARTS.forEach(bodyPart => {
+      let p = state.points[bodyPart.p.id];
+      let q = state.points[bodyPart.q.id];
+      bodyParts[bodyPart.name] = getPosition(p, q);
+    });
+
+    bodyParts.scarf = [];
+    for (let i = 0; i < state.scarfConstraints.length; i++) {
+      let p = (i === 0) ? state.points[SHOULDER.id] : state.scarfPoints[i-1];
+      let q = state.scarfPoints[i];
+      bodyParts.scarf.push(getPosition(p, q));
+    }
+    return bodyParts;
+  }
+
+  getBodyParts() {
+    return Rider.getBodyParts(this);
+  }
+
 }
 
 class DebugRider extends Rider {
@@ -309,12 +346,12 @@ class DebugRider extends Rider {
   }
 
   getSolidLines(lineStore, point) {
-    return lineStore.getSolidLinesAt(point.x, point.y, true);
+    // TODO make special debug method to get line's grid positions
+    return lineStore.getSolidLinesAt(point.x, point.y);
   }
 
-  stepCollision(point, lineData, i) {
-    // lineData.cellPos
-    super.stepCollision(point, lineData.line, i);
+  stepCollision(point, line, i, cPos) {
+    super.stepCollision(point, line, i, cPos);
   }
 
   stepJoint(joint, i) {
