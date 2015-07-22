@@ -86,14 +86,15 @@ function getColor(type) {
 
 var Line = React.createClass({
   render() {
+    let { line, color, zoom } = this.props;
     return (
       <line
-        x1={this.props.x1}
-        y1={this.props.y1}
-        x2={this.props.x2}
-        y2={this.props.y2}
-        stroke={this.props.color}
-        strokeWidth={LINE_WIDTH * this.props.zoom}
+        x1={line.x1}
+        y1={line.y1}
+        x2={line.x2}
+        y2={line.y2}
+        stroke={color}
+        strokeWidth={LINE_WIDTH * zoom}
         strokeLinecap='round'
       />
     );
@@ -102,14 +103,21 @@ var Line = React.createClass({
 
 var FloorLine = React.createClass({
   render() {
-    let {x1, y1, x2, y2} = this.props;
-    if (x1 === x2 && y1 === y2) {
+    let { line, zoom } = this.props;
+    if (line.length === 0) {
       return null;
     }
-    let width = LINE_WIDTH * this.props.zoom / 2;
-    let offset = width / 2 * (this.props.flipped ? -1 : 1);
+    let width = LINE_WIDTH * zoom / 2;
+    let offsetAmount = width / 2;
+    let offset = line.norm.clone().mulS(-offsetAmount);
+    let p1 = line.p.clone().add(offset);
+    let p2 = line.q.clone().add(offset);
     return (
-      <line {...getOffset(x1, y1, x2, y2, {p: 0, n: offset})}
+      <line
+        x1={p1.x}
+        y1={p1.y}
+        x2={p2.x}
+        y2={p2.y}
         stroke='black'
         strokeWidth={width}
         strokeLinecap='butt'
@@ -120,17 +128,17 @@ var FloorLine = React.createClass({
 
 var AccArrow = React.createClass({
   render() {
-    let {x1, y1, x2, y2} = this.props;
-    let r = LINE_WIDTH * this.props.zoom / 2;
-    let side = this.props.flipped ? 1 : -1;
-    // omg i really need actual vectors
-    let o0 = getOffset(x1, y1, x2, y2, { p: r, n: 0 });
-    let o1 = getOffset(x1, y1, x2, y2, { p: -3.5 * r, n: 3 * r * side });
-    let o2 = getOffset(x1, y1, x2, y2, { p: -Math.min(2 * r, r + getLength(x1, y1, x2, y2)), n: 0 });
+    let { line, zoom } = this.props;
+    let r = LINE_WIDTH * zoom / 2;
+    let vec = line.vec.clone().divS(line.length).mulS(r);
+    let norm = line.norm.clone().mulS(r);
+    let p0 = line.q.clone().add(vec);
+    let p1 = line.q.clone().add(vec.clone().mulS(-3.5)).add(norm.clone().mulS(3));
+    let p2 = line.q.clone().add(vec.mulS(-Math.min(2, 1 + line.length / r)));
     return (
       <polyline
         points={
-          [o0.x2, o0.y2, o1.x2, o1.y2, o2.x2, o2.y2]
+          [p0.x, p0.y, p1.x, p1.y, p2.x, p2.y]
         }
         fill={getColor(1)}
       />
@@ -153,19 +161,19 @@ var TrackLine = React.createClass({
     let r = LINE_WIDTH * zoom / 2;
     let isScenery = (line.type === 2);
     if (!color || isScenery) {
-      return <Line {...line} color={ color ? getColor(2) : 'black'} zoom={zoom}/>;
+      return <Line line={line} color={ color ? getColor(2) : 'black'} zoom={zoom}/>;
     }
     let parts = [
-      <Line key={1} {...line} color={getColor(line.type)} zoom={zoom}/>
+      <Line key={1} line={line} color={getColor(line.type)} zoom={zoom}/>
     ];
     if (floor) {
       parts = parts.concat([
-        <FloorLine key={2} {...line} zoom={zoom}/>
+        <FloorLine key={2} line={line} zoom={zoom}/>
       ]);
     }
     if (accArrow && line.type === 1) {
       parts = [
-        <AccArrow key={3} {...line} zoom={zoom} />
+        <AccArrow key={3} line={line} zoom={zoom} />
       ].concat(parts);
     }
     if (!snapDot) {
@@ -247,18 +255,17 @@ var Display = React.createClass({
   },
 
   render() {
+    let zoom = this.getZoomFactor();
     return (
       <div style={displayStyle} >
         <svg style={displayStyle} viewBox={this.getViewBox()}>
           {
             this.props.grid ?
-              <Grid {...this.props} grid={this.props.track.store.solidGrid} zoom={this.getZoomFactor()} />
+              <Grid {...this.props} grid={this.props.track.store.solidGrid} zoom={zoom} />
             : null
           }
-          <LineDisplay {...this.props} zoom={this.getZoomFactor()} lines={this.props.track.lines} />
-        </svg>
-        <svg style={displayStyle} viewBox={this.getViewBox()}>
-          <Rider rider={this.props.rider} zoom={this.getZoomFactor()} />
+          <LineDisplay {...this.props} zoom={zoom} lines={this.props.track.lines} />
+          <Rider rider={this.props.rider} zoom={zoom} />
         </svg>
       </div>
     );
