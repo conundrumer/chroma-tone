@@ -3,10 +3,26 @@
  */
 'use strict';
 
+var Vector = require('./vector');
+var _ = require('lodash');
+
 class Entity {
 
   constructor(id) {
     this.id = id;
+    this.init = this;
+  }
+
+  clone(...copyStateArgs) {
+    return _.create(this.init, this.copyState(...copyStateArgs));
+  }
+
+  copyState() {
+    throw new Error('not implemented');
+  }
+
+  setState() {
+    throw new Error('not implemented');
   }
 
 }
@@ -228,6 +244,7 @@ class ClockwiseCrashJoint extends Joint {
 }
 
 module.exports = {
+  Entity,
   Point,
   Stick,
   BindStick,

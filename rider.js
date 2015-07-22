@@ -6,9 +6,9 @@
 'use strict';
 
 var _ = require('lodash');
-var clone = require('clone');
 
 var {
+  Entity,
   Point,
   Stick,
   BindStick,
@@ -108,8 +108,9 @@ const
  * - scarfPoints
  * - scarfConstraints
  */
-class Rider {
+class Rider extends Entity {
   constructor(x, y, vx = VX_INIT, vy = VY_INIT) {
+    super(0);
     this.crashed = false;
     this.sledBroken = false;
 
