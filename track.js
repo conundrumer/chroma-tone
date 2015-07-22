@@ -49,7 +49,8 @@ class Track {
   set startPosition(pos) {
     this.startX = pos.x;
     this.startY = pos.y;
-    this.initRider = new (this.debug ? DebugRider : Rider)(pos.x, pos.y);
+    this.rider = new (this.debug ? DebugRider : Rider)(pos.x, pos.y);
+    this.initRiderState = this.rider.getState();
   }
 
   get startPosition() {
@@ -101,21 +102,21 @@ class Track {
 
   getRiderAtFrame(frameNum) {
     if (this.frameCache[frameNum]) {
-      return this.frameCache[frameNum];
+      let riderState = this.frameCache[frameNum];
+      this.rider.setState(riderState);
+      return this.rider;
     }
-
-    let rider;
 
     for (let i = this.frameCache.length; i <= frameNum; i++) {
-      // make a copy
-      rider = this.frameCache[i-1].clone();
+      let riderState = this.frameCache[i-1];
 
-      rider.step(this.store);
+      this.rider.setState(riderState);
+      this.rider.step(this.store);
 
-      this.frameCache[i] = rider;
+      this.frameCache[i] = this.rider.getState();
     }
 
-    return rider;
+    return this.rider;
   }
 
   updateFrameCache(line, removed) {
@@ -127,7 +128,7 @@ class Track {
   }
 
   resetFrameCache() {
-    this.frameCache = [ this.initRider ];
+    this.frameCache = [ this.initRiderState ];
   }
 
   getNewStore() {
