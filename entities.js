@@ -76,9 +76,9 @@ class Point extends Entity {
   }
 
   setState(state) {
-    this.pos = state.pos;
-    this.prevPos = state.prevPos;
-    this.vel = state.vel;
+    this.pos.set(state.pos);
+    this.prevPos.set(state.prevPos);
+    this.vel.set(state.vel);
   }
 
 }

@@ -4,6 +4,8 @@
  */
 'use strict';
 
+var _ = require('lodash');
+
 var {
   LineStore,
   GridStore,
@@ -101,16 +103,15 @@ class Track {
   }
 
   getRiderAtFrame(frameNum) {
-    if (this.frameCache[frameNum]) {
+    if (frameNum < this.frameCache.length) {
       let riderState = this.frameCache[frameNum];
       this.rider.setState(riderState);
       return this.rider;
     }
 
+    this.rider.setState(_.last(this.frameCache));
     for (let i = this.frameCache.length; i <= frameNum; i++) {
-      let riderState = this.frameCache[i-1];
 
-      this.rider.setState(riderState);
       this.rider.step(this.store);
 
       this.frameCache[i] = this.rider.getState();

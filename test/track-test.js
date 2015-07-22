@@ -40,7 +40,7 @@ describe('Saved Lines Reader', () => {
 });
 
 describe('Track', () => {
-  let Track, OldTrack, defaultTrack;
+  let Track, OldTrack, defaultTrack, initRider;
 
   it('compiles', () => {
     Track = require('../track').Track;
@@ -52,11 +52,14 @@ describe('Track', () => {
       defaultTrack = new Track(defaultLines, {x: 0, y: 0});
     });
     it('runs correctly (200 frames)', () => {
-      let initRider = defaultTrack.getRiderAtFrame(0).clone();
+      initRider = defaultTrack.getRiderAtFrame(0).clone();
       let rider = defaultTrack.getRiderAtFrame(200);
       assert(rider.crashed === false);
       assert(rider.points[0].pos.x > initRider.points[0].pos.x);
       assert(rider.points[0].pos.y > initRider.points[0].pos.y);
+    });
+    it('stops correctly', () => {
+      assert(_.isEqual(initRider.getState(), defaultTrack.getRiderAtFrame(0).getState()));
     });
   });
 
@@ -124,7 +127,7 @@ describe('Track', () => {
       assert(rider.crashed === true);
       assert(rider.sledBroken === true);
     });
-    it('runs the same with lines randomly added/removed (1200 frames)', () => {
+    it('runs the same with lines randomly added/removed (1300 frames)', () => {
       let startPos = trackData.startPosition;
       let shuffledTrack = new Track([], { x: startPos[0], y: startPos[1] });
 
@@ -146,7 +149,7 @@ describe('Track', () => {
 
       addRemoveLines(track.lines);
 
-      _.times(1200, (i) => {
+      _.times(1300, (i) => {
         let rider = shuffledTrack.getRiderAtFrame(i);
         assert(rider.crashed === track.getRiderAtFrame(i).crashed);
       });
