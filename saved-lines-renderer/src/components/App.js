@@ -167,6 +167,7 @@ var App = React.createClass({
             ['floor', 'accArrow', 'snapDot'].map(this.renderToggle)
           : null
         }
+        <p>{this.state.frame}</p>
         {
           this.state.track ?
             <div>
