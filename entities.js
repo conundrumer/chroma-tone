@@ -45,27 +45,40 @@ class Point extends Entity {
   constructor(id, x, y, friction = 0, airFriction = 1) {
     super(id);
 
-    // position
-    this.x = x;
-    this.y = y;
-    // velocity
-    this.dx = 0;
-    this.dy = 0;
-    // previous position for inertia
-    this.vx = x;
-    this.vy = y;
+    this.pos = new Vector(x, y);
+    this.prevPos = new Vector(x, y);
+    this.vel = new Vector(0, 0);
 
     this.friction = friction;
     this.airFriction = airFriction;
   }
 
+  get x() {
+    return this.pos.x;
+  }
+
+  get y() {
+    return this.pos.y;
+  }
+
   step(gravity) {
-    this.dx = (this.x - this.vx) * this.airFriction + gravity.x;
-    this.dy = (this.y - this.vy) * this.airFriction + gravity.y;
-    this.vx = this.x;
-    this.vy = this.y;
-    this.x += this.dx;
-    this.y += this.dy;
+    this.vel.set(this.pos).subtract(this.prevPos).mulS(this.airFriction).add(gravity);
+    this.prevPos.set(this.pos);
+    this.pos.add(this.vel);
+  }
+
+  copyState() {
+    return {
+      pos: this.pos.clone(),
+      prevPos: this.prevPos.clone(),
+      vel: this.vel.clone()
+    };
+  }
+
+  setState(state) {
+    this.pos = state.pos;
+    this.prevPos = state.prevPos;
+    this.vel = state.vel;
   }
 
 }
@@ -111,40 +124,45 @@ class Stick extends Constraint {
     this.p = p;
     this.q = q;
     this.restLength = this.length;
-  }
 
-  get dx() {
-    return this.p.x - this.q.x;
-  }
-
-  get dy() {
-    return this.p.y - this.q.y;
+    // hmmmmmm should i bother with avoiding creation of vectors?
+    this.tempVec = new Vector(0, 0);
   }
 
   get length() {
-    let dx = this.dx;
-    let dy = this.dy;
-    return Math.sqrt(dx * dx + dy * dy);
+    return this.p.pos.distance(this.q.pos);
   }
 
   get diff() {
+    let length = this.length;
     // prevent division by zero
     // this will allow interesting behavior but w/e
-    if (this.length === 0) {
+    if (length === 0) {
       return 0;
     }
-    return (this.length - this.restLength) / this.length * 0.5;
+    return (length - this.restLength) / length * 0.5;
   }
 
-  // set dx(x) {}, set dy(x) {}, set length(x) {}, set diff(x) {},
+  getVector() {
+    return this.tempVec.set(this.p.pos).subtract(this.q.pos);
+  }
+
+  getDelta() {
+    return this.getVector().mulS(this.diff);
+  }
 
   doResolve() {
-    let dx = this.dx * this.diff;
-    let dy = this.dy * this.diff;
-    this.p.x -= dx;
-    this.p.y -= dy;
-    this.q.x += dx;
-    this.q.y += dy;
+    let delta = this.getDelta();
+    this.p.pos.subtract(delta);
+    this.q.pos.add(delta);
+  }
+
+  copyState(p, q) {
+    return {
+      p: p || this.p.clone(),
+      q: q || this.q.clone(),
+      tempVec: new Vector(0, 0)
+    };
   }
 
 }
@@ -208,8 +226,8 @@ class RepelStick extends Stick {
 class ScarfStick extends Stick {
 
   doResolve() {
-    this.q.x += this.dx * this.diff * 2;
-    this.q.y += this.dy * this.diff * 2;
+    let delta = this.getDelta().mulS(2);
+    this.q.pos.add(delta);
   }
 
 }
@@ -224,13 +242,21 @@ class Joint extends Constraint {
     this.p = p;
   }
 
+  copyState(s, t, p) {
+    return {
+      s: s || this.s.clone(),
+      t: t || this.t.clone(),
+      p: p || this.p ? this.p.clone() : null
+    };
+  }
+
 }
 
 // allow kramuals
 class ClockwiseCrashJoint extends Joint {
 
   isClockwise() {
-    return this.s.dx * this.t.dy - this.s.dy * this.t.dx >= 0;
+    return this.s.getVector().cross(this.t.getVector()) >= 0;
   }
 
   shouldResolve() {
