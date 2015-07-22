@@ -96,6 +96,7 @@ class GridStore extends LineStore {
 
     if (line.isSolid) {
       this.solidGrid.addLine(line);
+      this.resetSolidLinesCache();
     }
   }
 
@@ -106,6 +107,7 @@ class GridStore extends LineStore {
 
     if (line.isSolid) {
       this.solidGrid.removeLine(line);
+      this.resetSolidLinesCache();
     }
   }
 
