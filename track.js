@@ -41,7 +41,6 @@ class Track {
     this.debug = debug;
 
     this.startPosition = startPosition || { x: 0, y: 0 };
-    this.resetFrameCache();
 
     this.store = this.getNewStore();
 
@@ -53,6 +52,7 @@ class Track {
     this.startY = pos.y;
     this.rider = new (this.debug ? DebugRider : Rider)(pos.x, pos.y);
     this.initRiderState = this.rider.getState();
+    this.resetFrameCache(); // moving the start point changes everything
   }
 
   get startPosition() {
