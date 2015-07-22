@@ -44,33 +44,33 @@ class OrderedCell extends Cell{
 
   constructor(cellPos) {
     super(cellPos);
-    this.lines = [];
+    // if memory is a problem, replace lines with orderedLines
+    // this.lines = [];
+    this.orderedLines = [];
   }
 
   getIndexOf(line) {
-    return _.sortedIndex(this.lines, line, l => -l.id);
-  }
-
-  has(line) {
-    return this.lines[this.getIndexOf(line)] === line;
+    return _.sortedIndex(this.orderedLines, line, l => -l.id);
   }
 
   add(line) {
-    let index = this.getIndexOf(line);
-    if (this.lines[index] !== line) {
-      this.lines.splice(index, 0, line);
+    if (!this.has(line)) {
+      super.add(line);
+      let index = this.getIndexOf(line);
+      this.orderedLines.splice(index, 0, line);
     }
   }
 
   remove(line) {
-    let index = this.getIndexOf(line);
-    if (this.lines[index] === line) {
-      _.pullAt(this.lines, index);
+    if (this.has(line)) {
+      super.remove(line);
+      let index = this.getIndexOf(line);
+      _.pullAt(this.orderedLines, index);
     }
   }
 
   getLines() {
-    return this.lines;
+    return this.orderedLines;
   }
 }
 
