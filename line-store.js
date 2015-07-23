@@ -1,9 +1,3 @@
-/* line-store.js
- *
- * the store to put track lines into
- * different stores subtly alter the physics
- * so there needs to be old versions to remain backwards compatible
- */
 
 var _ = require('lodash');
 
@@ -11,16 +5,6 @@ var { Grid, GridV62, GridV61, getCellHash } = require('./grid');
 
 const GRID_SIZE = 14;
 
-/* LineStore
- * - basic line store, no grid
- *
- * public:
- * - lines
- * - addLine(line)
- * - removeLine(line)
- * - getLines(x1, y1, x2 | r, [y2])
- * - selectCollidingLines(x, y, handler(line))
- */
 class LineStore {
   constructor() {
     // if performance problems, will make this array sorted
@@ -59,19 +43,6 @@ class LineStore {
 
 }
 
-/* GridStore
- * - revision 6.2
- *
- * public:
- * - lines
- * - addLine(line) <- this adds property 'cells' to line
- * - removeLine(line)
- * - getLines(x1, y1, x2 | r, [y2])
- * - selectCollidingLines(x, y, handler(line))
- *
- * private:
- * - grid
- */
 class GridStore extends LineStore {
   constructor() {
     super();
@@ -156,20 +127,6 @@ class GridStore extends LineStore {
 
 }
 
-/* OldGridStore
- * - revision 6.1
- * - grid bugs as feature
- *
- * public:
- * - lines
- * - addLine(line)
- * - removeLine(line)
- * - getLines(x1, y1, x2 | r, [y2])
- * - selectCollidingLines(x, y, handler(line))
- *
- * private:
- * - grid
- */
 class OldGridStore extends GridStore {
   constructor() {
     super();

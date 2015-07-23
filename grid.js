@@ -1,4 +1,3 @@
-// grid data structure for space partitioning of lines
 
 var _ = require('lodash');
 
@@ -97,7 +96,6 @@ class Grid {
     // i'll use for-loops if this needs to be faster
     let tl = this.getCellPos(x1, y1);
     let br = this.getCellPos(x2, y2);
-    // let linesNearPerimeter = Object.create(null);
     let linesInBox = Object.create(null);
     // add lines from cells fully contained in box
     if (tl.x+1 < br.x && tl.y+1 < br.y) {
@@ -147,7 +145,6 @@ class Grid {
   addLine(line) {
     // array of cell positions
     let cellsPos = this.getCellsPosFromLine(line);
-    // _.forEach(cellsPos, cellPos => this.addLineToCell(line, cellPos) );
     for (let i = 0; i < cellsPos.length; i++) {
       this.addLineToCell(line, cellsPos[i]);
     }

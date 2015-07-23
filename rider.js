@@ -1,7 +1,3 @@
-/* rider.js
- * The Line Rider ragdoll entity. Has limbs and physics and stuff.
- */
-
 /*eslint no-multi-spaces: 0 comma-spacing: 0*/
 'use strict';
 
@@ -90,22 +86,6 @@ const
     segmentLength: 2
   };
 
-/* Rider
- * - creates a new rider at (x,y) and gives the rider velocity (vx, vy)
- *
- * public:
- * - crashed
- * - bodyParts
- * - step(collideFn(p, [debugHandler(line, lineID)]), [gravity])
- * - clone
- * - states < for debugging
- *
- * private:
- * - points
- * - constraints
- * - scarfPoints
- * - scarfConstraints
- */
 class Rider extends Entity {
   constructor(x, y, vx = VX_INIT, vy = VY_INIT) {
     super(0);

@@ -1,6 +1,3 @@
-/* entities.js
- * Stuff that moves and reacts to physics
- */
 'use strict';
 
 var Vector = require('./vector');
@@ -27,19 +24,6 @@ class Entity {
 
 }
 
-/* Point
- *
- * public:
- * - x
- * - y
- * - step(gravity)
- *
- * private:
- * - vx
- * - vy
- * - dx
- * - dy
- */
 class Point extends Entity {
 
   constructor(id, x, y, friction = 0, airFriction = 1) {
@@ -106,16 +90,6 @@ class Constraint extends Entity {
 
 }
 
-/* Stick
- *
- * public:
- * - resolve()
- *
- * private:
- * - p
- * - q
- * - restLength
- */
 class Stick extends Constraint {
 
   constructor (id, p, q) {
@@ -167,17 +141,6 @@ class Stick extends Constraint {
 
 }
 
-/* BindStick
- *
- * public:
- * - resolve()
- *
- * private:
- * - p
- * - q
- * - restLength
- * - endurance
- */
 class BindStick extends Stick {
 
   constructor(id, p, q, endurance) {
@@ -195,16 +158,6 @@ class BindStick extends Stick {
 
 }
 
-/* RepelStick
- *
- * public:
- * - resolve()
- *
- * private:
- * - p
- * - q
- * - restLength
- */
 class RepelStick extends Stick {
 
   shouldResolve() {
@@ -213,16 +166,6 @@ class RepelStick extends Stick {
 
 }
 
-/* Stick
- *
- * public:
- * - resolve()
- *
- * private:
- * - p
- * - q
- * - restLength
- */
 class ScarfStick extends Stick {
 
   doResolve() {
@@ -252,10 +195,10 @@ class Joint extends Constraint {
 
 }
 
-// allow kramuals
 class ClockwiseCrashJoint extends Joint {
 
   isClockwise() {
+    // allow kramuals
     return this.s.getVector().cross(this.t.getVector()) >= 0;
   }
 

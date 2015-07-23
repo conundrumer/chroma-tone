@@ -1,13 +1,3 @@
-/*
- * line.js
- * The lines of Line Rider
- * mostly solid and collides with points
- * p1: left point
- * p2: right point
- * with the vector formed by pq pointing to the right,
- * floor direction of lines (not flipped) is downwards (cw)
- */
-
 'use strict';
 
 var Vector = require('./vector');

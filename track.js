@@ -1,7 +1,3 @@
-/* track.js
- * contains the rider and track lines
- * acts as line storage and physics sim
- */
 'use strict';
 
 var _ = require('lodash');
@@ -21,21 +17,6 @@ var {
 
 var {Rider, DebugRider} = require('./rider');
 
-/* Track
- * revision 6.2
- *
- * public:
- * - lines
- * - startPosition
- * - addLine(lineData) (see saved-lines-reader.js)
- * - removeLine(line)
- * - getLines(x1, y1, x2 | r, [y2])
- * - getRiderAtFrame(frameNum)
- *   * zero indexed
- *
- * private:
- * - store
- */
 class Track {
   constructor(lineData, startPosition, debug = false) {
     this.debug = debug;
@@ -146,11 +127,6 @@ class Track {
 
 }
 
-/* OldTrack
- * revision 6.1
- *
- * variables and methods same as Track
- */
 class OldTrack extends Track {
   constructor(lineData, startPosition, debug) {
     super(lineData, startPosition, debug);
@@ -161,11 +137,6 @@ class OldTrack extends Track {
   }
 }
 
-/* NoGridTrack
- * uses LineStore instead of a grid
- *
- * variables and methods same as Track
- */
 class NoGridTrack extends Track {
   constructor(lineData, startPosition, debug) {
     super(lineData, startPosition, debug);
