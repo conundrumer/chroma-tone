@@ -45,7 +45,7 @@ class LineStore {
   }
 
   getLinesInRadius(x, y, r) {
-    return _.filter(this.lines, line => line.inCircle(x, y, r));
+    return _.filter(this.lines, line => line.inRadius(x, y, r));
   }
 
   getLinesInBox(x1, y1, x2, y2) {
@@ -144,6 +144,14 @@ class GridStore extends LineStore {
 
   resetSolidLinesCache() {
     this.solidLinesCache = Object.create(null);
+  }
+
+  getLinesInRadius(x, y, r) {
+    return this.grid.getLinesInRadius(x, y, r);
+  }
+
+  getLinesInBox(x1, y1, x2, y2) {
+    return this.grid.getLinesInBox(x1, y1, x2, y2);
   }
 
 }
