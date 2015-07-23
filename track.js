@@ -136,6 +136,14 @@ class Track {
     return new GridStore();
   }
 
+  getLinesInRadius(x, y, r) {
+    return this.store.getLinesInRadius(x, y, r);
+  }
+
+  getLinesInBox(x1, y1, x2, y2) {
+    return this.store.getLinesInBox(x1, y1, x2, y2);
+  }
+
 }
 
 /* OldTrack
