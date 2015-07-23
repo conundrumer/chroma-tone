@@ -106,7 +106,7 @@ class Line {
   }
 
   offset(p) {
-    Line.tempVec.set(p.pos).subtract(this.p);
+    Line.tempVec.set(p).subtract(this.p);
     return Line.tempVec;
   }
 
@@ -123,14 +123,54 @@ class Line {
     return this.c.vec.dot(offset) * this.c.invLengthSq;
   }
 
-  inCircle(x, y, r) {
-    throw new Error('not implemented');
+  // true if part or all of the line is in the given radius
+  inRadius(x, y, r) {
+    let c = {x, y};
+    let offset = this.offset(c);
+    let perpComp = this.perpComp(offset);
+    // not within distance of infinite line
+    if (Math.abs(perpComp) > r) {
+      return false;
+    }
+    let linePos = this.linePos(offset);
+    // within boundaries of endpoints or radius of either endpoints
+    if (linePos > 0 && linePos < 1) {
+      return true;
+    }
+    let rSq = r * r;
+    // within radius of either endpoints
+    return this.p.distanceSq(c) < rSq || this.q.distanceSq(c) < rSq;
   }
 
+  getSide(x, y) {
+    return this.perpComp(this.offset({x, y})) > 0;
+  }
+
+  // true if part or all of the line is in the given box
+  // http://stackoverflow.com/a/293052
   inBox(x1, y1, x2, y2) {
-    throw new Error('not implemented');
+    if (x1 > x2) {
+      [x1, x2] = [x2, x1];
+    }
+    if (y1 > y2) {
+      [y1, y2] = [y2, y1];
+    }
+    let {p, q} = this;
+    // both endpoints are totally on one side of the box
+    if ( p.x < x1 && q.x < x1 || p.x > x2 && q.x > x2
+      || p.y < y1 && q.y < y1 || p.y > y2 && q.y > y2) {
+      return false;
+    }
+    // any endpoints are totally inside the box
+    if ( (x1 < p.x && p.x < x2) && (y1 < p.y && p.y < y2)
+      || (x1 < q.x && q.x < x2) && (y1 < q.y && q.y < y2)) {
+      return true;
+    }
+    // any corners of box are on different sides of the line
+    let side = this.getSide(x1, y1);
+    return (side !== this.getSide(x2, y1) || side !== this.getSide(x1, y2)
+      || side !== this.getSide(x2, y2));
   }
-
 }
 Line.tempVec = new Vector(0, 0);
 
