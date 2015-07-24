@@ -112,45 +112,23 @@ class RiderMaker {
     return [q, stick];
   }
 
-  makePoints(oldPoints = null) {
-    return _.values(Points).map( p => {
-      let point;
-      if (oldPoints) {
-        point = oldPoints[p.id].clone();
-      } else {
-        point = this.makePoint(p);
-      }
-      return point;
-    });
+  makePoints() {
+    return _.values(Points).map( p => this.makePoint(p) );
   }
 
-  makeConstraints(points, oldConstraints = null) {
-    return _.values(Constraints).map( c => {
-      let stick;
-      let p = points[c.p.id];
-      let q = points[c.q.id];
-      if (oldConstraints) {
-        stick = oldConstraints[c.id].clone(p, q);
-      } else {
-        stick = this.makeConstraint(c, p, q);
-      }
-      return stick;
-    });
+  makeConstraints(points) {
+    return _.values(Constraints).map( c =>
+      this.makeConstraint(c, points[c.p.id], points[c.q.id])
+    );
   }
 
-  makeScarf(points, oldScarfPoints = null, oldScarfConstraints = null) {
+  makeScarf(points) {
     let scarfPoints = [];
     let scarfConstraints = [];
 
     for (let i = 0; i < SCARF.numSegments; i++) {
       let p = (i === 0) ? points[SCARF.p.id] : scarfPoints[i-1];
-      let q, stick;
-      if (oldScarfPoints && oldScarfConstraints) {
-        q = oldScarfPoints[i].clone();
-        stick = oldScarfConstraints[i].clone(p, q);
-      } else {
-        [q, stick] = this.makeScarfSegment(i, p);
-      }
+      let [q, stick] = this.makeScarfSegment(i, p);
       scarfPoints.push(q);
       scarfConstraints.push(stick);
     }
@@ -158,17 +136,10 @@ class RiderMaker {
     return {scarfPoints, scarfConstraints};
   }
 
-  makeJoints(constraints, oldJoints = null) {
-    return _.values(Joints).map( j => {
-      let [s, t] = [constraints[j.s.id], constraints[j.t.id]];
-      let joint;
-      if (oldJoints) {
-        joint = oldJoints[j.id].clone(s, t);
-      } else {
-        joint = this.makeJoint(j, s, t);
-      }
-      return joint;
-    });
+  makeJoints(constraints) {
+    return _.values(Joints).map( j =>
+      this.makeJoint(j, constraints[j.s.id], constraints[j.t.id])
+    );
   }
 
   makeRider() {
@@ -179,19 +150,39 @@ class RiderMaker {
     return {points, constraints, joints, scarfPoints, scarfConstraints};
   }
 
-  copyRider(self) {
-    let copy = {};
-    copy.points = this.makePoints(self.points);
-    copy.constraints = this.makeConstraints(copy.points, self.constraints);
-    copy.joints = this.makeJoints(copy.constraints, self.joints);
+}
 
-    _.assign(copy, this.makeScarf(copy.points, self.scarfPoints, self.scarfConstraints));
+class RiderCopier extends RiderMaker {
 
-    copy.crashed = self.crashed;
-    copy.sledBroken = self.sledBroken;
-    return copy;
+  constructor(rider) {
+    super();
+    this.rider = rider;
   }
 
+  makePoint(p) {
+    return this.rider.points[p.id].clone();
+  }
+
+  makeConstraint(c, p, q) {
+    return this.rider.constraints[c.id].clone(p, q);
+  }
+
+  makeJoint(j, s, t) {
+    return this.rider.joints[j.id].clone(s, t);
+  }
+
+  makeScarfSegment(i, p) {
+    let q = this.rider.scarfPoints[i].clone();
+    let stick = this.rider.scarfConstraints[i].clone(p, q);
+    return [q, stick];
+  }
+
+  makeRider() {
+    let rider = super.makeRider();
+    rider.crashed = this.rider.crashed;
+    rider.sledBroken = this.rider.sledBroken;
+    return rider;
+  }
 }
 
 function getBodyParts(self) {
@@ -221,7 +212,7 @@ var riderMaker = new RiderMaker();
 
 module.exports = {
   makeRider: () => riderMaker.makeRider(),
-  copyRider: (self) => riderMaker.copyRider(self),
+  copyRider: (rider) => (new RiderCopier(rider)).makeRider(),
   getBodyParts,
   STRING_PEG_TAIL
 };
