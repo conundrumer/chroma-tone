@@ -271,7 +271,7 @@ class GridV62 extends Grid {
       getNextPos = (l, x, y, dx, dy) => { return { x: x, y: y + dy }; };
 
     } else if (line.vec.y === 0) {
-      getNextPos = (l, x, y, dx, dy) => { return { x: x + dx, y: y }; };
+      getNextPos = (l, x, y, dx, dy) => { return { x: x + dx, y: y }; }; // eslint-disable-line no-unused-vars
 
     } else {
       getNextPos = this.getNextPos;

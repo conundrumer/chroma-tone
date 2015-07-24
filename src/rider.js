@@ -1,4 +1,3 @@
-/*eslint no-unused-vars: 0*/
 'use strict';
 
 var _ = require('lodash');
@@ -67,13 +66,13 @@ class Rider extends Entity {
       this.scarfConstraints[i].resolve();
     }
   }
-  stepConstraint(constraint, i) {
+  stepConstraint(constraint, i) { // eslint-disable-line no-unused-vars
     this.crashed = constraint.resolve(this.crashed);
   }
   getSolidLines(lineStore, point) {
     return lineStore.getSolidLinesAt(point.x, point.y);
   }
-  stepCollision(point, line, i) {
+  stepCollision(point, line, i) { // eslint-disable-line no-unused-vars
     line.collide(point);
   }
   stepJoint(joint, i) {
