@@ -15,8 +15,7 @@ var {
   SceneryLine
 } = require('./line');
 
-var Rider = require('./rider');
-var DebugRider = require('./debugRider');
+var { Rider, DebugRider } = require('./rider');
 
 class Track {
   constructor(lineData, startPosition, debug = false) {

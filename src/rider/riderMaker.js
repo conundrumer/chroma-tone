@@ -17,7 +17,7 @@ var {
   RepelStick,
   ScarfStick,
   ClockwiseCrashJoint
-} = require('./entities');
+} = require('../entities');
 
 var riderMaker;
 
