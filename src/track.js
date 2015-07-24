@@ -9,11 +9,13 @@ var {
 } = require('./line-store');
 
 var {
-  LINE,
+  LineTypes: {
+    SOLID_LINE, ACC_LINE, SCENERY_LINE
+  },
   SolidLine,
   AccLine,
   SceneryLine
-} = require('./line');
+} = require('./lines');
 
 var { Rider, DebugRider } = require('./rider');
 
@@ -51,13 +53,13 @@ class Track {
     let LineType;
 
     switch (l.type) {
-      case LINE.SOLID:
+      case SOLID_LINE:
         LineType = SolidLine;
         break;
-      case LINE.ACC:
+      case ACC_LINE:
         LineType = AccLine;
         break;
-      case LINE.SCENERY:
+      case SCENERY_LINE:
         LineType = SceneryLine;
         break;
       default:
@@ -65,7 +67,7 @@ class Track {
     }
 
     let line = new LineType(l.id, l.x1, l.y1, l.x2, l.y2, l.flipped, l.extended);
-    if (l.type !== LINE.SCENERY) {
+    if (l.type !== SCENERY_LINE) {
       line.leftLine = l.leftLine || null;
       line.rightLine = l.rightLine || null;
     }
@@ -104,7 +106,7 @@ class Track {
   updateFrameCache(line, removed) {
     // don't be too clever right now
     // any solid line modification resets the cache
-    if (line.type !== LINE.SCENERY) {
+    if (line.type !== SCENERY_LINE) {
       this.resetFrameCache();
     }
   }

@@ -1,4 +1,4 @@
-var LineTypes = require('./src/line').LINE;
+var LineTypes = require('./src/lines').LineTypes;
 
 var savedLinesReader = require('./src/saved-lines-reader');
 
