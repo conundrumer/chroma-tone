@@ -1,6 +1,6 @@
 var Rider = require('./rider');
 
-class RiderDebug extends Rider {
+class DebugRider extends Rider {
 
   step(lineStore, gravity) {
     // this.initializeDebuggingthing();
@@ -46,4 +46,4 @@ class RiderDebug extends Rider {
   }
 }
 
-module.exports = RiderDebug;
+module.exports = DebugRider;

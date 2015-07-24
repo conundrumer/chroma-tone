@@ -16,7 +16,7 @@ var {
 } = require('./line');
 
 var Rider = require('./rider');
-var RiderDebug = require('./riderDebug');
+var DebugRider = require('./debugRider');
 
 class Track {
   constructor(lineData, startPosition, debug = false) {
@@ -32,7 +32,7 @@ class Track {
   set startPosition(pos) {
     this.startX = pos.x;
     this.startY = pos.y;
-    this.rider = new (this.debug ? RiderDebug : Rider)(pos.x, pos.y);
+    this.rider = new (this.debug ? DebugRider : Rider)(pos.x, pos.y);
     this.initRiderState = this.rider.getState();
     this.resetFrameCache(); // moving the start point changes everything
   }
