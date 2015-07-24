@@ -27,7 +27,7 @@ class Rider extends Entity {
     this.crashed = false;
     this.sledBroken = false;
 
-    makeRider(this);
+    _.assign(this, makeRider());
 
     this.initPosAndVel(x, y, vx, vy);
   }

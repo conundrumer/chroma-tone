@@ -81,18 +81,19 @@ const
   };
 
 
-function makePoints(self) {
-  self.points = POINTS.map( p => {
+function makePoints() {
+  let points = POINTS.map( p => {
     let point = new Point(p.id, p.xInit, p.yInit, p.friction);
     return point;
   });
+  return points;
 }
 
-function makeConstraints(self) {
-  self.constraints = CONSTRAINTS.map( c => {
+function makeConstraints(points) {
+  let constraints = CONSTRAINTS.map( c => {
     let stick;
-    let p = self.points[c.p.id];
-    let q = self.points[c.q.id];
+    let p = points[c.p.id];
+    let q = points[c.q.id];
     switch(c.type) {
       case STICK:
         stick = new Stick(c.id, p, q);
@@ -109,31 +110,37 @@ function makeConstraints(self) {
     }
     return stick;
   });
+
+  return constraints;
 }
 
-function makeScarf(self) {
-  self.scarfPoints = [];
-  self.scarfConstraints = [];
+function makeScarf(points) {
+  let scarfPoints = [];
+  let scarfConstraints = [];
 
   for (let i = 0; i < SCARF.numSegments; i++) {
-    let p = (i === 0) ? self.points[SCARF.p.id] : self.scarfPoints[i-1];
+    let p = (i === 0) ? points[SCARF.p.id] : scarfPoints[i-1];
     let q = new Point(-i - 1, p.x - SCARF.segmentLength, p.y, 0, SCARF.airFriction);
-    self.scarfPoints.push(q);
-    self.scarfConstraints.push(new ScarfStick(-i - 1, p, q));
+    scarfPoints.push(q);
+    scarfConstraints.push(new ScarfStick(-i - 1, p, q));
   }
+
+  return {scarfPoints, scarfConstraints};
 }
 
-function makeJoints(self) {
-  self.joints = JOINTS.map( j =>
-    new ClockwiseCrashJoint(j.id, self.constraints[j.s.id], self.constraints[j.t.id])
+function makeJoints(constraints) {
+  let joints = JOINTS.map( j =>
+    new ClockwiseCrashJoint(j.id, constraints[j.s.id], constraints[j.t.id])
   );
+  return joints;
 }
 
-function makeRider(self) {
-  makePoints(self);
-  makeConstraints(self);
-  makeScarf(self);
-  makeJoints(self);
+function makeRider() {
+  let points = makePoints();
+  let constraints = makeConstraints(points);
+  let joints = makeJoints(constraints);
+  let {scarfPoints, scarfConstraints} = makeScarf(points);
+  return {points, constraints, joints, scarfPoints, scarfConstraints};
 }
 
 function copyRider(self) {
