@@ -3,8 +3,9 @@
 var assert = require('assert');
 var _ = require('lodash');
 
-var Vector = require('../vector');
-var {Track, NoGridTrack} = require('../track');
+var Vector = require('../src/vector');
+var Track = require('../index').Track;
+var NoGridTrack = require('../src/track').NoGridTrack;
 
 var rand = (k) => k ? Math.random() * rand(k-1) : Math.random();
 

@@ -26,7 +26,7 @@ var testTracks, savedLinesReader;
 
 describe('Saved Lines Reader', () => {
   it('compiles', () => {
-    savedLinesReader = require('../saved-lines-reader');
+    savedLinesReader = require('../index').savedLinesReader;
   });
   it('loads a .sol file', (done) => {
     fs.readFile(SAVEDLINES, (err, data) => {
@@ -43,8 +43,8 @@ describe('Track', () => {
   let Track, OldTrack, defaultTrack, initRider;
 
   it('compiles', () => {
-    Track = require('../track').Track;
-    OldTrack = require('../track').OldTrack;
+    Track = require('../index').Track;
+    OldTrack = require('../index').OldTrack;
   });
 
   describe('Default single line', () => {
