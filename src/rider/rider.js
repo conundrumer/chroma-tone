@@ -2,7 +2,7 @@
 
 var _ = require('lodash');
 
-var { Entity } = require('../entities');
+var Entity = require('../entities/entity');
 
 var { makeRider } = require('./riderMaker');
 var { copyRider } = require('./riderCopier');
