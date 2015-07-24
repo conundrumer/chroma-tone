@@ -83,13 +83,42 @@ const
 
 class RiderMaker {
 
+  makePoint(p) {
+    return new Point(p.id, p.xInit, p.yInit, p.friction);
+  }
+
+  makeConstraint(c, p, q) {
+    switch(c.type) {
+      case STICK:
+        return new Stick(c.id, p, q);
+      case BIND_STICK:
+        return new BindStick(c.id, p, q, ENDURANCE);
+      case REPEL_STICK:
+        let stick = new RepelStick(c.id, p, q);
+        stick.restLength *= 0.5;
+        return stick;
+      default:
+        throw new Error('Unknown constraint type');
+    }
+  }
+
+  makeJoint(j, s, t) {
+    return new ClockwiseCrashJoint(j.id, s, t);
+  }
+
+  makeScarfSegment(i, p) {
+    let q = new Point(-i - 1, p.x - SCARF.segmentLength, p.y, 0, SCARF.airFriction);
+    let stick = new ScarfStick(-i - 1, p, q);
+    return [q, stick];
+  }
+
   makePoints(oldPoints = null) {
     return _.values(Points).map( p => {
       let point;
       if (oldPoints) {
         point = oldPoints[p.id].clone();
       } else {
-        point = new Point(p.id, p.xInit, p.yInit, p.friction);
+        point = this.makePoint(p);
       }
       return point;
     });
@@ -103,20 +132,7 @@ class RiderMaker {
       if (oldConstraints) {
         stick = oldConstraints[c.id].clone(p, q);
       } else {
-        switch(c.type) {
-          case STICK:
-            stick = new Stick(c.id, p, q);
-            break;
-          case BIND_STICK:
-            stick = new BindStick(c.id, p, q, ENDURANCE);
-            break;
-          case REPEL_STICK:
-            stick = new RepelStick(c.id, p, q);
-            stick.restLength *= 0.5;
-            break;
-          default:
-            throw new Error('Unknown constraint type');
-        }
+        stick = this.makeConstraint(c, p, q);
       }
       return stick;
     });
@@ -133,8 +149,7 @@ class RiderMaker {
         q = oldScarfPoints[i].clone();
         stick = oldScarfConstraints[i].clone(p, q);
       } else {
-        q = new Point(-i - 1, p.x - SCARF.segmentLength, p.y, 0, SCARF.airFriction);
-        stick = new ScarfStick(-i - 1, p, q);
+        [q, stick] = this.makeScarfSegment(i, p);
       }
       scarfPoints.push(q);
       scarfConstraints.push(stick);
@@ -150,7 +165,7 @@ class RiderMaker {
       if (oldJoints) {
         joint = oldJoints[j.id].clone(s, t);
       } else {
-        joint = new ClockwiseCrashJoint(j.id, s, t);
+        joint = this.makeJoint(j, s, t);
       }
       return joint;
     });
@@ -176,6 +191,7 @@ class RiderMaker {
     copy.sledBroken = self.sledBroken;
     return copy;
   }
+
 }
 
 function getBodyParts(self) {
