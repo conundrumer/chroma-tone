@@ -69,14 +69,18 @@ const
     SHOULDER_PEG, STRING_LHAND, STRING_RHAND, LFOOT_NOSE, RFOOT_NOSE,
     SHOULDER_LFOOT, SHOULDER_RFOOT
   ],
+  // joints
+  STRING_PEG_TAIL =      { id: 0 , s: PEG_TAIL      , t: STRING_PEG },
+  BODY_SLED = { id: 1 , s: SHOULDER_BUTT , t: STRING_PEG },
+  JOINTS = [ STRING_PEG_TAIL, BODY_SLED ],
   // body parts
   BODY_PARTS = [
     { name: 'sled'     , p: PEG      , q: STRING   },
     { name: 'body'     , p: BUTT     , q: SHOULDER },
-    { name: 'leftArm' , p: SHOULDER , q: LHAND    },
-    { name: 'rightArm'  , p: SHOULDER , q: RHAND    },
-    { name: 'leftLeg' , p: BUTT     , q: LFOOT    },
-    { name: 'rightLeg'  , p: BUTT     , q: RFOOT    }
+    { name: 'leftArm'  , p: SHOULDER , q: LHAND    },
+    { name: 'rightArm' , p: SHOULDER , q: RHAND    },
+    { name: 'leftLeg'  , p: BUTT     , q: LFOOT    },
+    { name: 'rightLeg' , p: BUTT     , q: RFOOT    }
   ],
   // scarf
   SCARF = {
@@ -85,6 +89,7 @@ const
     numSegments: 7,
     segmentLength: 2
   };
+
 
 class Rider extends Entity {
   constructor(x, y, vx = VX_INIT, vy = VY_INIT) {
@@ -134,20 +139,16 @@ class Rider extends Entity {
     this.scarfConstraints = [];
 
     for (let i = 0; i < SCARF.numSegments; i++) {
-      let p = (i === 0) ? this.points[SHOULDER.id] : this.scarfPoints[i-1];
+      let p = (i === 0) ? this.points[SCARF.p.id] : this.scarfPoints[i-1];
       let q = new Point(-i - 1, p.x - SCARF.segmentLength, p.y, 0, SCARF.airFriction);
       this.scarfPoints.push(q);
       this.scarfConstraints.push(new ScarfStick(-i - 1, p, q));
     }
   }
   makeJoints() {
-    let pegTail = this.constraints[PEG_TAIL.id];
-    let stringPeg = this.constraints[STRING_PEG.id];
-    let shoulderButt = this.constraints[SHOULDER_BUTT.id];
-    this.joints = [
-      new ClockwiseCrashJoint(0, pegTail, stringPeg),
-      new ClockwiseCrashJoint(1, shoulderButt, stringPeg)
-    ];
+    this.joints = JOINTS.map( j =>
+      new ClockwiseCrashJoint(j.id, this.constraints[j.s.id], this.constraints[j.t.id])
+    );
   }
   initPosAndVel(x, y, vx, vy) {
     this.points.concat(this.scarfPoints).forEach(p => {
@@ -172,8 +173,8 @@ class Rider extends Entity {
     point.step(gravity);
   }
   stepScarf(gravity) {
-    let base = this.points[SHOULDER.id];
-    let seed = this.points[this.scarfPoints.length-1];
+    let base = this.scarfPoints[0];
+    let seed = this.scarfPoints[this.scarfPoints.length-1];
     let flutter = Rider.getFlutter(base, seed);
     this.scarfPoints[1].pos.add(flutter);
 
@@ -197,7 +198,7 @@ class Rider extends Entity {
     let didCrash = joint.resolve();
 
     this.crashed = this.crashed || didCrash;
-    this.sledBroken = this.sledBroken || i === 0 && didCrash;
+    this.sledBroken = this.sledBroken || i === STRING_PEG_TAIL.id && didCrash;
   }
   step(lineStore, gravity = GRAVITY) {
     // normally i would avoid for loops but lots of iterations here
@@ -234,18 +235,15 @@ class Rider extends Entity {
 
     copy.scarfPoints = _.map(this.scarfPoints, point => point.clone());
     copy.scarfConstraints = _.map(this.scarfConstraints, (c, i) => {
-      let p = (i === 0) ? copy.points[SHOULDER.id] : copy.scarfPoints[i-1];
+      let p = (i === 0) ? copy.points[SCARF.p.id] : copy.scarfPoints[i-1];
       let q = copy.scarfPoints[i];
       return c.clone(p, q);
     });
 
-    let pegTail = copy.constraints[PEG_TAIL.id];
-    let stringPeg = copy.constraints[STRING_PEG.id];
-    let shoulderButt = copy.constraints[SHOULDER_BUTT.id];
-    copy.joints = [
-      this.joints[0].clone(pegTail, stringPeg),
-      this.joints[1].clone(shoulderButt, stringPeg)
-    ];
+    copy.joints = _.map(this.joints, (j, i) => {
+      let jProps = JOINTS[i];
+      j.clone(copy.constraints[jProps.s.id], copy.constraints[jProps.t.id]);
+    });
 
     copy.crashed = this.crashed;
     copy.sledBroken = this.sledBroken;
@@ -291,7 +289,7 @@ class Rider extends Entity {
 
     bodyParts.scarf = [];
     for (let i = 0; i < state.scarfConstraints.length; i++) {
-      let p = (i === 0) ? state.points[SHOULDER.id] : state.scarfPoints[i-1];
+      let p = (i === 0) ? state.points[SCARF.p.id] : state.scarfPoints[i-1];
       let q = state.scarfPoints[i];
       bodyParts.scarf.push(getPosition(p, q));
     }
