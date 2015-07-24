@@ -1,4 +1,5 @@
 /*eslint no-multi-spaces: 0 comma-spacing: 0*/
+/*eslint key-spacing: 0 */
 
 var _ = require('lodash');
 
@@ -28,7 +29,7 @@ const
   RHAND    = { id: 7 , xInit: 11.5 , yInit: -5   , friction: 0.1 },
   LFOOT    = { id: 8 , xInit: 10   , yInit: 5    , friction: 0   },
   RFOOT    = { id: 9 , xInit: 10   , yInit: 5    , friction: 0   },
-  POINTS = [ PEG, TAIL, NOSE, STRING, BUTT, SHOULDER, LHAND, RHAND, LFOOT, RFOOT ],
+  Points = { PEG, TAIL, NOSE, STRING, BUTT, SHOULDER, LHAND, RHAND, LFOOT, RFOOT },
   // constraints
   PEG_TAIL         = { id: 0  , p: PEG      , q: TAIL   , type: STICK       },
   TAIL_NOSE        = { id: 1  , p: TAIL     , q: NOSE   , type: STICK       },
@@ -52,26 +53,26 @@ const
   RFOOT_NOSE       = { id: 19 , p: RFOOT    , q: NOSE   , type: BIND_STICK  },
   SHOULDER_LFOOT   = { id: 20 , p: SHOULDER , q: LFOOT  , type: REPEL_STICK },
   SHOULDER_RFOOT   = { id: 21 , p: SHOULDER , q: RFOOT  , type: REPEL_STICK },
-  CONSTRAINTS = [
+  Constraints = {
     PEG_TAIL, TAIL_NOSE, NOSE_STRING, STRING_PEG, PEG_NOSE, STRING_TAIL,
     PEG_BUTT, TAIL_BUTT, NOSE_BUTT,
     SHOULDER_BUTT, SHOULDER_LHAND, SHOULDER_RHAND, BUTT_LFOOT, BUTT_RFOOT, SHOULDER_RHAND_2,
     SHOULDER_PEG, STRING_LHAND, STRING_RHAND, LFOOT_NOSE, RFOOT_NOSE,
     SHOULDER_LFOOT, SHOULDER_RFOOT
-  ],
+  },
   // joints
   STRING_PEG_TAIL = { id: 0 , s: PEG_TAIL      , t: STRING_PEG },
   BODY_SLED =       { id: 1 , s: SHOULDER_BUTT , t: STRING_PEG },
-  JOINTS = [ STRING_PEG_TAIL, BODY_SLED ],
+  Joints = { STRING_PEG_TAIL, BODY_SLED },
   // body parts
-  BODY_PARTS = [
-    { name: 'sled'     , p: PEG      , q: STRING   },
-    { name: 'body'     , p: BUTT     , q: SHOULDER },
-    { name: 'leftArm'  , p: SHOULDER , q: LHAND    },
-    { name: 'rightArm' , p: SHOULDER , q: RHAND    },
-    { name: 'leftLeg'  , p: BUTT     , q: LFOOT    },
-    { name: 'rightLeg' , p: BUTT     , q: RFOOT    }
-  ],
+  BodyParts = {
+    sled:     { p: PEG      , q: STRING   },
+    body:     { p: BUTT     , q: SHOULDER },
+    leftArm:  { p: SHOULDER , q: LHAND    },
+    rightArm: { p: SHOULDER , q: RHAND    },
+    leftLeg:  { p: BUTT     , q: LFOOT    },
+    rightLeg: { p: BUTT     , q: RFOOT    }
+  },
   // scarf
   SCARF = {
     airFriction: 0.85,
@@ -82,7 +83,7 @@ const
 
 
 function makePoints(oldPoints = null) {
-  let points = POINTS.map( p => {
+  return _.values(Points).map( p => {
     let point;
     if (oldPoints) {
       point = oldPoints[p.id].clone();
@@ -91,11 +92,10 @@ function makePoints(oldPoints = null) {
     }
     return point;
   });
-  return points;
 }
 
 function makeConstraints(points, oldConstraints = null) {
-  let constraints = CONSTRAINTS.map( c => {
+  return _.values(Constraints).map( c => {
     let stick;
     let p = points[c.p.id];
     let q = points[c.q.id];
@@ -119,8 +119,6 @@ function makeConstraints(points, oldConstraints = null) {
     }
     return stick;
   });
-
-  return constraints;
 }
 
 function makeScarf(points, oldScarfPoints = null, oldScarfConstraints = null) {
@@ -145,7 +143,7 @@ function makeScarf(points, oldScarfPoints = null, oldScarfConstraints = null) {
 }
 
 function makeJoints(constraints, oldJoints = null) {
-  let joints = JOINTS.map( j => {
+  return _.values(Joints).map( j => {
     let [s, t] = [constraints[j.s.id], constraints[j.t.id]];
     let joint;
     if (oldJoints) {
@@ -155,7 +153,6 @@ function makeJoints(constraints, oldJoints = null) {
     }
     return joint;
   });
-  return joints;
 }
 
 function makeRider() {
@@ -190,12 +187,9 @@ function getBodyParts(self) {
     };
   };
 
-  let bodyParts = {};
-  BODY_PARTS.forEach(bodyPart => {
-    let p = self.points[bodyPart.p.id];
-    let q = self.points[bodyPart.q.id];
-    bodyParts[bodyPart.name] = getPosition(p, q);
-  });
+  let bodyParts = _.mapValues(BodyParts, ({p, q}) =>
+    getPosition(self.points[p.id], self.points[q.id])
+  );
 
   bodyParts.scarf = [];
   for (let i = 0; i < self.scarfConstraints.length; i++) {

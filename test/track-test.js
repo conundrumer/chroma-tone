@@ -61,6 +61,10 @@ describe('Track', () => {
     it('stops correctly', () => {
       assert(_.isEqual(initRider.getState(), defaultTrack.getRiderAtFrame(0).getState()));
     });
+    it('gets body parts', () => {
+      let parts = defaultTrack.getRiderAtFrame(200).getBodyParts();
+      assert(!!parts);
+    });
   });
 
   describe('Default single line in 6.1', () => {
