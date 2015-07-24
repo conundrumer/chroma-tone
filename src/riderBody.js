@@ -81,32 +81,41 @@ const
   };
 
 
-function makePoints() {
+function makePoints(oldPoints = null) {
   let points = POINTS.map( p => {
-    let point = new Point(p.id, p.xInit, p.yInit, p.friction);
+    let point;
+    if (oldPoints) {
+      point = oldPoints[p.id].clone();
+    } else {
+      point = new Point(p.id, p.xInit, p.yInit, p.friction);
+    }
     return point;
   });
   return points;
 }
 
-function makeConstraints(points) {
+function makeConstraints(points, oldConstraints = null) {
   let constraints = CONSTRAINTS.map( c => {
     let stick;
     let p = points[c.p.id];
     let q = points[c.q.id];
-    switch(c.type) {
-      case STICK:
-        stick = new Stick(c.id, p, q);
-        break;
-      case BIND_STICK:
-        stick = new BindStick(c.id, p, q, ENDURANCE);
-        break;
-      case REPEL_STICK:
-        stick = new RepelStick(c.id, p, q);
-        stick.restLength *= 0.5;
-        break;
-      default:
-        throw new Error('Unknown constraint type');
+    if (oldConstraints) {
+      stick = oldConstraints[c.id].clone(p, q);
+    } else {
+      switch(c.type) {
+        case STICK:
+          stick = new Stick(c.id, p, q);
+          break;
+        case BIND_STICK:
+          stick = new BindStick(c.id, p, q, ENDURANCE);
+          break;
+        case REPEL_STICK:
+          stick = new RepelStick(c.id, p, q);
+          stick.restLength *= 0.5;
+          break;
+        default:
+          throw new Error('Unknown constraint type');
+      }
     }
     return stick;
   });
@@ -114,24 +123,38 @@ function makeConstraints(points) {
   return constraints;
 }
 
-function makeScarf(points) {
+function makeScarf(points, oldScarfPoints = null, oldScarfConstraints = null) {
   let scarfPoints = [];
   let scarfConstraints = [];
 
   for (let i = 0; i < SCARF.numSegments; i++) {
     let p = (i === 0) ? points[SCARF.p.id] : scarfPoints[i-1];
-    let q = new Point(-i - 1, p.x - SCARF.segmentLength, p.y, 0, SCARF.airFriction);
+    let q, stick;
+    if (oldScarfPoints && oldScarfConstraints) {
+      q = oldScarfPoints[i].clone();
+      stick = oldScarfConstraints[i].clone(p, q);
+    } else {
+      q = new Point(-i - 1, p.x - SCARF.segmentLength, p.y, 0, SCARF.airFriction);
+      stick = new ScarfStick(-i - 1, p, q);
+    }
     scarfPoints.push(q);
-    scarfConstraints.push(new ScarfStick(-i - 1, p, q));
+    scarfConstraints.push(stick);
   }
 
   return {scarfPoints, scarfConstraints};
 }
 
-function makeJoints(constraints) {
-  let joints = JOINTS.map( j =>
-    new ClockwiseCrashJoint(j.id, constraints[j.s.id], constraints[j.t.id])
-  );
+function makeJoints(constraints, oldJoints = null) {
+  let joints = JOINTS.map( j => {
+    let [s, t] = [constraints[j.s.id], constraints[j.t.id]];
+    let joint;
+    if (oldJoints) {
+      joint = oldJoints[j.id].clone(s, t);
+    } else {
+      joint = new ClockwiseCrashJoint(j.id, s, t);
+    }
+    return joint;
+  });
   return joints;
 }
 
@@ -145,23 +168,11 @@ function makeRider() {
 
 function copyRider(self) {
   let copy = {};
-  copy.points = _.map(self.points, point => point.clone());
-  copy.constraints = _.map(self.constraints, (c, i) => {
-    let cProps = CONSTRAINTS[i];
-    return c.clone(copy.points[cProps.p.id], copy.points[cProps.q.id]);
-  });
+  copy.points = makePoints(self.points);
+  copy.constraints = makeConstraints(copy.points, self.constraints);
+  copy.joints = makeJoints(copy.constraints, self.joints);
 
-  copy.scarfPoints = _.map(self.scarfPoints, point => point.clone());
-  copy.scarfConstraints = _.map(self.scarfConstraints, (c, i) => {
-    let p = (i === 0) ? copy.points[SCARF.p.id] : copy.scarfPoints[i-1];
-    let q = copy.scarfPoints[i];
-    return c.clone(p, q);
-  });
-
-  copy.joints = _.map(self.joints, (j, i) => {
-    let jProps = JOINTS[i];
-    j.clone(copy.constraints[jProps.s.id], copy.constraints[jProps.t.id]);
-  });
+  _.assign(copy, makeScarf(copy.points, self.scarfPoints, self.scarfConstraints));
 
   copy.crashed = self.crashed;
   copy.sledBroken = self.sledBroken;
