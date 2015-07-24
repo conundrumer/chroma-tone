@@ -3,6 +3,9 @@ var RiderMaker = require('./riderMaker');
 class RiderCopier extends RiderMaker {
 
   static copyRider(rider) {
+    // if there is poor performance from instantiating this class everytime this function is called
+    // i could use a private global variable for this module instead of instantiation
+    // but you're not supposed to clone too often anyways, let me speak java in peace
     return (new RiderCopier(rider)).makeRider();
   }
 
