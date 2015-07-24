@@ -22,7 +22,7 @@ class Cell {
   }
 
   has(line) {
-    return !!this.lines[line.id];
+    return line.id in this.lines;
   }
 
   add(line) {
@@ -108,7 +108,7 @@ class Grid {
       );
     }
     let addLineIfInBox = filterEdges ? line => {
-      if (!linesInBox[line.id] && line.inBox(x1, y1, x2, y2)) {
+      if (!(line.id in linesInBox) && line.inBox(x1, y1, x2, y2)) {
         linesInBox[line.id] = line;
       }
     } : line => linesInBox[line.id] = line;
@@ -137,9 +137,7 @@ class Grid {
 
   getLinesFromCell(cellX, cellY) {
     let key = getCellHash(cellX, cellY);
-    let cell = this.getCell(key);
-
-    return cell ? cell.getLines() : [];
+    return (key in this.cells) ? this.cells[key].getLines() : [];
   }
 
   addLine(line) {
@@ -153,11 +151,11 @@ class Grid {
   addLineToCell(line, cellPos) {
     let cellKey = getCellHash(cellPos.x, cellPos.y);
 
-    if (this.cells[cellKey] === undefined) {
+    if (!(cellKey in this.cells)) {
       this.cells[cellKey] = this.isOrdered ? new OrderedCell(cellPos) : new Cell(cellPos);
     }
 
-    if (this.linesToCells[line.id] === undefined) {
+    if (!(line.id in this.linesToCells)) {
       this.linesToCells[line.id] = [];
     }
 
@@ -170,7 +168,7 @@ class Grid {
   }
 
   removeLine(line) {
-    this.linesToCells[line.id].forEach( cell => {
+    _.forEach(this.linesToCells[line.id], cell => {
       cell.remove(line);
       if (cell.getLines().length === 0) {
         delete this.cells[cell.key];
