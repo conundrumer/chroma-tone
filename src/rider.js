@@ -13,7 +13,6 @@ var {
   ClockwiseCrashJoint
 } = require('./entities');
 
-// I should figure out a way to generalize bodies
 const
   // enum
   STICK = 0,
@@ -70,8 +69,8 @@ const
     SHOULDER_LFOOT, SHOULDER_RFOOT
   ],
   // joints
-  STRING_PEG_TAIL =      { id: 0 , s: PEG_TAIL      , t: STRING_PEG },
-  BODY_SLED = { id: 1 , s: SHOULDER_BUTT , t: STRING_PEG },
+  STRING_PEG_TAIL = { id: 0 , s: PEG_TAIL      , t: STRING_PEG },
+  BODY_SLED =       { id: 1 , s: SHOULDER_BUTT , t: STRING_PEG },
   JOINTS = [ STRING_PEG_TAIL, BODY_SLED ],
   // body parts
   BODY_PARTS = [
@@ -254,7 +253,6 @@ class Rider extends Entity {
     return {
       crashed: this.crashed,
       sledBroken: this.sledBroken,
-      // lazy atm, i can use arrays instead of cloned points
       points: _.map(this.points, point => point.copyState()),
       scarfPoints: _.map(this.scarfPoints, point => point.copyState())
     };
