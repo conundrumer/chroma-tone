@@ -5,7 +5,7 @@ var _ = require('lodash');
 
 var Vector = require('../src/vector');
 var Track = require('../index').Track;
-var NoGridTrack = require('../src/track').NoGridTrack;
+var NoGridTrack = require('../src/tracks').NoGridTrack;
 
 var rand = (k) => k ? Math.random() * rand(k-1) : Math.random();
 

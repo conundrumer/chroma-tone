@@ -2,11 +2,7 @@
 
 var _ = require('lodash');
 
-var {
-  LineStore,
-  GridStore,
-  OldGridStore
-} = require('./stores');
+var { GridStore } = require('../stores');
 
 var {
   LineTypes: {
@@ -15,9 +11,35 @@ var {
   SolidLine,
   AccLine,
   SceneryLine
-} = require('./lines');
+} = require('../lines');
 
-var { Rider, DebugRider } = require('./riders');
+var { Rider, DebugRider } = require('../riders');
+
+function makeLine(l) {
+    let LineType;
+
+  switch (l.type) {
+    case SOLID_LINE:
+      LineType = SolidLine;
+      break;
+    case ACC_LINE:
+      LineType = AccLine;
+      break;
+    case SCENERY_LINE:
+      LineType = SceneryLine;
+      break;
+    default:
+      throw new Error('Unknown line type: ' + l.type);
+  }
+
+  let line = new LineType(l.id, l.x1, l.y1, l.x2, l.y2, l.flipped, l.extended);
+  if (l.type !== SCENERY_LINE) {
+    line.leftLine = l.leftLine || null;
+    line.rightLine = l.rightLine || null;
+  }
+
+  return line;
+}
 
 class Track {
   constructor(lineData, startPosition, debug = false) {
@@ -51,30 +73,9 @@ class Track {
 
   // TODO: make line factory I guess
   addLine(l) {
-    let LineType;
-
-    switch (l.type) {
-      case SOLID_LINE:
-        LineType = SolidLine;
-        break;
-      case ACC_LINE:
-        LineType = AccLine;
-        break;
-      case SCENERY_LINE:
-        LineType = SceneryLine;
-        break;
-      default:
-        throw new Error('Unknown line type: ' + l.type);
-    }
-
-    let line = new LineType(l.id, l.x1, l.y1, l.x2, l.y2, l.flipped, l.extended);
-    if (l.type !== SCENERY_LINE) {
-      line.leftLine = l.leftLine || null;
-      line.rightLine = l.rightLine || null;
-    }
+    let line = makeLine(l);
     this.store.addLine(line);
     this.updateFrameCache(line);
-
   }
 
   removeLine(line) {
@@ -130,28 +131,4 @@ class Track {
 
 }
 
-class OldTrack extends Track {
-  constructor(lineData, startPosition, debug) {
-    super(lineData, startPosition, debug);
-  }
-
-  getNewStore() {
-    return new OldGridStore();
-  }
-}
-
-class NoGridTrack extends Track {
-  constructor(lineData, startPosition, debug) {
-    super(lineData, startPosition, debug);
-  }
-
-  getNewStore() {
-    return new LineStore();
-  }
-}
-
-module.exports = {
-  Track: Track,
-  OldTrack: OldTrack,
-  NoGridTrack: NoGridTrack
-};
+module.exports = Track;
