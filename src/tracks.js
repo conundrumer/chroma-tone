@@ -6,7 +6,7 @@ var {
   LineStore,
   GridStore,
   OldGridStore
-} = require('./store');
+} = require('./stores');
 
 var {
   LineTypes: {
@@ -17,7 +17,7 @@ var {
   SceneryLine
 } = require('./lines');
 
-var { Rider, DebugRider } = require('./rider');
+var { Rider, DebugRider } = require('./riders');
 
 class Track {
   constructor(lineData, startPosition, debug = false) {
