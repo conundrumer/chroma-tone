@@ -1,8 +1,32 @@
 'use strict';
 
-var { getBox, inBounds } = require('./geo-utils');
-
 var Grid = require('./grid');
+
+function getBox(x1, y1, x2, y2) {
+  let left = Math.min(x1, x2);
+  let right = Math.max(x1, x2);
+  let top = Math.min(y1, y2);
+  let bottom = Math.max(y1, y2);
+
+  return {
+    left: left,
+    right: right,
+    top: top,
+    bottom: bottom,
+    corners: [
+      [left, top], [left, bottom], [right, top], [right, bottom]
+    ].map( c => { return {x: c[0], y: c[1]}; } )
+  };
+}
+
+function inBounds(p, box) {
+  return (
+       p.x >= box.left
+    && p.x <= box.right
+    && p.y >= box.top
+    && p.y <= box.bottom
+  );
+}
 
 class GridV62 extends Grid {
 
