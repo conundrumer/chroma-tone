@@ -3,43 +3,8 @@
 var _ = require('lodash');
 
 var { GridStore } = require('../stores');
-
-var {
-  LineTypes: {
-    SOLID_LINE, ACC_LINE, SCENERY_LINE
-  },
-  SolidLine,
-  AccLine,
-  SceneryLine
-} = require('../lines');
-
 var { Rider, DebugRider } = require('../riders');
-
-function makeLine(l) {
-    let LineType;
-
-  switch (l.type) {
-    case SOLID_LINE:
-      LineType = SolidLine;
-      break;
-    case ACC_LINE:
-      LineType = AccLine;
-      break;
-    case SCENERY_LINE:
-      LineType = SceneryLine;
-      break;
-    default:
-      throw new Error('Unknown line type: ' + l.type);
-  }
-
-  let line = new LineType(l.id, l.x1, l.y1, l.x2, l.y2, l.flipped, l.extended);
-  if (l.type !== SCENERY_LINE) {
-    line.leftLine = l.leftLine || null;
-    line.rightLine = l.rightLine || null;
-  }
-
-  return line;
-}
+var { makeLine } = require('../lines');
 
 class Track {
   constructor(lineData, startPosition, debug = false) {
@@ -108,7 +73,7 @@ class Track {
   updateFrameCache(line, removed) { // eslint-disable-line no-unused-vars
     // don't be too clever right now
     // any solid line modification resets the cache
-    if (line.type !== SCENERY_LINE) {
+    if (line.isSolid) {
       this.resetFrameCache();
     }
   }
