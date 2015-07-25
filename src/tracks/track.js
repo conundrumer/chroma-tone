@@ -36,7 +36,6 @@ class Track {
     return this.store.lines;
   }
 
-  // TODO: make line factory I guess
   addLine(l) {
     let line = makeLine(l);
     this.store.addLine(line);
