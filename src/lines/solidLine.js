@@ -1,10 +1,7 @@
 'use strict';
 
 var Line = require('./line');
-var {
-  LineTypes: { SOLID_LINE },
-  MAX_FORCE_LENGTH
-} = Line;
+var { SOLID_LINE } = require('./line-types');
 
 class SolidLine extends Line {
   constructor(id, x1, y1, x2, y2, inv, lim) {
@@ -29,7 +26,7 @@ class SolidLine extends Line {
     let pntDirection = this.c.norm.dot(p.vel);
 
     let pointMovingIntoLine = pntDirection > 0;
-    let pointInForceBounds = perpComp > 0 && perpComp < MAX_FORCE_LENGTH &&
+    let pointInForceBounds = perpComp > 0 && perpComp < Line.MAX_FORCE_LENGTH &&
       linePos >= this.c.leftBound && linePos <= this.c.rightBound;
 
     return pointMovingIntoLine && pointInForceBounds;

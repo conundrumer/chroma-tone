@@ -156,11 +156,6 @@ class Line {
   }
 }
 Line.tempVec = new Vector(0, 0);
-Line.LineTypes = {
-  SOLID_LINE: 0,
-  ACC_LINE: 1,
-  SCENERY_LINE: 2
-};
 Line.MAX_FORCE_LENGTH = MAX_FORCE_LENGTH;
 
 module.exports = Line;

@@ -1,7 +1,7 @@
 'use strict';
 
 var SolidLine = require('./solidLine');
-var { ACC_LINE } = require('./line').LineTypes;
+var { ACC_LINE } = require('./line-types');
 
 const ACC = 0.1;
 
