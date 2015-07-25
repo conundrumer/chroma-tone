@@ -8,7 +8,7 @@ var {
   ConstraintTypes: {
     STICK, BIND_STICK, REPEL_STICK
   }
-} = require('./riderBody');
+} = require('./RiderBody');
 
 var {
   Point,

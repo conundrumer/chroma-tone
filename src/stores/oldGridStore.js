@@ -1,7 +1,7 @@
 'use strict';
 
-var GridStore = require('./gridStore');
-var GridV61 = require('./gridV61');
+var GridStore = require('./GridStore');
+var GridV61 = require('./GridV61');
 
 class OldGridStore extends GridStore {
   constructor() {

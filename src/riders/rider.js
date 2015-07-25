@@ -2,12 +2,12 @@
 
 var _ = require('lodash');
 
-var Entity = require('../entities/entity');
+var Entity = require('../entities/Entity');
 
-var { makeRider } = require('./riderMaker');
-var { copyRider } = require('./riderCopier');
+var { makeRider } = require('./RiderMaker');
+var { copyRider } = require('./RiderCopier');
 
-var { getBodyParts, Joints: { STRING_PEG_TAIL } } = require('./riderBody');
+var { getBodyParts, Joints: { STRING_PEG_TAIL } } = require('./RiderBody');
 
 const
   // physics

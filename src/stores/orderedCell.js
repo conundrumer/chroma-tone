@@ -2,7 +2,7 @@
 
 var _ = require('lodash');
 
-var Cell = require('./cell');
+var Cell = require('./Cell');
 
 // cell containing unique lines ordered by descending IDs
 class OrderedCell extends Cell {

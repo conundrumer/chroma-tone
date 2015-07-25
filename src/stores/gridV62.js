@@ -1,6 +1,6 @@
 'use strict';
 
-var Grid = require('./grid');
+var Grid = require('./Grid');
 
 function getBox(x1, y1, x2, y2) {
   let left = Math.min(x1, x2);

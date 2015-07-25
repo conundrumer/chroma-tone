@@ -1,4 +1,4 @@
 module.exports = {
-  LineTypes: require('./line-types'),
+  LineTypes: require('./LineTypes'),
   makeLine: require('./makeLine')
 };

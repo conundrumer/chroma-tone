@@ -1,6 +1,6 @@
 'use strict';
 
-var Track = require('./track');
+var Track = require('./Track');
 var { OldGridStore } = require('../stores');
 
 class OldTrack extends Track {

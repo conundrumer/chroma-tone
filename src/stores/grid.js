@@ -2,8 +2,8 @@
 
 var _ = require('lodash');
 var getCellHash = require('./getCellHash');
-var Cell = require('./cell');
-var OrderedCell = require('./orderedCell');
+var Cell = require('./Cell');
+var OrderedCell = require('./OrderedCell');
 
 function cellsEqual(cell1, cell2) {
   return cell1.x === cell2.x && cell1.y === cell2.y;

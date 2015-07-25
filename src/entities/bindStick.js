@@ -1,6 +1,6 @@
 'use strict';
 
-var Stick = require('./stick');
+var Stick = require('./Stick');
 
 class BindStick extends Stick {
 

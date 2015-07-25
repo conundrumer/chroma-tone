@@ -1,6 +1,6 @@
 'use strict';
 
-var Constraint = require('./constraint');
+var Constraint = require('./Constraint');
 
 class Joint extends Constraint {
 

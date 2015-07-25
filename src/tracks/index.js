@@ -1,5 +1,5 @@
 module.exports = {
-  Track: require('./track'),
-  OldTrack: require('./oldTrack'),
-  NoGridTrack: require('./noGridTrack')
+  Track: require('./Track'),
+  OldTrack: require('./OldTrack'),
+  NoGridTrack: require('./NoGridTrack')
 };

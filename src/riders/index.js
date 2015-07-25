@@ -1,4 +1,4 @@
 module.exports = {
-  Rider: require('./rider'),
-  DebugRider: require('./debugRider')
+  Rider: require('./Rider'),
+  DebugRider: require('./DebugRider')
 };

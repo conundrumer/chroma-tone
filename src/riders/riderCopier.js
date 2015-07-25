@@ -1,4 +1,4 @@
-var RiderMaker = require('./riderMaker');
+var RiderMaker = require('./RiderMaker');
 
 class RiderCopier extends RiderMaker {
 

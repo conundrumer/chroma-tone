@@ -1,4 +1,4 @@
-var Rider = require('./rider');
+var Rider = require('./Rider');
 
 class DebugRider extends Rider {
 

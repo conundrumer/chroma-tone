@@ -1,7 +1,7 @@
 'use strict';
 
-var Vector = require('../vector');
-var Constraint = require('./constraint');
+var Vector = require('../Vector');
+var Constraint = require('./Constraint');
 
 class Stick extends Constraint {
 

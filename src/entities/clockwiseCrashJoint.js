@@ -1,6 +1,6 @@
 'use strict';
 
-var Joint = require('./joint');
+var Joint = require('./Joint');
 
 class ClockwiseCrashJoint extends Joint {
 

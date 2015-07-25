@@ -1,7 +1,7 @@
 'use strict';
 
-var Entity = require('./entity');
-var Vector = require('../vector');
+var Entity = require('./Entity');
+var Vector = require('../Vector');
 
 class Point extends Entity {
 

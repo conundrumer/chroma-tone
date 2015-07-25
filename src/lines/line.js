@@ -1,6 +1,6 @@
 'use strict';
 
-var Vector = require('../vector');
+var Vector = require('../Vector');
 
 const
   // line extensions

@@ -1,8 +1,8 @@
 'use strict';
 
-var LineStore = require('./line-store');
-var Grid = require('./grid');
-var GridV62 = require('./gridV62');
+var LineStore = require('./LineStore');
+var Grid = require('./Grid');
+var GridV62 = require('./GridV62');
 var getCellHash = require('./getCellHash');
 
 class GridStore extends LineStore {

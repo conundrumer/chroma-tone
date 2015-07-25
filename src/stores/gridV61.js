@@ -1,6 +1,6 @@
 'use strict';
 
-var GridV62 = require('./gridV62');
+var GridV62 = require('./GridV62');
 
 class GridV61 extends GridV62 {
 

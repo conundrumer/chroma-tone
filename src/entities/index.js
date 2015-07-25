@@ -1,8 +1,8 @@
 module.exports = {
-  Point: require('./point'),
-  Stick: require('./stick'),
-  BindStick: require('./bindStick'),
-  RepelStick: require('./repelStick'),
-  ScarfStick: require('./scarfStick'),
-  ClockwiseCrashJoint: require('./clockwiseCrashJoint')
+  Point: require('./Point'),
+  Stick: require('./Stick'),
+  BindStick: require('./BindStick'),
+  RepelStick: require('./RepelStick'),
+  ScarfStick: require('./ScarfStick'),
+  ClockwiseCrashJoint: require('./ClockwiseCrashJoint')
 };

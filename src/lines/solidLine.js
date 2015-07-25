@@ -1,7 +1,7 @@
 'use strict';
 
-var Line = require('./line');
-var { SOLID_LINE } = require('./line-types');
+var Line = require('./Line');
+var { SOLID_LINE } = require('./LineTypes');
 
 class SolidLine extends Line {
   constructor(id, x1, y1, x2, y2, inv, lim) {

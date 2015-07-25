@@ -1,7 +1,7 @@
 'use strict';
 
-var Line = require('./line');
-var { SCENERY_LINE } = require('./line-types');
+var Line = require('./Line');
+var { SCENERY_LINE } = require('./LineTypes');
 
 class SceneryLine extends Line {
 

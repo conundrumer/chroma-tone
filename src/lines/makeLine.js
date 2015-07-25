@@ -1,9 +1,9 @@
 'use strict';
 
-var { SOLID_LINE, ACC_LINE, SCENERY_LINE } = require('./line-types');
-var SolidLine = require('./solidLine');
-var AccLine = require('./accLine');
-var SceneryLine = require('./sceneryLine');
+var { SOLID_LINE, ACC_LINE, SCENERY_LINE } = require('./LineTypes');
+var SolidLine = require('./SolidLine');
+var AccLine = require('./AccLine');
+var SceneryLine = require('./SceneryLine');
 
 function makeLine(l) {
     let LineType;
