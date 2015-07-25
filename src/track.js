@@ -6,7 +6,7 @@ var {
   LineStore,
   GridStore,
   OldGridStore
-} = require('./line-store');
+} = require('./store');
 
 var {
   LineTypes: {
@@ -49,6 +49,7 @@ class Track {
     return this.store.lines;
   }
 
+  // TODO: make line factory I guess
   addLine(l) {
     let LineType;
 
@@ -103,7 +104,7 @@ class Track {
     return this.rider;
   }
 
-  updateFrameCache(line, removed) {
+  updateFrameCache(line, removed) { // eslint-disable-line no-unused-vars
     // don't be too clever right now
     // any solid line modification resets the cache
     if (line.type !== SCENERY_LINE) {

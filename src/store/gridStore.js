@@ -1,60 +1,22 @@
+'use strict';
 
-var _ = require('lodash');
-
-var { Grid, GridV62, GridV61, getCellHash } = require('./grid');
-
-const GRID_SIZE = 14;
-
-class LineStore {
-  constructor() {
-    // if performance problems, will make this array sorted
-    this.lines = [];
-  }
-
-  addLine(line) {
-    this.lines.push(line);
-  }
-
-  removeLine(line) {
-    this.lines = _.without(this.lines, line);
-  }
-
-  // returns an array of lines in this bounding box or radius
-  getLines(x1, y1, x2, y2) {
-    if (y2 === undefined) {
-      let r = x2;
-      return this.getLinesInRadius(x1, y1, r);
-    }
-    return this.getLinesInBox(x1, y1, x2, y2);
-  }
-
-  getLinesInRadius(x, y, r) {
-    return _.filter(this.lines, line => line.inRadius(x, y, r));
-  }
-
-  getLinesInBox(x1, y1, x2, y2) {
-    return _.filter(this.lines, line => line.inBox(x1, y1, x2, y2));
-  }
-
-  // the ordering of the lines affects the physics
-  getSolidLinesAt(x, y, debug = false) {
-    return _.filter(this.lines, line => line.isSolid);
-  }
-
-}
+var LineStore = require('./line-store');
+var Grid = require('./grid');
+var GridV62 = require('./gridV62');
+var getCellHash = require('./getCellHash');
 
 class GridStore extends LineStore {
   constructor() {
     super();
 
     // for solid lines
-    this.solidGrid = new GridV62(GRID_SIZE, true);
+    this.solidGrid = new GridV62(GridStore.GRID_SIZE, true);
 
     // for all lines
     // darn there was a clever data structure for this stuff what was it
     // i think it was 2d sorted arrays?
     // i'll do it later
-    this.grid = new Grid(GRID_SIZE * 4, false);
+    this.grid = new Grid(GridStore.GRID_SIZE * 4, false);
 
     // for some reason, querying the grid is time consuming, so caching improves performance
     this.resetSolidLinesCache();
@@ -82,7 +44,7 @@ class GridStore extends LineStore {
     }
   }
 
-  getSolidLinesAt(x, y, debug = false) {
+  getSolidLinesAt(x, y, debug = false) { // eslint-disable-line no-unused-vars
     let cellPos = this.solidGrid.getCellPos(x, y);
 
     let key = getCellHash(cellPos.x, cellPos.y);
@@ -127,18 +89,6 @@ class GridStore extends LineStore {
 
 }
 
-class OldGridStore extends GridStore {
-  constructor() {
-    super();
+GridStore.GRID_SIZE = 14;
 
-    this.solidGrid = new GridV61(GRID_SIZE, true);
-  }
-
-}
-
-module.exports = {
-  GRID_SIZE: GRID_SIZE,
-  LineStore: LineStore,
-  GridStore: GridStore,
-  OldGridStore: OldGridStore
-};
+module.exports = GridStore;
