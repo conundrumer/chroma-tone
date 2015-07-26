@@ -1,0 +1,124 @@
+@import 'var.less';
+@import 'react-transition.less';
+
+@small-icon-height: 42px;
+@icon-width: 48px;
+@icon-height: @icon-width;
+@toolbar-height: 56px;
+@toolbar-max-width: 900px;
+@num-icons-in-timeline: 7;
+@max-shadow-height: 10px;
+@retracted-paper-bar-height: @max-shadow-height + @toolbar-height;
+@extended-paper-bar-height: @max-shadow-height + 2 * @toolbar-height;
+
+.LR-Editor {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+
+  .float-paper {
+    .react-transition(box-shadow, @z-depth-shadow-0, @z-depth-shadow-1, ease-in, ease-out);
+  }
+
+  .float-paper-bar {
+    height: @small-icon-height;
+    margin: 0 12px;
+  }
+
+  .paper-bar {
+    position: absolute;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    &.top {
+      top: 0;
+      .react-transition(transform, translateY(-1 * @retracted-paper-bar-height), translateY(0));
+    }
+
+    &.bottom {
+      transition: @transition-time ease-out;
+      bottom: 0;
+      height: 2 * @toolbar-height;
+      .react-transition(transform, translateY(@extended-paper-bar-height), translateY(@toolbar-height));
+
+    }
+
+    &.bottom-extended {
+      .bottom;
+      .react-transition(transform, translateY(@extended-paper-bar-height), translateY(0));
+    }
+  }
+
+  .float-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    width: 100%;
+    height: @toolbar-height;
+    .react-transition(opacity, 0.99, 1);
+  }
+
+  .toolbar {
+    box-sizing: border-box;
+    display: flex;
+    justify-content: space-between;
+    max-width: @toolbar-max-width;
+    height: @toolbar-height;
+    width: 100%;
+    padding: 0 24px;
+    background-color: white;
+
+    &.float-toolbar {
+      height: @small-icon-height;
+      padding: 0 6px;
+      align-items: center;
+    }
+
+    &.top {
+      align-items: flex-end;
+    }
+
+  }
+
+  .time-control-toolbar {
+    .react-transition(opacity, 0.99, 1);
+  }
+
+  .toolbar-group {
+    height: @toolbar-height;
+    display: flex;
+    align-items: center;
+  }
+
+  .time-control {
+    flex-grow: 1;
+  }
+
+  .timeline {
+    box-sizing: border-box;
+    flex: 1 0.5 @num-icons-in-timeline * @icon-height;
+    padding: 16px;
+  }
+
+  .icon-button {
+    transition: ease-out @transition-time;
+    border-radius: 50%;
+    background-color: transparent;
+    &.selected {
+      transition: ease-in @transition-time;
+      &.blue{
+        background-color: @light-blue-a100;
+      }
+      &.red{
+        background-color: @red-a100;
+      }
+      &.green {
+        background-color: @light-green-a100;
+      }
+    }
+  }
+}
