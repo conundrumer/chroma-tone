@@ -10,8 +10,7 @@ var webpack = require('webpack');
 module.exports = {
 
   output: {
-    filename: 'main.js',
-    publicPath: '/assets/'
+    filename: 'main.js'
   },
 
   cache: true,
@@ -19,7 +18,7 @@ module.exports = {
   devtool: false,
   entry: [
       'webpack/hot/only-dev-server',
-      './src/components/main.js'
+      './renderer/demo/main.js'
   ],
 
   stats: {
@@ -28,29 +27,13 @@ module.exports = {
   },
 
   resolve: {
-    extensions: ['', '.js'],
-    alias: {
-      'styles': __dirname + '/src/styles',
-      'mixins': __dirname + '/src/mixins',
-      'components': __dirname + '/src/components/',
-      'stores': __dirname + '/src/stores/',
-      'actions': __dirname + '/src/actions/'
-    }
+    extensions: ['', '.js']
   },
   module: {
     loaders: [{
       test: /\.js$/,
       exclude: /node_modules/,
       loader: 'react-hot!babel-loader'
-    }, {
-      test: /\.less/,
-      loader: 'style-loader!css-loader!less-loader'
-    }, {
-      test: /\.css$/,
-      loader: 'style-loader!css-loader'
-    }, {
-      test: /\.(png|jpg|woff|woff2)$/,
-      loader: 'url-loader?limit=8192'
     }
     ]
   },

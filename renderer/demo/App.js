@@ -1,11 +1,11 @@
 'use strict';
 
-var savedLinesReader = require('../saved-lines-reader');
+var { solReader } = require('../../io');
 var React = require('react');
-var Display = require('./Display');
+var Display = require('../Display');
 require('buffer');
 
-var { Track, OldTrack } = require('../track');
+var { Track, OldTrack } = require('../../core');
 
 var DEBUG = false;
 
@@ -100,7 +100,7 @@ var App = React.createClass({
     reader.onload = (upload) => {
       try {
         this.setState({
-          tracks: savedLinesReader(new Buffer(new Uint8Array(upload.target.result))),
+          tracks: solReader(new Buffer(new Uint8Array(upload.target.result))),
           track: null,
           selected: ''
         });
