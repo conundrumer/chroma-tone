@@ -1,5 +1,7 @@
 /*eslint-env node, mocha */
 
+'use strict';
+
 var defaultLines = [
   {
     x1: 15,
@@ -15,36 +17,26 @@ var defaultLines = [
   }
 ];
 
-// var fps = 40;
-
 var assert = require('assert');
-var fs = require('fs');
 var _ = require('lodash');
-var SAVEDLINES = 'test/testLines.sol';
-var CYCLOID = 'test/cycloid2.sol';
-var testTracks, savedLinesReader;
+var SAVEDLINES = 'test/data/testLines.sol';
+var CYCLOID = 'test/data/cycloid2.sol';
+var fs = require('fs');
+var savedLinesReader = require.main.require('io').savedLinesReader;
 
-describe('Saved Lines Reader', () => {
-  it('compiles', () => {
-    savedLinesReader = require('../index').savedLinesReader;
-  });
-  it('loads a .sol file', (done) => {
+describe('Track', () => {
+  let Track, OldTrack, defaultTrack, initRider, testTracks;
+
+  before((done) => {
+    Track = require.main.require('core').Track;
+    OldTrack = require.main.require('core').OldTrack;
     fs.readFile(SAVEDLINES, (err, data) => {
       if (err) {
-        throw new Error('file not found:', err);
+        throw err;
       }
       testTracks = savedLinesReader(data);
       done();
     });
-  });
-});
-
-describe('Track', () => {
-  let Track, OldTrack, defaultTrack, initRider;
-
-  it('compiles', () => {
-    Track = require('../index').Track;
-    OldTrack = require('../index').OldTrack;
   });
 
   describe('Default single line', () => {

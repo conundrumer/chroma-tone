@@ -1,6 +1,6 @@
 module.exports = {
-  Track: require('./src/tracks').Track,
-  OldTrack: require('./src/tracks').OldTrack,
-  LineTypes: require('./src/lines').LineTypes,
-  savedLinesReader: require('./src/savedLinesReader')
+  Track: require('./tracks').Track,
+  OldTrack: require('./tracks').OldTrack,
+  LineTypes: require('./lines').LineTypes,
+  Vector: require('./Vector')
 };

@@ -1,0 +1,29 @@
+{
+  "name": "lr",
+  "version": "0.1.0",
+  "description": "line rider ported to the web browser",
+  "main": "index.js",
+  "scripts": {
+    "test": "./node_modules/.bin/mocha --recursive --compilers js:babel/register"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/conundrumer/lr.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/conundrumer/lr/issues"
+  },
+  "homepage": "https://github.com/conundrumer/lr#readme",
+  "dependencies": {
+    "amf": "TooTallNate/node-amf",
+    "lodash": "^3.10.0",
+    "react": "^0.13.3",
+    "vector2d": "conundrumer/vec2d"
+  },
+  "devDependencies": {
+    "babel": "^5.8.9",
+    "mocha": "^2.2.5"
+  }
+}

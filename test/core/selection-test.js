@@ -1,11 +1,13 @@
 /*eslint-env node, mocha */
 
+'use strict';
+
 var assert = require('assert');
 var _ = require('lodash');
 
-var Vector = require('../src/vector');
-var Track = require('../index').Track;
-var NoGridTrack = require('../src/tracks').NoGridTrack;
+var Vector = require.main.require('core').Vector;
+var Track = require.main.require('core').Track;
+var NoGridTrack = require.main.require('core/tracks').NoGridTrack;
 
 var rand = (k) => k ? Math.random() * rand(k-1) : Math.random();
 
