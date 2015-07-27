@@ -22,7 +22,7 @@ var _ = require('lodash');
 var SAVEDLINES = 'test/data/testLines.sol';
 var CYCLOID = 'test/data/cycloid2.sol';
 var fs = require('fs');
-var savedLinesReader = require.main.require('io').savedLinesReader;
+var solReader = require.main.require('io').solReader;
 
 describe('Track', () => {
   let Track, OldTrack, defaultTrack, initRider, testTracks;
@@ -34,7 +34,7 @@ describe('Track', () => {
       if (err) {
         throw err;
       }
-      testTracks = savedLinesReader(data);
+      testTracks = solReader(data);
       done();
     });
   });
@@ -106,7 +106,7 @@ describe('Track', () => {
         if (err) {
           throw new Error('file not found:', err);
         }
-        let tracks = savedLinesReader(data);
+        let tracks = solReader(data);
         trackData = tracks[0];
         let startPos = trackData.startPosition;
         track = new Track(trackData.lines, { x: startPos[0], y: startPos[1] });

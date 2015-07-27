@@ -1,3 +1,3 @@
 module.exports = {
-  savedLinesReader: require('./savedLinesReader')
+  solReader: require('./solReader')
 };

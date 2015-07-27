@@ -1,5 +1,5 @@
 /*
-saved lines schema:
+sol saved lines schema:
 [
   {
     label: string,
@@ -125,7 +125,7 @@ function isValidTrack(track) {
   return track !== null && track !== undefined && track.data instanceof Array;
 }
 
-function savedLinesReader(data) {
+function solReader(data) {
 
   let tracksData = amf.read(data, getTracksDataOffset(data));
   if (!(tracksData instanceof Array)) {
@@ -150,7 +150,7 @@ function savedLinesReader(data) {
   }).filter(track => track !== null);
 }
 
-module.exports = savedLinesReader;
+module.exports = solReader;
 
 // print to console
 
@@ -161,7 +161,7 @@ module.exports = savedLinesReader;
 //   if (err) {
 //     return console.error(err);
 //   }
-//   var tracks = savedLinesReader(data);
+//   var tracks = solReader(data);
 //   tracks.forEach((track, i) => {
 //     console.log('====== track', i, '======');
 //     var lines = track.lines;
