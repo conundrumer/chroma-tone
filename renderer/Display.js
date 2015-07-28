@@ -5,69 +5,20 @@ var React = require('react');
 var Rider = require('./Rider');
 var Grid = require('./Grid');
 
+var getBoundingBox = require('./getBoundingBox');
+
 var LINE_WIDTH = 2;
 var LINE_WIDTH_ZOOM_FACTOR = 0.001;
 var MARGIN = 20;
 
-function getLength(x1, y1, x2, y2) {
-  let dx = x2 - x1;
-  let dy = y2 - y1;
-  return Math.sqrt(dx * dx + dy * dy);
-}
-
-// relative offset from normal and parallel
-function getOffset(x1, y1, x2, y2, offset) {
-  let dx = x2 - x1;
-  let dy = y2 - y1;
-  let length = Math.sqrt(dx * dx + dy * dy);
-  let px = offset.p * dx / length;
-  let py = offset.p * dy / length;
-  let nx = offset.n * dy / length;
-  let ny = offset.n * -dx / length;
-  return {
-    x1: x1 + nx + px,
-    y1: y1 + ny + py,
-    x2: x2 + nx + px,
-    y2: y2 + ny + py
-  };
-}
-
 function getViewBox(lines) {
-    if (lines.length === 0) {
-      return [0, 0, 0, 0];
-    }
-    // console.log('lines', lines)
-    var box = [].concat.apply([], lines.map(line =>
-      [{
-        x: line.x1,
-        y: line.y1
-      }, {
-        x: line.x2,
-        y: line.y2
-      }]
-    ))
-    .map(p => {
-        return [p.x, p.y, p.x, p.y];
-    })
-    .reduce((a, b) => {
-        return [
-            Math.min(a[0], b[0]),
-            Math.min(a[1], b[1]),
-            Math.max(a[2], b[2]),
-            Math.max(a[3], b[3])
-        ];
-    }, [
-        Number.MAX_VALUE,
-        Number.MAX_VALUE,
-        Number.MIN_VALUE,
-        Number.MIN_VALUE
-    ]);
-    return [
-        box[0] - LINE_WIDTH - MARGIN, // top
-        box[1] - LINE_WIDTH - MARGIN, // left
-        box[2] - box[0] + 2 * MARGIN, // width
-        box[3] - box[1] + 2 * MARGIN // height
-    ];
+  var box = getBoundingBox(lines);
+  return [
+      box[0] - LINE_WIDTH - MARGIN, // top
+      box[1] - LINE_WIDTH - MARGIN, // left
+      box[2] - box[0] + 2 * MARGIN, // width
+      box[3] - box[1] + 2 * MARGIN // height
+  ];
 }
 
 function getColor(type) {
