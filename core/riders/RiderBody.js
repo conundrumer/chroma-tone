@@ -1,5 +1,6 @@
 /*eslint no-multi-spaces: 0 comma-spacing: 0*/
 /*eslint key-spacing: 0 */
+'use strict';
 
 var _ = require('lodash');
 

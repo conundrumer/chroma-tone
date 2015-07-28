@@ -1,3 +1,5 @@
+'use strict';
+
 var Rider = require('./Rider');
 
 class DebugRider extends Rider {
