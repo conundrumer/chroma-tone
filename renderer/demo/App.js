@@ -3,6 +3,7 @@
 var { solReader } = require('../../io');
 var React = require('react');
 var Display = require('../Display');
+var getBoundingBox = require('../getBoundingBox');
 require('buffer');
 
 var { Track, OldTrack } = require('../../core');
@@ -37,23 +38,35 @@ var App = React.createClass({
       floor: false,
       accArrow: false,
       snapDot: false,
-      color: false
+      color: false,
+      boundingBox: [0, 0, 200, 200],
+      pan: { x: 0, y: 0 },
+      zoom: 1
     };
   },
 
   onSelectTrack(e) {
     let trackData = this.state.tracks[e.target.value];
-    let startPos = trackData.startPosition;
+    let startPos = { x: trackData.startPosition[0], y: trackData.startPosition[1] };
     let version = trackData.version;
     let VersionedTrack = Track;
     if (version === '6.1') {
       VersionedTrack = OldTrack;
     }
-    let track = new VersionedTrack(trackData.lines, { x: startPos[0], y: startPos[1] }, DEBUG);
+    let track = new VersionedTrack(trackData.lines, startPos, DEBUG);
     track.label = trackData.label;
+    let box = getBoundingBox(track.lines.concat([{
+      x1: startPos.x - 5,
+      y1: startPos.y - 5,
+      x2: startPos.x + 5,
+      y2: startPos.y + 5
+    }]));
     this.setState({
       track: track,
-      selected: e.target.value
+      selected: e.target.value,
+      boundingBox: box,
+      pan: { x: 0, y: 0 },
+      zoom: 1
     });
     this.stopPlayback();
   },
@@ -122,6 +135,19 @@ var App = React.createClass({
     return this.state.slowmo ? fps / 8 : fps;
   },
 
+  getViewBox() {
+    let {pan, zoom, boundingBox: [x1, y1, x2, y2]} = this.state;
+    [x1, y1, x2, y2] = [x1 - 10, y1 - 10, x2 + 10, y2 + 10];
+    let [w, h] = [x2 - x1, y2 - y1];
+    let [cx, cy] = [x1 + w / 2, y1 + h / 2];
+    return [
+      pan.x + cx - w / 2 * zoom,
+      pan.y + cy - h / 2 * zoom,
+      w * zoom,
+      h * zoom
+    ];
+  },
+
   renderToggle(key) {
     if (this.state[key] === undefined) {
       throw new Error('Key does not exist in state, cannot toggle: ', key);
@@ -182,7 +208,7 @@ var App = React.createClass({
         }
         {
           this.state.track ?
-            <Display {...this.state} rider={this.getRider()} />
+            <Display {...this.state} rider={this.getRider()} viewBox={this.getViewBox()} />
             : null
         }
       </div>

@@ -11,16 +11,6 @@ var LINE_WIDTH = 2;
 var LINE_WIDTH_ZOOM_FACTOR = 0.001;
 var MARGIN = 20;
 
-function getViewBox(lines) {
-  var box = getBoundingBox(lines);
-  return [
-      box[0] - LINE_WIDTH - MARGIN, // top
-      box[1] - LINE_WIDTH - MARGIN, // left
-      box[2] - box[0] + 2 * MARGIN, // width
-      box[3] - box[1] + 2 * MARGIN // height
-  ];
-}
-
 function getColor(type) {
   var blue500 = '#2196F3';
   var red500 = '#F44336';
@@ -174,35 +164,13 @@ var LineDisplay = React.createClass({
 
 var Display = React.createClass({
 
-  getInitialState() {
-    return { viewBox: null };
-  },
-
-  resetViewBox(track) {
-    this.setState({ viewBox: getViewBox(track.lines).join(' ') });
-  },
-
   getViewBox() {
-    return this.props.viewBox || this.state.viewBox || '0 0 0 0';
+    return this.props.viewBox.join(' ') || '0 0 0 0';
   },
 
   getZoomFactor() {
-    let dim = this.getViewBox().split(' ');
-    let zoom = dim[2]; // width
+    let zoom = this.props.viewBox[2]; // width
     return Math.max(1, Math.pow(zoom * LINE_WIDTH_ZOOM_FACTOR, 0.5));
-  },
-
-  componentDidMount() {
-    this.resetViewBox(this.props.track);
-  },
-
-  componentWillReceiveProps(nextProps) {
-    if (!this.props.track) {
-      this.setState({ viewBox: null });
-    } else if(this.props.track !== nextProps.track ||
-      this.props.track.lines.length !== nextProps.track.lines.length) {
-        this.resetViewBox(nextProps.track);
-    }
   },
 
   render() {
