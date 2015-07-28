@@ -33,6 +33,7 @@ var App = React.createClass({
       selected: '',
       timer: false,
       frame: 0,
+      maxFrame: 0,
       grid: false,
       slowmo: false,
       floor: false,
@@ -40,7 +41,8 @@ var App = React.createClass({
       snapDot: false,
       color: false,
       boundingBox: [0, 0, 200, 200],
-      pan: { x: 0, y: 0 },
+      panx: 0,
+      pany: 0,
       zoom: 1
     };
   },
@@ -69,13 +71,18 @@ var App = React.createClass({
       zoom: 1
     });
     this.stopPlayback();
+    this.setState({ maxFrame: 0 });
   },
 
   onTogglePlayback() {
     if (!this.state.timer) {
       var step = () => {
         let timer = setTimeout(step, 1000 / this.getFPS());
-        this.setState({ frame: this.state.frame + 1, timer: timer });
+        this.setState({
+          frame: this.state.frame + 1,
+          maxFrame: Math.max(this.state.maxFrame, this.state.frame + 1),
+          timer: timer
+        });
       };
 
       step();
@@ -136,13 +143,13 @@ var App = React.createClass({
   },
 
   getViewBox() {
-    let {pan, zoom, boundingBox: [x1, y1, x2, y2]} = this.state;
+    let {panx, pany, zoom, boundingBox: [x1, y1, x2, y2]} = this.state;
     [x1, y1, x2, y2] = [x1 - 10, y1 - 10, x2 + 10, y2 + 10];
     let [w, h] = [x2 - x1, y2 - y1];
     let [cx, cy] = [x1 + w / 2, y1 + h / 2];
     return [
-      pan.x + cx - w / 2 * zoom,
-      pan.y + cy - h / 2 * zoom,
+      panx + cx - w / 2 * zoom,
+      pany + cy - h / 2 * zoom,
       w * zoom,
       h * zoom
     ];
@@ -160,6 +167,8 @@ var App = React.createClass({
   },
 
   render() {
+    let [x1, y1, x2, y2] = this.state.boundingBox;
+    let [w, h] = [x2 - x1, y2 - y1];
     return (
       <div>
         <p>Input a .sol file to view your tracks.</p>
@@ -197,6 +206,18 @@ var App = React.createClass({
         {
           this.state.track ?
             <div>
+              <div>
+                pan x: <input type='range' min={-w} max={w} value={this.state.panx} onChange={e => this.setState({panx: Number(e.target.value)})}/>
+              </div>
+              <div>
+                pan y: <input type='range' min={-h} max={h} value={this.state.pany} onChange={e => this.setState({pany: Number(e.target.value)})}/>
+              </div>
+              <div>
+                zoom: <input type='range' min={-3} max={1} value={Math.log2(this.state.zoom)} onChange={e => this.setState({zoom: Math.pow(2, Number(e.target.value))})} step={1 / 144}/>
+              </div>
+              <div>
+                frame: <input type='range' min={0} max={this.state.maxFrame} value={this.state.frame} onChange={e => this.setState({frame: parseInt(e.target.value)})}/>
+              </div>
               { this.renderToggle('slowmo') }
               <button onClick={() => {console.log(this.state.track.lines)}}>Print lines</button>
               <button onClick={this.onTogglePlayback}>{ this.state.timer ? 'Stop' : 'Play'}</button>
