@@ -1,4 +1,56 @@
 <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" >
+  <style type="text/css">
+    <![CDATA[
+      .outline {
+        stroke: black;
+        stroke-width: 0.05;
+      }
+      .face .skin {
+        fill: white;
+      }
+      .face .hair {
+        fill: black;
+      }
+      .eye {
+        fill: black;
+      }
+      .torso {
+        fill: white;
+      }
+      .neck-scarf .back {
+        fill: white;
+      }
+      .neck-scarf .front {
+        fill: #D20202;
+      }
+      .hat .ball {
+        fill: black;
+      }
+      .hat .top {
+        fill: white;
+      }
+      .hat .bottom {
+        stroke: black;
+        stroke-width: 2;
+        stroke-linecap: round;
+      }
+      .sled {
+        fill: white;
+      }
+      .arm .sleeve {
+        fill: black;
+      }
+      .arm .hand {
+        fill: white;
+      }
+      .leg .pants {
+        fill: black;
+      }
+      .leg .foot {
+        fill: white;
+      }
+    ]]>
+  </style>
   <defs>
     <path id="eye" class="eye" d="M17.6,8.8L17,8.6l-0.6,0.2l-0.2,0.6l0.2,0.6c0.1,0.2,0.3,0.2,0.6,0.2s0.4-0.1,0.6-0.2l0.2-0.6L17.6,8.8z" />
     <g id="face-contents" class="face">
