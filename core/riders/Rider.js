@@ -129,8 +129,8 @@ class Rider extends Entity {
     });
   }
 
-  getBodyParts() {
-    return getBodyParts(this);
+  getBodyParts(p) {
+    return getBodyParts(this, p);
   }
 
 }

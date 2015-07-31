@@ -66,6 +66,7 @@ const
     rightLeg: { p: BUTT     , q: RFOOT    }
   },
   // scarf
+  // TODO: make a separate supafancy scarf entity
   Scarf = {
     airFriction: 0.85,
     p: SHOULDER,
@@ -73,13 +74,13 @@ const
     segmentLength: 2
   };
 
-function getBodyParts(self) {
+function getBodyParts(self, precision) {
   let getPosition = (p, q) => {
     let vec = q.pos.clone().subtract(p.pos);
     return {
-      x: p.x,
-      y: p.y,
-      angle: Math.atan2(vec.y, vec.x)
+      x: ((0.5 + (p.x * precision)) << 0) / precision,
+      y: ((0.5 + (p.y * precision)) << 0) / precision,
+      angle: ((0.5 + (Math.atan2(vec.y, vec.x) / Math.PI * 180 * precision)) << 0) / precision
     };
   };
 
