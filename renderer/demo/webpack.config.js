@@ -10,7 +10,8 @@ var webpack = require('webpack');
 module.exports = {
 
   output: {
-    filename: 'main.js'
+    filename: 'main.js',
+    publicPath: 'assets/'
   },
 
   cache: true,
@@ -33,7 +34,13 @@ module.exports = {
     loaders: [{
       test: /\.js$/,
       exclude: /node_modules/,
-      loader: 'react-hot!babel-loader'
+      loader: 'react-hot!babel-loader?stage=1'
+    }, {
+      test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,
+      loader: "url?limit=10000&minetype=image/svg+xml"
+    }, {
+      test: /\.less/,
+      loader: 'style-loader!css-loader!autoprefixer-loader!less-loader'
     }
     ]
   },
