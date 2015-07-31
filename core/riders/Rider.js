@@ -23,8 +23,8 @@ class Rider extends Entity {
 
   constructor(x, y, vx = VX_INIT, vy = VY_INIT) {
     super(0);
-    this.crashed = false;
-    this.sledBroken = false;
+    this.crashed = 0;
+    this.sledBroken = 0;
 
     _.assign(this, makeRider());
 
@@ -67,7 +67,8 @@ class Rider extends Entity {
     }
   }
   stepConstraint(constraint, i) { // eslint-disable-line no-unused-vars
-    this.crashed = constraint.resolve(this.crashed);
+    let didCrash = +constraint.resolve(this.crashed);
+    this.crashed = this.crashed || +didCrash;
   }
   getSolidLines(lineStore, point) {
     return lineStore.getSolidLinesAt(point.x, point.y);
@@ -78,8 +79,16 @@ class Rider extends Entity {
   stepJoint(joint, i) {
     let didCrash = joint.resolve();
 
-    this.crashed = this.crashed || didCrash;
-    this.sledBroken = this.sledBroken || i === STRING_PEG_TAIL.id && didCrash;
+    this.crashed = this.crashed || +didCrash;
+    this.sledBroken = this.sledBroken || +(i === STRING_PEG_TAIL.id && didCrash);
+  }
+  stepCrash() {
+    if (this.crashed) {
+      this.crashed += 1;
+    }
+    if (this.sledBroken) {
+      this.sledBroken += 1;
+    }
   }
   step(lineStore, gravity = GRAVITY) {
     // normally i would avoid for loops but lots of iterations here
@@ -104,6 +113,8 @@ class Rider extends Entity {
     for (let i = 0; i < this.joints.length; i++) {
       this.stepJoint(this.joints[i], i);
     }
+
+    this.stepCrash();
   }
 
   copyState() {
