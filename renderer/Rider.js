@@ -1,8 +1,139 @@
 'use strict';
 
 var React = require('react');
+var Isvg = require('react-inlinesvg');
+var getRiderCSS = require('./getRiderCSS');
+
+require('../assets/svg/boshSprite.svg');
+var { Constraints: { STRING_LHAND, STRING_RHAND }, Scarf: { p: scarfBase } } = require('../core/riders/RiderBody');
+
+const BLINK_LENGTH = 8;
+const BLINK_DENSITY = 0.01 * BLINK_LENGTH;
+const PHI = (Math.sqrt(5) - 1) / 2;
+const PRECISION = 1000;
+const scarfColors = [
+  'white',
+  'white',
+  '#F44336',
+  'white',
+  '#8BC34A',
+  'white',
+  '#2196F3'
+];
+
+function getTransform(part) {
+  return `rotate(${part.angle} ${part.x} ${part.y}) translate(${part.x} ${part.y})`;
+}
+
+function getFacePath(t) {
+  let u = Math.max(t > 1 ? 2 - t : t, 0);
+  let v = -Math.min(t < -1 ? -2 - t : t, 0);
+  return [
+    'M', 10.1, -2.4,
+    'c', -1.9 * v - 3.1 * (1 - v), -1.2 * v, -3.0 * v - 3.1 * (1 - v), -1.3 * v, -3.1, 0,
+    'v', 4.9,
+    'c', 0.1 * u, 1.3 * u, 1.2 * u, 1.2 * u, 3.1, 0,
+    'z'
+  ];
+}
+
+var Constraint = React.createClass({
+
+  render() {
+    let { points, constraint } = this.props;
+    let p = points[constraint.p.id];
+    let q = points[constraint.q.id];
+    return (
+      <line x1={p.x} y1={p.y} x2={q.x} y2={q.y} stroke={this.props.color} strokeWidth={this.props.width || 0.3} />
+    );
+  }
+
+});
+
+var ScarfSegment = React.createClass({
+
+  render() {
+    let { i, rider: { points, scarfPoints } } = this.props;
+    let p = i > 0 ? scarfPoints[i - 1] : points[scarfBase.id];
+    let q = scarfPoints[i];
+    return (
+      <line x1={p.x} y1={p.y} x2={q.x} y2={q.y} stroke={this.props.color} strokeWidth={this.props.width} />
+    );
+  }
+
+});
+
+var SledString = React.createClass({
+
+  render() {
+    return (
+      this.props.rider.crashed ? null : <Constraint {...this.props} points={this.props.rider.points} color="black"/>
+    );
+  }
+
+});
+
+var XLink = React.createClass({
+  shouldComponentUpdate() {
+    return false;
+  },
+
+  render() {
+    let {href, useParams = ''} = this.props;
+    return (
+      <g dangerouslySetInnerHTML={{ __html: `<use ${useParams} xlink:href="${href}"/>`}} />
+    );
+  }
+
+});
+
+var TransformLink = React.createClass({
+  render() {
+    return (
+      <g transform={this.props.transform}>
+        <XLink href={this.props.href} />
+      </g>
+    );
+  }
+});
+
+var SvgSprite = React.createClass({
+  shouldComponentUpdate() {
+    return false;
+  },
+
+  render() {
+    return (
+      <g>
+        <style dangerouslySetInnerHTML={{ __html: getRiderCSS(this.props.namespace, this.props.i)}} />
+        <foreignObject style={{display: 'none'}}>
+          <Isvg src={this.props.src} uniquifyIDs={false} namespace={this.props.namespace}/>
+        </foreignObject>
+      </g>
+    );
+  }
+});
 
 var Rider = React.createClass({
+
+  getDefaultProps() {
+    return {
+      riderSpriteSrc: '/svg/boshSprite.svg'
+    };
+  },
+
+  getBlink() {
+    return this.props.frameIndex > 0 && ((this.props.seed + PHI * (this.props.frameIndex / BLINK_LENGTH << 0)) % 1) < BLINK_DENSITY;
+  },
+
+  getHeadRotation() {
+    let t = Math.pow(2, -this.props.rider.crashed / 10);
+    t = ((0.5 + (t * PRECISION)) << 0) / PRECISION;
+    t = t % 4;
+    t = t > 2 ? t - 4 : t < -2 ? t + 4 : t;
+    return t;
+  },
+
   render() {
     let {
       sled,
@@ -10,63 +141,54 @@ var Rider = React.createClass({
       rightArm,
       leftArm,
       rightLeg,
-      leftLeg,
-      scarf
-    } = this.props.rider.getBodyParts();
+      leftLeg
+    } = this.props.rider.getBodyParts(PRECISION);
 
-    let scarfPart = this.props.rider.scarfConstraints.map((c, i) =>
-      <line key={-i}
-        x1={c.p.x}
-        y1={c.p.y}
-        x2={c.q.x}
-        y2={c.q.y}
-        stroke={ (i % 2) > 0 ? '#D50000' : '#FF8A80'}
-        strokeWidth={1.25}
-        strokeLinecap='butt'
-      />
-    );
+    let blink = this.getBlink();
+    let t = this.getHeadRotation();
+    let yPos = -2.6 * (1 - t);
 
-    let constraints = this.props.rider.constraints.map((c, i) =>
-      <line key={i}
-        x1={c.p.x}
-        y1={c.p.y}
-        x2={c.q.x}
-        y2={c.q.y}
-        stroke={'#CFD8DC'}
-        strokeWidth={0.75}
-        strokeLinecap='round'
-      />
-    );
+    let facePath = getFacePath(t).join(' ');
 
-    let bodyParts = [sled, body, rightArm, leftArm, rightLeg, leftLeg];
-
-    let parts = bodyParts.map( (part, i) =>
-      <line key={100+i}
-        x1={part.x}
-        y1={part.y}
-        x2={(part.x + 6 * Math.cos(part.angle))}
-        y2={(part.y + 6 * Math.sin(part.angle))}
-        stroke='#37474F'
-        strokeWidth={2}
-        strokeLinecap='round'
-      />
-    );
-
-    let head = (
-      <circle
-        cx={(body.x + 10 * Math.cos(body.angle))}
-        cy={(body.y + 10 * Math.sin(body.angle))}
-        r={3}
-        fill='#37474F'
-      />
-    );
+    let namespace = `__RIDER_SPRITE_${this.props.i}__`;
+    let faceOutlineID = namespace + 'face-outline';
+    let faceClipID = namespace + 'face-clip';
+    let faceContentsID = namespace + 'face-contents' + (blink ? '-eyes-closed' : '');
 
     return (
-      <g>
-        { scarfPart }
-        { constraints }
-        { parts }
-        { head }
+      <g id={namespace} >
+        <SvgSprite namespace={namespace} i={this.props.i} src={this.props.riderSpriteSrc} />
+        {
+          this.props.rider.scarfPoints.map( (point, i) =>
+            // <ScarfSegment key={i} i={i} rider={this.props.rider} width={2} color={ (i % 2) === 0 ? '#d20202' : 'white'}/>
+            <ScarfSegment key={i} i={i} rider={this.props.rider} width={2} color={ scarfColors[i]}/>
+          )
+        }
+        {
+          this.props.rider.sledBroken ?
+            <TransformLink transform={getTransform(sled)} href={'#' + namespace + 'sled-broke'} />
+          : <TransformLink transform={getTransform(sled)} href={'#' + namespace + 'sled'} />
+        }
+        <TransformLink transform={getTransform(leftLeg)} href={'#' + namespace + 'leg'} />
+        <SledString rider={this.props.rider} constraint={STRING_LHAND} />
+        <TransformLink transform={getTransform(leftArm)} href={'#' + namespace + 'arm'} />
+        <TransformLink transform={getTransform(rightLeg)} href={'#' + namespace + 'leg'} />
+        <g transform={getTransform(body)}>
+          <g className="face">
+            <defs>
+              <clipPath id={faceClipID}>
+                <path id={faceOutlineID} d={facePath}/>
+              </clipPath>
+            </defs>
+            <g clipPath={`url(#${faceClipID})`}>
+              <TransformLink transform={`translate(0 ${yPos})`} href={`#${faceContentsID}`} />
+            </g>
+            <path fill="none" className="outline" d={facePath}/>
+          </g>
+          <XLink href={'#' + namespace + 'body'} />
+        </g>
+        <SledString rider={this.props.rider} constraint={STRING_RHAND} />
+        <TransformLink transform={getTransform(rightArm)} href={'#' + namespace + 'arm'} />
       </g>
     );
   }

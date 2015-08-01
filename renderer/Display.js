@@ -18,6 +18,8 @@ var Display = React.createClass({
   },
 
   render() {
+    let {x, y} = this.props.track.startPosition;
+    let seed = x * x + y * y;
     return (
       <div style={displayStyle} >
         <svg style={displayStyle} viewBox={this.getViewBox()}>
@@ -27,7 +29,7 @@ var Display = React.createClass({
             : null
           }
           <Lines {...this.props} lines={this.props.track.lines} />
-          <Rider rider={this.props.rider} />
+          <Rider i={0} rider={this.props.rider} frameIndex={this.props.frame} seed={seed} />
         </svg>
       </div>
     );
