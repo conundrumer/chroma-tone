@@ -47,10 +47,13 @@
       <use xlink:href="#face-outline"/>
     </g>
     <g id="body">
-      <path class="torso outline" d="M7.1-2.2H0v4.4h7.1V-2.2z"/>
-      <g class="neck-scarf">
-        <rect class="back" x="5.2" y="-2.5" width="2" height="5"/>
-        <path class="front" d="M7.2-1.5v-1h-2v1H7.2z M7.2-0.5h-2v1h2V-0.5z M5.2,1.5v1h2v-1H5.2z"/>
+      <rect class="torso outline" x="0" y="-2.2" width="7" height="4.4"/>
+      <g class="neck">
+        <rect class="scarf1 even" x="5.2" y="1.5" width="2" height="1"/>
+        <rect class="scarf2 odd"  x="5.2" y="0.5" width="2" height="1"/>
+        <rect class="scarf3 even" x="5.2" y="-0.5" width="2" height="1"/>
+        <rect class="scarf4 odd"  x="5.2" y="-1.5" width="2" height="1"/>
+        <rect class="scarf5 even" x="5.2" y="-2.5" width="2" height="1"/>
       </g>
       <g class="hat">
         <path class="top outline" d="M13.2,0.4V-0.2c-0.1-0.6-0.3-1.1-0.8-1.6C12-2.2,11.6-2.4,11.1-2.5l-0.2,0h-0.3v5.2h0.5V2.7c0.5-0.1,0.9-0.4,1.3-0.8l0.5-0.6C13.1,0.9,13.1,0.5,13.2,0z"/>
