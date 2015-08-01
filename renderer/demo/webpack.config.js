@@ -30,6 +30,9 @@ module.exports = {
   resolve: {
     extensions: ['', '.js']
   },
+  node: {
+    fs: 'empty'
+  },
   module: {
     loaders: [{
       test: /\.js$/,
@@ -41,6 +44,10 @@ module.exports = {
     }, {
       test: /\.less/,
       loader: 'style-loader!css-loader!autoprefixer-loader!less-loader'
+    }, {
+      test: /\.json$/,
+      include: /pixi\.js/,
+      loader: 'json-loader'
     }
     ]
   },
