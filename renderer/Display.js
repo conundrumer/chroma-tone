@@ -4,7 +4,7 @@ var React = require('react');
 
 var Rider = require('./Rider');
 var Grid = require('./Grid');
-var Lines = require('./Lines');
+var Lines = require('./SvgLineDisplay');
 // var Lines = require('./PixiLineDisplay');
 
 var Display = React.createClass({
