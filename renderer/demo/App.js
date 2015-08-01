@@ -41,10 +41,25 @@ var App = React.createClass({
       snapDot: false,
       color: false,
       boundingBox: [0, 0, 200, 200],
+      initPanx: 100,
+      initPany: 100,
+      initZoom: 2,
       panx: 0,
       pany: 0,
-      zoom: 1
+      zoom: 1,
+      width: window.innerWidth
     };
+  },
+
+  componentDidMount() {
+    window.addEventListener('resize', () => {
+      if (this.state.width !== window.innerWidth) {
+        this.setState({
+          width: window.innerWidth
+        });
+        this.setInitCamera();
+      }
+    });
   },
 
   onSelectTrack(e) {
@@ -58,20 +73,34 @@ var App = React.createClass({
     let track = new VersionedTrack(trackData.lines, startPos, DEBUG);
     track.label = trackData.label;
     let box = getBoundingBox(track.lines.concat([{
-      x1: startPos.x - 5,
-      y1: startPos.y - 5,
-      x2: startPos.x + 5,
-      y2: startPos.y + 5
+      x1: startPos.x - 10,
+      y1: startPos.y - 10,
+      x2: startPos.x + 10,
+      y2: startPos.y + 10
     }]));
     this.setState({
       track: track,
       selected: e.target.value,
       boundingBox: box,
-      pan: { x: 0, y: 0 },
+      panx: 0,
+      pany: 0,
       zoom: 1
     });
     this.stopPlayback();
     this.setState({ maxFrame: 0 });
+    this.setInitCamera(box);
+  },
+
+  setInitCamera(box = this.state.boundingBox) {
+    let [x1, y1, x2, y2] = box;
+    [x1, y1, x2, y2] = [x1 - 10, y1 - 10, x2 + 10, y2 + 10];
+    let [w, h] = [x2 - x1, y2 - y1];
+    let [cx, cy] = [x1 + w / 2, y1 + h / 2];
+    this.setState({
+      initPanx: cx,
+      initPany: cy,
+      initZoom: w / this.state.width
+    });
   },
 
   onTogglePlayback() {
@@ -229,7 +258,17 @@ var App = React.createClass({
         }
         {
           this.state.track ?
-            <Display {...this.state} rider={this.getRider()} viewBox={this.getViewBox()} />
+            <Display
+              {...this.state}
+              rider={this.getRider()}
+              pan={{
+                x: this.state.initPanx + this.state.panx,
+                y: this.state.initPany + this.state.pany
+              }}
+              zoom={this.state.initZoom * this.state.zoom}
+              lines={this.state.track.lines}
+              width={this.state.width}
+              height={Math.round(h / w * this.state.width)} />
             : null
         }
       </div>

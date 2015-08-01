@@ -5,30 +5,42 @@ var React = require('react');
 var Rider = require('./Rider');
 var Grid = require('./Grid');
 var Lines = require('./Lines');
-
-var displayStyle = {
-  position: 'absolute',
-  width: '100%'
-};
+// var Lines = require('./PixiLineDisplay');
 
 var Display = React.createClass({
 
   getViewBox() {
-    return this.props.viewBox.join(' ') || '0 0 0 0';
+    let {pan: {x, y}, zoom: z, width: w, height: h} = this.props;
+    return [
+      x - w / 2 * z,
+      y - h / 2 * z,
+      w * z,
+      h * z
+    ];
+  },
+
+  getStyle() {
+    return {
+      position: 'absolute',
+      width: this.props.width,
+      height: this.props.height
+    };
   },
 
   render() {
     let {x, y} = this.props.track.startPosition;
     let seed = x * x + y * y;
     return (
-      <div style={displayStyle} >
-        <svg style={displayStyle} viewBox={this.getViewBox()}>
-          {
-            this.props.grid ?
+      <div ref='container' style={this.getStyle()} >
+        {
+          this.props.grid ?
+            <svg style={{position: 'absolute'}} viewBox={this.getViewBox()}>
               <Grid {...this.props} grid={this.props.track.store.solidGrid} />
-            : null
-          }
-          <Lines {...this.props} lines={this.props.track.lines} />
+            </svg>
+          : null
+        }
+        <Lines {...this.props} lines={this.props.lines} viewBox={this.getViewBox()} width={this.props.width} height={this.props.height} />
+        <svg style={{position: 'absolute'}} viewBox={this.getViewBox()}>
           <Rider i={0} rider={this.props.rider} frameIndex={this.props.frame} seed={seed} />
         </svg>
       </div>

@@ -91,7 +91,7 @@ var TrackLine = React.createClass({
       snapDot
     } = this.props;
 
-    let r = LINE_WIDTH  / 2;
+    let r = LINE_WIDTH / 2;
     let isScenery = (line.type === 2);
     if (!color || isScenery) {
       return <Line line={line} color={ color ? getColor(2) : 'black'}/>;
@@ -149,4 +149,15 @@ var Lines = React.createClass({
   }
 });
 
-module.exports = Lines;
+var LineDisplay = React.createClass({
+
+  render() {
+    return (
+      <svg style={{position: 'absolute'}} viewBox={this.props.viewBox}>
+        <Lines {...this.props} />
+      </svg>
+    );
+  }
+});
+
+module.exports = LineDisplay;
