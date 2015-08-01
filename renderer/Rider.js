@@ -166,8 +166,8 @@ var Rider = React.createClass({
         }
         {
           this.props.rider.sledBroken ?
-            <TransformLink transform={getTransform(sled)} href={'#' + namespace + 'sled-broke'} />
-          : <TransformLink transform={getTransform(sled)} href={'#' + namespace + 'sled'} />
+            <TransformLink key={1} transform={getTransform(sled)} href={'#' + namespace + 'sled-broke'} />
+          : <TransformLink key={0} transform={getTransform(sled)} href={'#' + namespace + 'sled'} />
         }
         <TransformLink transform={getTransform(leftLeg)} href={'#' + namespace + 'leg'} />
         <SledString rider={this.props.rider} constraint={STRING_LHAND} />
