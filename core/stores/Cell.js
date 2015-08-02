@@ -1,6 +1,5 @@
 'use strict';
 
-var _ = require('lodash');
 var getCellHash = require('./getCellHash');
 
 // cell containing unordered unique lines
@@ -26,7 +25,11 @@ class Cell {
   }
 
   getLines() {
-    return _.values(this.lines);
+    let keys = Object.keys(this.lines);
+    for (var i = keys.length - 1; i >= 0; i--) {
+      keys[i] = this.lines[keys[i]];
+    }
+    return keys;
   }
 }
 
