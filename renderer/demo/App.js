@@ -4,6 +4,7 @@ var { solReader } = require('../../io');
 var React = require('react');
 var Display = require('../Display');
 var getBoundingBox = require('../getBoundingBox');
+var FPSStats = require('react-stats').FPSStats;
 require('buffer');
 
 var { Track, OldTrack } = require('../../core');
@@ -47,6 +48,7 @@ var App = React.createClass({
       panx: 0,
       pany: 0,
       zoom: 1,
+      skipFrames: false,
       framesSkipped: 0,
       width: window.innerWidth || 1 // sometimes it's zero????
     };
@@ -115,25 +117,24 @@ var App = React.createClass({
 
   onTogglePlayback() {
     if (!this.state.playing) {
-      this.setState({ playing: true, framesSkipped: 0 });
+      this.setState({ playing: true, framesSkipped: 0, fps: this.getFPS() });
       this.prevTime = Date.now();
+      this.prevPan = this.getRider().points[0].pos.clone();
       var step = () => {
+        let dt = Date.now() - this.prevTime;
         let fps = this.getFPS();
-        let framesElapsed = Math.floor((Date.now() - this.prevTime) / 1000 * fps);
-        this.timer = requestAnimationFrame(step);
+        let framesElapsed = Math.floor(dt / 1000 * fps);
 
         if (framesElapsed > 0) {
           this.prevTime += framesElapsed / fps * 1000;
-          let nextFrame = this.state.frame + framesElapsed;
-          if (this.state.doNotSkipFrames) {
-            framesElapsed = 1;
-          }
+          let nextFrame = this.state.frame + (this.state.skipFrames ? framesElapsed : 1);
           this.setState({
             frame: nextFrame,
             maxFrame: Math.max(this.state.maxFrame, nextFrame),
             framesSkipped: this.state.framesSkipped + framesElapsed - 1
           });
         }
+        this.timer = requestAnimationFrame(step);
       };
 
       step();
@@ -190,7 +191,56 @@ var App = React.createClass({
 
   getFPS() {
     let fps = 40;
+    // let fps = 60;
     return this.state.slowmo ? fps / 8 : fps;
+  },
+
+  getPan() {
+    if (this.state.playing) {
+      let rider = this.getRider();
+      let p = rider.points[0];
+      let min = 0.1;
+      let k = (1 - Math.exp(-0.000004 * this.prevPan.distanceSq(p) / Math.pow(this.state.zoom, 2)) + min) / (1 + min);
+      // console.log(k)
+      this.prevPan.lerp(p, k);
+      return {x: this.prevPan.x, y: this.prevPan.y };
+    }
+    return {
+      x: this.state.initPanx + this.state.panx,
+      y: this.state.initPany + this.state.pany
+    };
+  },
+
+  getZoom() {
+    if (this.state.playing) {
+      return this.state.zoom;
+    }
+    return this.state.initZoom * this.state.zoom;
+  },
+
+  getHeight() {
+    let [x1, y1, x2, y2] = this.state.boundingBox;
+    let [w, h] = [x2 - x1, y2 - y1];
+    return Math.round(h / w * this.state.width);
+  },
+
+  getViewBox() {
+    let {x, y} = this.getPan();
+    let z = this.getZoom();
+    let w = this.state.width;
+    let h = this.getHeight();
+    return [
+      x - w / 2 * z,
+      y - h / 2 * z,
+      w * z,
+      h * z
+    ];
+  },
+
+  getLines() {
+    let [x1, y1, w, h] = this.getViewBox();
+    // console.log(x1, y1, x1 + w, y1 + h);
+    return this.state.track.getLinesInBox(x1, y1, x1 + w, y1 + h);
   },
 
   renderToggle(key) {
@@ -240,10 +290,11 @@ var App = React.createClass({
             ['floor', 'accArrow', 'snapDot'].map(this.renderToggle)
           : null
         }
-        <p>{this.state.frame} {this.state.framesSkipped}</p>
         {
           this.state.track ?
-            <div>
+            <div style={{position: 'relative'}}>
+              <FPSStats isActive={true}/>
+              <p style={{position: 'absolute', bottom: 0, right: 0}}>{this.state.frame} {this.state.framesSkipped}</p>
               <div>
                 pan x: <input type='range' min={-w} max={w} value={this.state.panx} onChange={e => this.setState({panx: Number(e.target.value)})}/>
               </div>
@@ -256,6 +307,7 @@ var App = React.createClass({
               <div>
                 frame: <input type='range' min={0} max={this.state.maxFrame} value={this.state.frame} onChange={e => this.setState({frame: parseInt(e.target.value)})}/>
               </div>
+              { this.renderToggle('skipFrames') }
               { this.renderToggle('slowmo') }
               <button onClick={() => {console.log(this.state.track.lines)}}>Print lines</button>
               <button onClick={this.onTogglePlayback}>{ this.state.playing ? 'Stop' : 'Play'}</button>
@@ -271,14 +323,11 @@ var App = React.createClass({
               {...this.state}
               label={this.state.tracks[this.state.selected] ? (this.state.tracks[this.state.selected].label + this.state.selected) : null}
               rider={this.getRider()}
-              pan={{
-                x: this.state.initPanx + this.state.panx,
-                y: this.state.initPany + this.state.pany
-              }}
-              zoom={this.state.initZoom * this.state.zoom}
-              lines={this.state.track.lines}
+              pan={this.getPan()}
+              zoom={this.getZoom()}
+              lines={this.getLines()}
               width={this.state.width}
-              height={Math.round(h / w * this.state.width)} />
+              height={this.getHeight()} />
             : null
         }
       </div>
