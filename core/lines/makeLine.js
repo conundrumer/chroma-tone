@@ -19,7 +19,9 @@ function makeLine(l) {
       LineType = SceneryLine;
       break;
     default:
-      throw new Error('Unknown line type: ' + l.type);
+      console.error('Unknown line type, converting to Scenery line: ', l);
+      LineType = SceneryLine;
+      // throw new Error('Unknown line type: ' + l.type);
   }
 
   let line = new LineType(l.id, l.x1, l.y1, l.x2, l.y2, l.flipped, l.extended);
