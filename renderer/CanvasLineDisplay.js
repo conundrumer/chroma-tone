@@ -21,7 +21,7 @@ function getColor(type) {
 }
 
 function renderLines(ctx, lines, camera, props) {
-  let {x, y, z} = camera;
+  let {dx, dy, z} = camera;
   let {color} = props;
 
   ctx.beginPath();
@@ -32,11 +32,94 @@ function renderLines(ctx, lines, camera, props) {
   for (let i = 0; i < lines.length; i++) {
     let {x1, x2, y1, y2} = lines[i];
 
-    ctx.moveTo(x1 / z - x, y1 / z - y);
-    ctx.lineTo(x2 / z - x, y2 / z - y);
+    ctx.moveTo(x1 / z - dx, y1 / z - dy);
+    ctx.lineTo(x2 / z - dx, y2 / z - dy);
   }
 
   ctx.stroke();
+}
+
+function renderFloor(ctx, lines, camera) {
+  let {dx, dy, z} = camera;
+
+  ctx.beginPath();
+  ctx.lineCap = 'butt';
+  ctx.strokeStyle = 'black';
+  ctx.lineWidth = LINE_WIDTH / z / 2;
+  let offsetAmount = LINE_WIDTH / 4;
+
+  for (let i = 0; i < lines.length; i++) {
+    let line = lines[i];
+    if (line.length === 0) {
+      continue;
+    }
+    let offset = line.norm.clone().mulS(-offsetAmount);
+    let p1 = line.p.clone().add(offset);
+    let p2 = line.q.clone().add(offset);
+
+    ctx.moveTo(p1.x / z - dx, p1.y / z - dy);
+    ctx.lineTo(p2.x / z - dx, p2.y / z - dy);
+  }
+
+  ctx.stroke();
+
+}
+
+function renderSnapDot(ctx, lines, camera) {
+  let {dx, dy, z} = camera;
+
+  ctx.beginPath();
+  ctx.fillStyle = 'black';
+
+  let r = LINE_WIDTH / z / 2;
+
+  for (let i = 0; i < lines.length; i++) {
+    let line = lines[i];
+
+    if (line.leftExtended) {
+      let {x1, y1} = line;
+      ctx.moveTo(x1 / z - dx, y1 / z - dy);
+      ctx.arc(x1 / z - dx, y1 / z - dy, r, 0, 2 * Math.PI);
+    }
+
+    if (line.rightExtended) {
+      let {x2, y2} = line;
+      ctx.moveTo(x2 / z - dx, y2 / z - dy);
+      ctx.arc(x2 / z - dx, y2 / z - dy, r, 0, 2 * Math.PI);
+
+    }
+  }
+
+  ctx.fill();
+}
+
+function renderAccArrow(ctx, lines, camera) {
+  let {dx, dy, z} = camera;
+
+  ctx.beginPath();
+  ctx.fillStyle = getColor(ACC_LINE);
+
+  let r = LINE_WIDTH / 2;
+
+  for (let i = 0; i < lines.length; i++) {
+    let line = lines[i];
+    if (line.length === 0) {
+      continue;
+    }
+
+    let vec = line.vec.clone().divS(line.length).mulS(r);
+    let norm = line.norm.clone().mulS(r);
+    let p0 = line.q.clone().add(vec);
+    let p1 = line.q.clone().add(vec.clone().mulS(-3.5)).add(norm.clone().mulS(3));
+    let p2 = line.q.clone().add(vec.mulS(-Math.min(2, 1 + line.length / r)));
+
+    ctx.moveTo(p0.x / z - dx, p0.y / z - dy);
+    ctx.lineTo(p1.x / z - dx, p1.y / z - dy);
+    ctx.lineTo(p2.x / z - dx, p2.y / z - dy);
+  }
+
+  ctx.fill();
+
 }
 
 function render(ctx, lines, viewport, props) {
@@ -45,7 +128,7 @@ function render(ctx, lines, viewport, props) {
   w *= r;
   h *= r;
   let [dx, dy] = [x / z - w / 2, y / z - h / 2];
-  let camera = {x: dx, y: dy, z};
+  let camera = {dx, dy, z};
 
   if (!props.color) {
     renderLines(ctx, lines, camera, {color: 'black'});
@@ -54,12 +137,31 @@ function render(ctx, lines, viewport, props) {
 
   let lineGroups = _.groupBy(lines, l => l.type);
 
+  [SCENERY_LINE, SOLID_LINE, ACC_LINE].forEach( type => {
+    lineGroups[type] = lineGroups[type] || [];
+  });
+
   [SCENERY_LINE, SOLID_LINE, ACC_LINE].forEach( type =>
-    lineGroups[type] ?
     renderLines(ctx, lineGroups[type], camera, {
       color: getColor(type)
-    }) : null
+    })
   );
+
+  if (props.accArrow) {
+    renderAccArrow(ctx, lineGroups[ACC_LINE], camera);
+  }
+
+  if (props.floor) {
+    [SOLID_LINE, ACC_LINE].forEach( type =>
+      renderFloor(ctx, lineGroups[type], camera)
+    );
+  }
+
+  if (props.snapDot) {
+    [SOLID_LINE, ACC_LINE].forEach( type =>
+      renderSnapDot(ctx, lineGroups[type], camera)
+    );
+  }
 
 }
 
