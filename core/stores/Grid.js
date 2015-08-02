@@ -25,21 +25,22 @@ class Grid {
     if (y1 > y2) {
       [y1, y2] = [y2, y1];
     }
-    // i'll use for-loops if this needs to be faster
     let tl = this.getCellPos(x1, y1);
     let br = this.getCellPos(x2, y2);
     let linesInBox = Object.create(null);
     let lines = [];
     // add lines from cells fully contained in box
     if (tl.x+1 < br.x && tl.y+1 < br.y) {
-      _.forEach(_.range(tl.y+1, br.y), cy =>
-        _.forEach(_.range(tl.x+1, br.x), cx =>
-          _.forEach(this.getLinesFromCell(cx, cy), line => {
+      for (let cy = tl.y+1; cy < br.y; cy++) {
+        for (let cx = tl.x+1; cx < br.x; cx++) {
+          let linesInCell = this.getLinesFromCell(cx, cy);
+          for (let i = linesInCell.length - 1; i >= 0; i--) {
+            let line = linesInCell[i];
             linesInBox[line.id] = true;
             lines.push(line);
-          })
-        )
-      );
+          };
+        }
+      }
     }
     let addLineIfInBox = line => {
       if (!(line.id in linesInBox) && (!filterEdges || line.inBox(x1, y1, x2, y2))) {
