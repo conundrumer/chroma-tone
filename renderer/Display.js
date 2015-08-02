@@ -4,13 +4,15 @@ var React = require('react');
 
 var Rider = require('./Rider');
 var Grid = require('./Grid');
-var Lines = require('./SvgLineDisplay');
+// var Lines = require('./SvgLineDisplay');
+var Lines = require('./CanvasLineDisplay');
 // var Lines = require('./PixiLineDisplay');
 
 var Display = React.createClass({
 
   getViewBox() {
     let {pan: {x, y}, zoom: z, width: w, height: h} = this.props;
+    // console.log(x, y, z, w, h)
     return [
       x - w / 2 * z,
       y - h / 2 * z,
