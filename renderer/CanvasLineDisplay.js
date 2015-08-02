@@ -1,8 +1,67 @@
 'use strict';
 
 var React = require('react');
+var _ = require('lodash');
 
 const LINE_WIDTH = 2;
+var { SOLID_LINE, ACC_LINE, SCENERY_LINE } = require('../core').LineTypes;
+
+function getColor(type) {
+  var blue500 = '#2196F3';
+  var red500 = '#F44336';
+  var lightGreen500 = '#8BC34A';
+  switch (type) {
+    case SOLID_LINE:
+      return blue500;
+    case ACC_LINE:
+      return red500;
+    case SCENERY_LINE:
+      return lightGreen500;
+  }
+}
+
+function renderLines(ctx, lines, camera, props) {
+  let {x, y, z} = camera;
+  let {color} = props;
+
+  ctx.beginPath();
+  ctx.lineCap = 'round';
+  ctx.strokeStyle = color;
+  ctx.lineWidth = LINE_WIDTH / z;
+
+  for (let i = 0; i < lines.length; i++) {
+    let {x1, x2, y1, y2} = lines[i];
+
+    ctx.moveTo(x1 / z - x, y1 / z - y);
+    ctx.lineTo(x2 / z - x, y2 / z - y);
+  }
+
+  ctx.stroke();
+}
+
+function render(ctx, lines, viewport, props) {
+  let { w, h, x, y, z, r } = viewport;
+  z /= r;
+  w *= r;
+  h *= r;
+  let [dx, dy] = [x / z - w / 2, y / z - h / 2];
+  let camera = {x: dx, y: dy, z};
+
+  if (!props.color) {
+    renderLines(ctx, lines, camera, {color: 'black'});
+    return;
+  }
+
+  let lineGroups = _.groupBy(lines, l => l.type);
+
+  [SCENERY_LINE, SOLID_LINE, ACC_LINE].forEach( type =>
+    lineGroups[type] ?
+    renderLines(ctx, lineGroups[type], camera, {
+      color: getColor(type)
+    }) : null
+  );
+
+}
 
 var CanvasLineDisplay = React.createClass({
 
@@ -32,29 +91,10 @@ var CanvasLineDisplay = React.createClass({
     if (x !== x_ || y !== y_ || z !== z_) {
       viewportChanged = true;
     }
-    z /= r;
-    w *= r;
-    h *= r;
-    let [dx, dy] = [x / z - w / 2, y / z - h / 2];
     if (viewportChanged || this.linesUpdated(prevProps.lines)) {
       // i could cache to spend less time drawing but another time...
-      let lines = this.props.lines;
-      let ctx = this.ctx;
-      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-
-      ctx.beginPath();
-      ctx.lineCap = 'round';
-      ctx.strokeStyle = 'black';
-      ctx.lineWidth = LINE_WIDTH / z;
-
-      for (let i = 0; i < lines.length; i++) {
-        let {x1, x2, y1, y2} = lines[i];
-
-        ctx.moveTo(x1 / z - dx, y1 / z - dy);
-        ctx.lineTo(x2 / z - dx, y2 / z - dy);
-      }
-
-      ctx.stroke();
+      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      render(this.ctx, this.props.lines, { w, h, x, y, z, r }, this.props);
     }
   },
 
