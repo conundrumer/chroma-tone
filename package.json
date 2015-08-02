@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "./node_modules/.bin/mocha --recursive --compilers js:babel/register",
-    "renderer-demo": "webpack-dev-server --content-base assets --config renderer/demo/webpack.config.js"
+    "renderer-demo": "webpack-dev-server --content-base assets --config renderer/demo/webpack.config.js",
+    "renderer-demo-fast": "webpack-dev-server --content-base assets --config renderer/demo/webpack.config.fast.js"
   },
   "repository": {
     "type": "git",
@@ -23,6 +24,7 @@
     "lodash": "^3.10.0",
     "react": "^0.13.3",
     "react-inlinesvg": "conundrumer/react-inlinesvg#build",
+    "react-stats": "0.0.5",
     "vector2d": "conundrumer/vec2d"
   },
   "devDependencies": {
