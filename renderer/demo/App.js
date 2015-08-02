@@ -259,6 +259,7 @@ var App = React.createClass({
     let [w, h] = [x2 - x1, y2 - y1];
     return (
       <div>
+        <FPSStats isActive={true}/>
         <p>Input a .sol file to view your tracks.</p>
         <p><input type="file" onChange={this.onFileInput} /></p>
         <p>
@@ -293,7 +294,6 @@ var App = React.createClass({
         {
           this.state.track ?
             <div style={{position: 'relative'}}>
-              <FPSStats isActive={true}/>
               <p style={{position: 'absolute', bottom: 0, right: 0}}>{this.state.frame} {this.state.framesSkipped}</p>
               <div>
                 pan x: <input type='range' min={-w} max={w} value={this.state.panx} onChange={e => this.setState({panx: Number(e.target.value)})}/>
