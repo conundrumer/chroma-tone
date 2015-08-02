@@ -47,19 +47,27 @@ var App = React.createClass({
       panx: 0,
       pany: 0,
       zoom: 1,
-      width: window.innerWidth
+      width: window.innerWidth || 1 // sometimes it's zero????
     };
   },
 
   componentDidMount() {
-    window.addEventListener('resize', () => {
-      if (this.state.width !== window.innerWidth) {
-        this.setState({
-          width: window.innerWidth
-        });
-        this.setInitCamera();
-      }
-    });
+    window.addEventListener('resize', this.onResize);
+    this.onResize(true);
+  },
+
+  onResize(force) {
+    if (window.innerWidth === 0) {
+      console.log('innerWidth is zero, getting it again')
+      setTimeout(() => this.onResize(force), 0);
+      return;
+    }
+    if (this.state.width !== window.innerWidth || force) {
+      this.setState({
+        width: window.innerWidth || 1
+      });
+      this.setInitCamera();
+    }
   },
 
   onSelectTrack(e) {
@@ -169,19 +177,6 @@ var App = React.createClass({
   getFPS() {
     let fps = 40;
     return this.state.slowmo ? fps / 8 : fps;
-  },
-
-  getViewBox() {
-    let {panx, pany, zoom, boundingBox: [x1, y1, x2, y2]} = this.state;
-    [x1, y1, x2, y2] = [x1 - 10, y1 - 10, x2 + 10, y2 + 10];
-    let [w, h] = [x2 - x1, y2 - y1];
-    let [cx, cy] = [x1 + w / 2, y1 + h / 2];
-    return [
-      panx + cx - w / 2 * zoom,
-      pany + cy - h / 2 * zoom,
-      w * zoom,
-      h * zoom
-    ];
   },
 
   renderToggle(key) {
