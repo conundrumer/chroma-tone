@@ -31,7 +31,7 @@ var App = React.createClass({
       tracks: [],
       track: new Track(defaultLines, {x: 0, y: 0}, DEBUG),
       selected: '',
-      timer: false,
+      playing: false,
       frame: 0,
       maxFrame: 0,
       grid: false,
@@ -47,11 +47,13 @@ var App = React.createClass({
       panx: 0,
       pany: 0,
       zoom: 1,
+      framesSkipped: 0,
       width: window.innerWidth || 1 // sometimes it's zero????
     };
   },
 
   componentDidMount() {
+    this.time = null;
     window.addEventListener('resize', this.onResize);
     this.onResize(true);
   },
@@ -112,14 +114,26 @@ var App = React.createClass({
   },
 
   onTogglePlayback() {
-    if (!this.state.timer) {
+    if (!this.state.playing) {
+      this.setState({ playing: true, framesSkipped: 0 });
+      this.prevTime = Date.now();
       var step = () => {
-        let timer = setTimeout(step, 1000 / this.getFPS());
-        this.setState({
-          frame: this.state.frame + 1,
-          maxFrame: Math.max(this.state.maxFrame, this.state.frame + 1),
-          timer: timer
-        });
+        let fps = this.getFPS();
+        let framesElapsed = Math.floor((Date.now() - this.prevTime) / 1000 * fps);
+        this.timer = requestAnimationFrame(step);
+
+        if (framesElapsed > 0) {
+          this.prevTime += framesElapsed / fps * 1000;
+          let nextFrame = this.state.frame + framesElapsed;
+          if (this.state.doNotSkipFrames) {
+            framesElapsed = 1;
+          }
+          this.setState({
+            frame: nextFrame,
+            maxFrame: Math.max(this.state.maxFrame, nextFrame),
+            framesSkipped: this.state.framesSkipped + framesElapsed - 1
+          });
+        }
       };
 
       step();
@@ -130,13 +144,13 @@ var App = React.createClass({
   },
 
   stopPlayback() {
-    clearTimeout(this.state.timer);
-    this.setState({ frame: 0, timer: null });
+    cancelAnimationFrame(this.timer);
+    this.setState({ playing: false, frame: 0 });
   },
 
   onPause() {
-    clearTimeout(this.state.timer);
-    this.setState({ timer: null });
+    cancelAnimationFrame(this.timer);
+    this.setState({ playing: false });
   },
 
   onToggle(key) {
@@ -226,7 +240,7 @@ var App = React.createClass({
             ['floor', 'accArrow', 'snapDot'].map(this.renderToggle)
           : null
         }
-        <p>{this.state.frame}</p>
+        <p>{this.state.frame} {this.state.framesSkipped}</p>
         {
           this.state.track ?
             <div>
@@ -244,7 +258,7 @@ var App = React.createClass({
               </div>
               { this.renderToggle('slowmo') }
               <button onClick={() => {console.log(this.state.track.lines)}}>Print lines</button>
-              <button onClick={this.onTogglePlayback}>{ this.state.timer ? 'Stop' : 'Play'}</button>
+              <button onClick={this.onTogglePlayback}>{ this.state.playing ? 'Stop' : 'Play'}</button>
               <button onClick={this.onPause}>Pause</button>
               <button onClick={() => this.setState({ frame: this.state.frame + 1 })}>Step forward</button>
               <button onClick={() => this.setState({ frame: Math.max(0, this.state.frame - 1) })}>Step backward</button>
@@ -255,6 +269,7 @@ var App = React.createClass({
           this.state.track ?
             <Display
               {...this.state}
+              label={this.state.tracks[this.state.selected] ? (this.state.tracks[this.state.selected].label + this.state.selected) : null}
               rider={this.getRider()}
               pan={{
                 x: this.state.initPanx + this.state.panx,
