@@ -29,21 +29,24 @@ class Grid {
     let tl = this.getCellPos(x1, y1);
     let br = this.getCellPos(x2, y2);
     let linesInBox = Object.create(null);
+    let lines = [];
     // add lines from cells fully contained in box
     if (tl.x+1 < br.x && tl.y+1 < br.y) {
       _.forEach(_.range(tl.y+1, br.y), cy =>
         _.forEach(_.range(tl.x+1, br.x), cx =>
-          _.forEach(this.getLinesFromCell(cx, cy), line =>
-            linesInBox[line.id] = line
-          )
+          _.forEach(this.getLinesFromCell(cx, cy), line => {
+            linesInBox[line.id] = true;
+            lines.push(line);
+          })
         )
       );
     }
-    let addLineIfInBox = filterEdges ? line => {
-      if (!(line.id in linesInBox) && line.inBox(x1, y1, x2, y2)) {
-        linesInBox[line.id] = line;
+    let addLineIfInBox = line => {
+      if (!(line.id in linesInBox) && (!filterEdges || line.inBox(x1, y1, x2, y2))) {
+        linesInBox[line.id] = true;
+        lines.push(line);
       }
-    } : line => linesInBox[line.id] = line;
+    };
     // add lines in cells under top and bottom edges
     _.forEach(_.range(tl.x, br.x+1), cx => {
       _.forEach(this.getLinesFromCell(cx, tl.y), addLineIfInBox);
@@ -55,7 +58,7 @@ class Grid {
       _.forEach(this.getLinesFromCell(br.x, cy), addLineIfInBox);
     });
 
-    return _.values(linesInBox);
+    return lines;
   }
 
   getLinesInRadius(x, y, r) {
