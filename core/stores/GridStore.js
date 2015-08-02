@@ -84,6 +84,11 @@ class GridStore extends LineStore {
   }
 
   getLinesInBox(x1, y1, x2, y2) {
+    let [w, h] = [x2 - x1, y2 - y1];
+    // i'll do this for now until i implement kd trees
+    if (((w / this.grid.gridSize) | 0) * ((h / this.grid.gridSize) | 0) > 200) {
+      return super.getLinesInBox(x1, y1, x2, y2);
+    }
     return this.grid.getLinesInBox(x1, y1, x2, y2);
   }
 
