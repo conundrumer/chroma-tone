@@ -12,7 +12,6 @@ var Display = React.createClass({
 
   getViewBox() {
     let {pan: {x, y}, zoom: z, width: w, height: h} = this.props;
-    // console.log(x, y, z, w, h)
     return [
       x - w / 2 * z,
       y - h / 2 * z,
@@ -30,19 +29,20 @@ var Display = React.createClass({
   },
 
   render() {
+    let viewBox = this.getViewBox();
     let {x, y} = this.props.track.startPosition;
     let seed = x * x + y * y;
     return (
       <div ref='container' style={this.getStyle()} >
         {
           this.props.grid ?
-            <svg style={{position: 'absolute'}} viewBox={this.getViewBox()}>
+            <svg style={{position: 'absolute'}} viewBox={viewBox}>
               <Grid {...this.props} grid={this.props.track.store.solidGrid} />
             </svg>
           : null
         }
-        <Lines {...this.props} lines={this.props.lines} viewBox={this.getViewBox()} width={this.props.width} height={this.props.height} />
-        <svg style={{position: 'absolute'}} viewBox={this.getViewBox()}>
+        <Lines {...this.props} lines={this.props.lines} viewBox={viewBox} width={this.props.width} height={this.props.height} />
+        <svg style={{position: 'absolute'}} viewBox={viewBox}>
           <Rider i={0} rider={this.props.rider} frameIndex={this.props.frame} seed={seed} />
         </svg>
       </div>
