@@ -252,6 +252,7 @@ var App = React.createClass({
   },
 
   render() {
+    let {color, floor, accArrow, snapDot} = this.state;
     let [x1, y1, x2, y2] = this.state.boundingBox;
     let [w, h] = [x2 - x1, y2 - y1];
     return (
@@ -317,8 +318,8 @@ var App = React.createClass({
         {
           this.state.track ?
             <Display
-              {...this.state}
-              label={this.state.tracks[this.state.selected] ? (this.state.tracks[this.state.selected].label + this.state.selected) : null}
+              startPosition={this.state.track.startPosition}
+              viewOptions={{color, floor, accArrow, snapDot}}
               rider={this.getRider()}
               cam={this.getCam()}
               lines={this.getLines()}

@@ -3,12 +3,35 @@
 var React = require('react');
 
 var Rider = require('./Rider');
-var Grid = require('./Grid');
+// var Grid = require('./Grid'); // TODO: make separate debug display
 // var Lines = require('./SvgLineDisplay');
 var Lines = require('./CanvasLineDisplay');
 // var Lines = require('./PixiLineDisplay');
 
+var PropTypes = React.PropTypes;
 var Display = React.createClass({
+
+  propTypes: {
+    lines: PropTypes.array.isRequired,
+    rider: PropTypes.object.isRequired,
+    startPosition: PropTypes.shape({
+      x: PropTypes.number.isRequired,
+      y: PropTypes.number.isRequired
+    }).isRequired,
+    cam: PropTypes.shape({
+      x: PropTypes.number.isRequired,
+      y: PropTypes.number.isRequired,
+      z: PropTypes.number.isRequired
+    }).isRequired,
+    width: PropTypes.number.isRequired,
+    height: PropTypes.number.isRequired,
+    viewOptions: PropTypes.shape({
+      color: PropTypes.bool,
+      floor: PropTypes.bool,
+      accArrow: PropTypes.bool,
+      snapDot: PropTypes.bool
+    })
+  },
 
   getViewBox() {
     let {cam: {x, y, z}, width: w, height: h} = this.props;
@@ -29,19 +52,13 @@ var Display = React.createClass({
   },
 
   render() {
+    let viewOptions = this.props.viewOptions;
     let viewBox = this.getViewBox();
-    let {x, y} = this.props.track.startPosition;
+    let {x, y} = this.props.startPosition;
     let seed = x * x + y * y;
     return (
       <div ref='container' style={this.getStyle()} >
-        {
-          this.props.grid ?
-            <svg style={{position: 'absolute'}} viewBox={viewBox}>
-              <Grid {...this.props} grid={this.props.track.store.solidGrid} />
-            </svg>
-          : null
-        }
-        <Lines {...this.props} lines={this.props.lines} viewBox={viewBox} width={this.props.width} height={this.props.height} />
+        <Lines {...this.props} {...viewOptions} lines={this.props.lines} viewBox={viewBox} width={this.props.width} height={this.props.height} />
         <svg style={{position: 'absolute'}} viewBox={viewBox}>
           <Rider i={0} rider={this.props.rider} frameIndex={this.props.frame} seed={seed} />
         </svg>
