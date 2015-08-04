@@ -21,7 +21,6 @@
   "dependencies": {
     "amf": "TooTallNate/node-amf",
     "buffer": "^3.3.1",
-    "css": "^2.2.1",
     "lodash": "^3.10.0",
     "react": "^0.13.3",
     "react-inlinesvg": "conundrumer/react-inlinesvg#build",
@@ -34,19 +33,15 @@
     "babel-core": "^5.8.9",
     "babel-loader": "^5.3.2",
     "css-loader": "^0.15.6",
-    "ejs": "^2.3.3",
     "file-loader": "^0.8.4",
     "less": "^2.5.1",
     "less-loader": "^2.2.0",
     "mocha": "^2.2.5",
     "normalize-css": "^2.3.1",
-    "q": "^1.4.1",
-    "q-io": "^1.13.1",
     "react-hot-loader": "^1.2.8",
     "style-loader": "^0.12.3",
     "url-loader": "^0.5.6",
     "webpack": "^1.10.5",
-    "webpack-dev-server": "^1.10.1",
-    "xml2js": "ds82/node-xml2js"
+    "webpack-dev-server": "^1.10.1"
   }
 }
