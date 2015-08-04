@@ -3,6 +3,7 @@
 var _ = require('lodash');
 
 var Entity = require('../entities/Entity');
+var Vector = require('../Vector');
 
 var { makeRider } = require('./RiderMaker');
 var { copyRider } = require('./RiderCopier');
@@ -142,6 +143,13 @@ class Rider extends Entity {
 
   getBodyParts(p) {
     return getBodyParts(this, p);
+  }
+
+  getPosition() {
+    return _.reduce(this.points,
+      (pos, point) => pos.add(point.pos),
+      new Vector(0, 0))
+    .divS(this.points.length);
   }
 
 }

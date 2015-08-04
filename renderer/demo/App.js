@@ -198,7 +198,7 @@ var App = React.createClass({
   getCam() {
     if (this.state.playing) {
       let rider = this.getRider();
-      let p = rider.points[0];
+      let p = rider.getPosition();
       let min = 0.1;
       let k = (1 - Math.exp(-0.000004 * this.prevPan.distanceSq(p) / Math.pow(this.state.zoom, 2)) + min) / (1 + min);
       // console.log(k)
