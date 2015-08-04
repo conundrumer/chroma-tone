@@ -182,9 +182,9 @@ var CanvasLineDisplay = React.createClass({
     return lines !== oldLines || lines.length !== oldLines.length;
   },
 
-  componentDidUpdate(prevProps = {pan: {}}) {
-    let {width: w, height: h, pan: {x, y}, zoom: z} = this.props;
-    let {width: w_, height: h_, pan: {x: x_, y: y_}, zoom: z_} = prevProps;
+  componentDidUpdate(prevProps = {cam: {}}) {
+    let {width: w, height: h, cam: {x, y, z}} = this.props;
+    let {width: w_, height: h_, cam: {x: x_, y: y_, z_}} = prevProps;
     let r = this.r;
     var viewportChanged = false;
     if (w !== w_ || h !== h_) {

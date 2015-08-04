@@ -11,7 +11,7 @@ var Lines = require('./CanvasLineDisplay');
 var Display = React.createClass({
 
   getViewBox() {
-    let {pan: {x, y}, zoom: z, width: w, height: h} = this.props;
+    let {cam: {x, y, z}, width: w, height: h} = this.props;
     return [
       x - w / 2 * z,
       y - h / 2 * z,

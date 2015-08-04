@@ -195,7 +195,7 @@ var App = React.createClass({
     return this.state.slowmo ? fps / 8 : fps;
   },
 
-  getPan() {
+  getCam() {
     if (this.state.playing) {
       let rider = this.getRider();
       let p = rider.points[0];
@@ -203,19 +203,17 @@ var App = React.createClass({
       let k = (1 - Math.exp(-0.000004 * this.prevPan.distanceSq(p) / Math.pow(this.state.zoom, 2)) + min) / (1 + min);
       // console.log(k)
       this.prevPan.lerp(p, k);
-      return {x: this.prevPan.x, y: this.prevPan.y };
+      return {
+        x: this.prevPan.x,
+        y: this.prevPan.y,
+        z: this.state.zoom
+      };
     }
     return {
       x: this.state.initPanx + this.state.panx,
-      y: this.state.initPany + this.state.pany
+      y: this.state.initPany + this.state.pany,
+      z: this.state.initZoom * this.state.zoom
     };
-  },
-
-  getZoom() {
-    if (this.state.playing) {
-      return this.state.zoom;
-    }
-    return this.state.initZoom * this.state.zoom;
   },
 
   getHeight() {
@@ -225,8 +223,7 @@ var App = React.createClass({
   },
 
   getViewBox() {
-    let {x, y} = this.getPan();
-    let z = this.getZoom();
+    let {x, y, z} = this.getCam();
     let w = this.state.width;
     let h = this.getHeight();
     return [
@@ -323,8 +320,7 @@ var App = React.createClass({
               {...this.state}
               label={this.state.tracks[this.state.selected] ? (this.state.tracks[this.state.selected].label + this.state.selected) : null}
               rider={this.getRider()}
-              pan={this.getPan()}
-              zoom={this.getZoom()}
+              cam={this.getCam()}
               lines={this.getLines()}
               width={this.state.width}
               height={this.getHeight()} />
