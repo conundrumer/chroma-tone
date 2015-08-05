@@ -22,7 +22,11 @@ const scarfColors = [
 ];
 
 function getTransform(part) {
-  return `rotate(${part.angle} ${part.x} ${part.y}) translate(${part.x} ${part.y})`;
+  let {x, y, angle} = part;
+  x = ((x * PRECISION + 0.5) | 0) / PRECISION;
+  y = ((y * PRECISION + 0.5) | 0) / PRECISION;
+  angle = ((angle / Math.PI * 180 * PRECISION + 0.5) | 0) / PRECISION;
+  return `rotate(${angle} ${x} ${y}) translate(${x} ${y})`;
 }
 
 function getFacePath(t) {
