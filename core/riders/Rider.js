@@ -127,7 +127,9 @@ class Rider extends Entity {
       crashed: this.crashed,
       sledBroken: this.sledBroken,
       points: _.map(this.points, point => point.copyState()),
-      scarfPoints: _.map(this.scarfPoints, point => point.copyState())
+      scarfPoints: _.map(this.scarfPoints, point => point.copyState()),
+      bodyParts: this.getBodyParts(),
+      position: this.getPosition()
     };
   }
   setState(state) {
@@ -146,10 +148,10 @@ class Rider extends Entity {
   }
 
   getPosition() {
-    return _.reduce(this.points,
+    return _.reduce(_.drop(this.points, 4),
       (pos, point) => pos.add(point.pos),
       new Vector(0, 0))
-    .divS(this.points.length);
+    .divS(this.points.length - 4);
   }
 
 }

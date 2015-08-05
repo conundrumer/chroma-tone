@@ -7,7 +7,7 @@ var getBoundingBox = require('../getBoundingBox');
 var FPSStats = require('react-stats').FPSStats;
 require('buffer');
 
-var { Track, OldTrack } = require('../../core');
+var { Track, OldTrack, getRiderCam } = require('../../core');
 
 var DEBUG = false;
 
@@ -197,15 +197,13 @@ var App = React.createClass({
 
   getCam() {
     if (this.state.playing) {
-      let rider = this.getRider();
-      let p = rider.getPosition();
-      let min = 0.1;
-      let k = (1 - Math.exp(-0.000004 * this.prevPan.distanceSq(p) / Math.pow(this.state.zoom, 2)) + min) / (1 + min);
-      // console.log(k)
-      this.prevPan.lerp(p, k);
+      let w = this.state.width;
+      let h = this.getHeight();
+      let maxRadius = Math.max(this.state.zoom * (Math.min(w, h) / 2) - 15);
+      let {x, y} = getRiderCam(this.state.track, this.state.frame, maxRadius, 1);
       return {
-        x: this.prevPan.x,
-        y: this.prevPan.y,
+        x: x,
+        y: y,
         z: this.state.zoom
       };
     }
