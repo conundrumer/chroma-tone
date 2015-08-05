@@ -51,24 +51,6 @@ class Track {
     return this.store.getLines(x1, y1, x2, y2);
   }
 
-  getRiderAtFrame(frameNum) {
-    if (frameNum < this.frameCache.length) {
-      let riderState = this.frameCache[frameNum];
-      this.rider.setState(riderState);
-      return this.rider;
-    }
-
-    this.rider.setState(_.last(this.frameCache));
-    for (let i = this.frameCache.length; i <= frameNum; i++) {
-
-      this.rider.step(this.store);
-
-      this.frameCache[i] = this.rider.getState();
-    }
-
-    return this.rider;
-  }
-
   getRiderStateAtFrame(frameNum) {
     if (frameNum < this.frameCache.length) {
       return this.frameCache[frameNum];
@@ -83,14 +65,6 @@ class Track {
     }
 
     return this.frameCache[frameNum];
-  }
-
-  getRiderPositionAtFrame(frameNum) {
-    if (frameNum >= this.frameCache.length) {
-      console.error("Can't get position at uncalculated frame:", frameNum);
-      return { x: 0, y: 0 };
-    }
-    return this.frameCache[frameNum].position;
   }
 
   updateFrameCache(line, removed) { // eslint-disable-line no-unused-vars

@@ -45,8 +45,8 @@ var Constraint = React.createClass({
 
   render() {
     let { points, constraint } = this.props;
-    let p = points[constraint.p.id];
-    let q = points[constraint.q.id];
+    let {pos: p} = points[constraint.p.id];
+    let {pos: q} = points[constraint.q.id];
     return (
       <line x1={p.x} y1={p.y} x2={q.x} y2={q.y} stroke={this.props.color} strokeWidth={this.props.width || 0.3} />
     );
@@ -58,8 +58,8 @@ var ScarfSegment = React.createClass({
 
   render() {
     let { i, rider: { points, scarfPoints } } = this.props;
-    let p = i > 0 ? scarfPoints[i - 1] : points[scarfBase.id];
-    let q = scarfPoints[i];
+    let {pos: p} = i > 0 ? scarfPoints[i - 1] : points[scarfBase.id];
+    let {pos: q} = scarfPoints[i];
     return (
       <line x1={p.x} y1={p.y} x2={q.x} y2={q.y} stroke={this.props.color} strokeWidth={this.props.width} />
     );
@@ -146,7 +146,7 @@ var Rider = React.createClass({
       leftArm,
       rightLeg,
       leftLeg
-    } = this.props.rider.getBodyParts(PRECISION);
+    } = this.props.rider.bodyParts;
 
     let blink = this.getBlink();
     let t = this.getHeadRotation();

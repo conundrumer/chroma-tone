@@ -119,7 +119,6 @@ var App = React.createClass({
     if (!this.state.playing) {
       this.setState({ playing: true, framesSkipped: 0, fps: this.getFPS() });
       this.prevTime = Date.now();
-      this.prevPan = this.getRider().points[0].pos.clone();
       var step = () => {
         let dt = Date.now() - this.prevTime;
         let fps = this.getFPS();
@@ -186,7 +185,7 @@ var App = React.createClass({
   },
 
   getRider() {
-    return this.state.track.getRiderAtFrame(this.state.frame);
+    return this.state.track.getRiderStateAtFrame(this.state.frame);
   },
 
   getFPS() {
