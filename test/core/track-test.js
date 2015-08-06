@@ -44,17 +44,17 @@ describe('Track', () => {
       defaultTrack = new Track(defaultLines, {x: 0, y: 0});
     });
     it('runs correctly (200 frames)', () => {
-      initRider = defaultTrack.getRiderAtFrame(0).clone();
-      let rider = defaultTrack.getRiderAtFrame(200);
-      assert(rider.crashed === false);
+      initRider = defaultTrack.getRiderStateAtFrame(0);
+      let rider = defaultTrack.getRiderStateAtFrame(200);
+      assert(!rider.crashed);
       assert(rider.points[0].pos.x > initRider.points[0].pos.x);
       assert(rider.points[0].pos.y > initRider.points[0].pos.y);
     });
     it('stops correctly', () => {
-      assert(_.isEqual(initRider.getState(), defaultTrack.getRiderAtFrame(0).getState()));
+      assert.deepEqual(defaultTrack.getRiderStateAtFrame(0), initRider);
     });
     it('gets body parts', () => {
-      let parts = defaultTrack.getRiderAtFrame(200).getBodyParts();
+      let parts = defaultTrack.getRiderStateAtFrame(200).bodyParts;
       assert(!!parts);
     });
   });
@@ -64,9 +64,9 @@ describe('Track', () => {
       defaultTrack = new OldTrack(defaultLines, {x: 0, y: 0});
     });
     it('runs correctly (200 frames)', () => {
-      let initRider = defaultTrack.getRiderAtFrame(0).clone();
-      let rider = defaultTrack.getRiderAtFrame(200);
-      assert(rider.crashed === false);
+      let initRider = defaultTrack.getRiderStateAtFrame(0);
+      let rider = defaultTrack.getRiderStateAtFrame(200);
+      assert(!rider.crashed);
       assert(rider.points[0].pos.x > initRider.points[0].pos.x);
       assert(rider.points[0].pos.y > initRider.points[0].pos.y);
     });
@@ -78,8 +78,10 @@ describe('Track', () => {
       defaultTrack = new Track(defaultLines, {x: 0, y: 0}, true);
     });
     it('runs correctly (200 frames)', () => {
-      let rider = defaultTrack.getRiderAtFrame(200);
-      assert(rider.crashed === false);
+      let rider = defaultTrack.getRiderStateAtFrame(200);
+      assert(!rider.crashed);
+      assert(rider.points[0].pos.x > initRider.points[0].pos.x);
+      assert(rider.points[0].pos.y > initRider.points[0].pos.y);
     });
   });
 
@@ -91,8 +93,10 @@ describe('Track', () => {
       track = new OldTrack(trackData.lines, { x: startPos[0], y: startPos[1] });
     });
     it('runs correctly (2000 frames)', () => {
-      let rider = track.getRiderAtFrame(2000);
-      assert(rider.crashed === false);
+      let rider = track.getRiderStateAtFrame(2000);
+      assert(!rider.crashed);
+      assert(rider.points[0].pos.x > initRider.points[0].pos.x);
+      assert(rider.points[0].pos.y > initRider.points[0].pos.y);
     });
   });
 
@@ -115,13 +119,13 @@ describe('Track', () => {
       });
     });
     it('runs with the rider not crashing (1200 frames)', () => {
-      let rider = track.getRiderAtFrame(1200);
-      assert(rider.crashed === false);
+      let rider = track.getRiderStateAtFrame(1200);
+      assert(!rider.crashed);
     });
     it('runs with the sled breaking (1300 frames)', () => {
-      let rider = track.getRiderAtFrame(1300);
-      assert(rider.crashed === true);
-      assert(rider.sledBroken === true);
+      let rider = track.getRiderStateAtFrame(1300);
+      assert(rider.crashed);
+      assert(rider.sledBroken);
     });
     it('runs the same with lines randomly added/removed (1300 frames)', () => {
       let startPos = trackData.startPosition;
@@ -146,8 +150,7 @@ describe('Track', () => {
       addRemoveLines(track.lines);
 
       _.times(1300, (i) => {
-        let rider = shuffledTrack.getRiderAtFrame(i);
-        assert(rider.crashed === track.getRiderAtFrame(i).crashed);
+        assert.deepEqual(shuffledTrack.getRiderStateAtFrame(i), track.getRiderStateAtFrame(i));
       });
 
     });
