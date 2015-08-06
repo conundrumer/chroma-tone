@@ -21,11 +21,15 @@ const scarfColors = [
   '#2196F3'
 ];
 
+function round(x) {
+  return ((x * PRECISION + 0.5) | 0) / PRECISION;
+}
+
 function getTransform(part) {
   let {x, y, angle} = part;
-  x = ((x * PRECISION + 0.5) | 0) / PRECISION;
-  y = ((y * PRECISION + 0.5) | 0) / PRECISION;
-  angle = ((angle / Math.PI * 180 * PRECISION + 0.5) | 0) / PRECISION;
+  x = round(x);
+  y = round(y);
+  angle = round(angle / Math.PI * 180);
   return `rotate(${angle} ${x} ${y}) translate(${x} ${y})`;
 }
 
@@ -41,15 +45,23 @@ function getFacePath(t) {
   ];
 }
 
+var Line = React.createClass({
+
+  render() {
+    let {p, q, color, width = 0.3} = this.props;
+    return (
+      <line x1={round(p.x)} y1={round(p.y)} x2={round(q.x)} y2={round(q.y)} stroke={color} strokeWidth={width} />
+    );
+  }
+});
+
 var Constraint = React.createClass({
 
   render() {
     let { points, constraint } = this.props;
     let {pos: p} = points[constraint.p.id];
     let {pos: q} = points[constraint.q.id];
-    return (
-      <line x1={p.x} y1={p.y} x2={q.x} y2={q.y} stroke={this.props.color} strokeWidth={this.props.width || 0.3} />
-    );
+    return <Line {...this.props} p={p} q={q} />;
   }
 
 });
@@ -60,9 +72,7 @@ var ScarfSegment = React.createClass({
     let { i, rider: { points, scarfPoints } } = this.props;
     let {pos: p} = i > 0 ? scarfPoints[i - 1] : points[scarfBase.id];
     let {pos: q} = scarfPoints[i];
-    return (
-      <line x1={p.x} y1={p.y} x2={q.x} y2={q.y} stroke={this.props.color} strokeWidth={this.props.width} />
-    );
+    return <Line {...this.props} p={p} q={q} />;
   }
 
 });
@@ -118,6 +128,7 @@ var SvgSprite = React.createClass({
   }
 });
 
+// TODO: make Rider not rely on viewbox panning/scaling/outer svg
 var Rider = React.createClass({
 
   getDefaultProps() {

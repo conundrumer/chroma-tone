@@ -8,6 +8,12 @@ var Rider = require('./Rider');
 var Lines = require('./CanvasLineDisplay');
 // var Lines = require('./PixiLineDisplay');
 
+const PRECISION = 1000;
+
+function round(x) {
+  return ((x * PRECISION + 0.5) | 0) / PRECISION;
+}
+
 var PropTypes = React.PropTypes;
 var Display = React.createClass({
 
@@ -36,10 +42,10 @@ var Display = React.createClass({
   getViewBox() {
     let {cam: {x, y, z}, width: w, height: h} = this.props;
     return [
-      x - w / 2 * z,
-      y - h / 2 * z,
-      w * z,
-      h * z
+      round(x - w / 2 * z),
+      round(y - h / 2 * z),
+      round(w * z),
+      round(h * z)
     ];
   },
 
