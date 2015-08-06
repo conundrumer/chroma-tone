@@ -16,8 +16,8 @@ const
   GRAVITY = { x: 0, y: 0.175 },
   VX_INIT = 0.4,
   VY_INIT = 0,
-  SCARF_FLUTTER_INTENSITY = 0.2,
-  SPEED_THRESHOLD_FLUTTER = 125; // as this gets smaller, the scarf intensifies faster while speed increases
+  SCARF_FLUTTER_INTENSITY = 2,
+  SPEED_THRESHOLD_FLUTTER = 40; // as this gets smaller, the scarf intensifies faster while speed increases
 
 
 class Rider extends Entity {
@@ -43,8 +43,8 @@ class Rider extends Entity {
     let speed = Math.sqrt(base.vel.magnitude());
     let randMag = (seed.x * seed.y) % 1;
     let randAng = (seed.x + seed.y) % 1;
-    speed *= 1 - Math.pow(2, -speed / SPEED_THRESHOLD_FLUTTER);
-    randMag *= SCARF_FLUTTER_INTENSITY * speed;
+    randMag *= SCARF_FLUTTER_INTENSITY * speed * -Math.expm1(-speed / SPEED_THRESHOLD_FLUTTER);
+    // randMag *= SCARF_FLUTTER_INTENSITY * speed * Math.log1p(speed / SPEED_THRESHOLD_FLUTTER);
     randAng *= 2 * Math.PI;
     return {
       x: randMag * Math.cos(randAng),
@@ -56,11 +56,11 @@ class Rider extends Entity {
   }
   stepScarf(gravity) {
     let base = this.scarfPoints[0];
-    let seed = this.scarfPoints[this.scarfPoints.length-1];
-    let flutter = Rider.getFlutter(base, seed);
-    this.scarfPoints[1].pos.add(flutter);
 
     for (let i = 0; i < this.scarfPoints.length; i++) {
+      let seed = (i > 0) ? this.scarfPoints[i-1] : base;
+      let flutter = Rider.getFlutter(base, seed);
+      this.scarfPoints[i].pos.add(flutter);
       this.scarfPoints[i].step(gravity);
     }
     for (let i = 0; i < this.scarfConstraints.length; i++) {

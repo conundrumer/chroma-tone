@@ -67,7 +67,7 @@ const
   },
   // scarf
   Scarf = {
-    airFriction: 0.85,
+    airFriction: 0.8,
     p: SHOULDER,
     numSegments: 7,
     segmentLength: 2
