@@ -8,7 +8,6 @@ injectTapEventPlugin();
 require('normalize.css');
 
 require('../styles/fonts.css');
-require('mdi/css/materialdesignicons.css');
 require('../styles/main.less');
 var React = require('react');
 
