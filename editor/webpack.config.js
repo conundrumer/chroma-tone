@@ -30,6 +30,7 @@ module.exports = {
     extensions: ['', '.js'],
     modulesDirectories: ['web_modules', 'node_modules', 'bower_components'],
     alias: {
+      'icons': 'material-ui-mdi/icons',
       "react": __dirname + '/node_modules/react',
       "react/addons": __dirname + '/node_modules/react/addons',
       'styles': __dirname + '/src/styles',
@@ -48,7 +49,7 @@ module.exports = {
     loaders: [{
       test: /\.js$/,
       exclude: /node_modules/,
-      loader: 'react-hot!babel-loader'
+      loader: 'react-hot!babel-loader?stage=1'
     }, {
       test: /\.less/,
       loader: 'style-loader!css-loader!autoprefixer-loader!less-loader'
