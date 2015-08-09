@@ -13,26 +13,16 @@ var React = require('react');
 
 var Editor = require('./Editor');
 var Display = require('renderer/Display');
-var { Track } = require('../../core');
+var { Track } = require('core');
+var makeRandomLine = require('../../test/makeRandomLine');
 
 function randomLines() {
   var lines = [];
   var limits = 900;
-  var getNum = () => (Math.random() - 0.5) * limits;
-  var getLineType = () => Math.floor(3 * Math.random());
-  for (let i = 0; i < 40; i++) {
-    lines.push({
-      x1: 2 * getNum(),
-      y1: getNum(),
-      x2: 2 * getNum(),
-      y2: getNum(),
-      extended: 0,
-      flipped: false,
-      leftLine: null,
-      rightLine: null,
-      id: 0,
-      type: getLineType()
-    });
+  var numLines = 1000;
+
+  for (let i = 0; i < numLines; i++) {
+    lines.push(makeRandomLine(limits, 2));
   }
   return lines;
 }
@@ -76,7 +66,7 @@ var App = React.createClass({
       <div className='main'>
         <Display
           startPosition={randomTrack.startPosition}
-          viewOptions={{}}
+          viewOptions={{ color: true, floor: true }}
           rider={randomTrack.getRiderStateAtFrame(0)}
           cam={{x: 0, y: 0, z: 1}}
           lines={randomTrack.lines}
