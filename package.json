@@ -6,7 +6,8 @@
   "scripts": {
     "test": "./node_modules/.bin/mocha --recursive --compilers js:babel/register",
     "renderer-demo": "webpack-dev-server --content-base assets --config renderer/demo/webpack.config.js",
-    "renderer-demo-fast": "webpack-dev-server --content-base assets --config renderer/demo/webpack.config.fast.js"
+    "renderer-demo-fast": "webpack-dev-server --content-base assets --config renderer/demo/webpack.config.fast.js",
+    "get-fonts": "curl -o fontfiles.zip 'https://google-webfonts-helper.herokuapp.com/api/fonts/roboto?download=zip&subsets=latin&variants=regular,300,500&formats=woff,woff2' && unzip fontfiles.zip -d assets/fonts && rm fontfiles.zip"
   },
   "repository": {
     "type": "git",
