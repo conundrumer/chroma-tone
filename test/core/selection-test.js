@@ -25,7 +25,7 @@ describe('Track with ' + NUM_LINES + ' lines', function() {
 
     console.log('Generating random track...');
     _.times(NUM_LINES, () => {
-      let line = makeRandomLine(gridSize * CELL_RANGE);
+      let line = makeRandomLine(gridSize * CELL_RANGE, CELL_RANGE / 2);
       referenceTrack.addLine(line);
       track.addLine(line);
     });
