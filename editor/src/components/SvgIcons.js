@@ -2,6 +2,7 @@
 
 var React = require('react/addons');
 var {SvgIcon} = require('material-ui');
+var Eject = require('icons/eject');
 
 var PureRenderMixin = React.addons.PureRenderMixin;
 
@@ -103,4 +104,16 @@ var OnionSkin = React.createClass({
 
 });
 
-module.exports = {Line, Curve, MultiLine, Viewfinder, CursorMove, OnionSkin};
+var SlowMotion = React.createClass({
+  displayName: 'SlowMotion',
+
+  mixins: [PureRenderMixin],
+
+  render() {
+    return (
+      <Eject {...this.props} style={{transform: 'rotate(90deg)'}} />
+    );
+  }
+});
+
+module.exports = {Line, Curve, MultiLine, Viewfinder, CursorMove, OnionSkin, SlowMotion};

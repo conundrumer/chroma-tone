@@ -29,7 +29,7 @@ function getButtons(actions) {
     stepBack:          { onTouchTap: null                      , hotkey: null          , selectGroup: null       , icon: require('icons/skip-previous')        },
     stepForward:       { onTouchTap: null                      , hotkey: null          , selectGroup: null       , icon: require('icons/skip-next')            },
     flag:              { onTouchTap: null                      , hotkey: null          , selectGroup: ''         , icon: require('icons/flag-variant')         },
-    multiFlag:         { onTouchTap: null                      , hotkey: null          , selectGroup: ''         , icon: require('icons/flag-outline-variant') },
+    slowmo:            { onTouchTap: null                      , hotkey: null          , selectGroup: ''         , icon: require('./SvgIcons').SlowMotion      },
     onionSkin:         { onTouchTap: null                      , hotkey: null          , selectGroup: ''         , icon: require('./SvgIcons').OnionSkin       },
     camera:            { onTouchTap: null                      , hotkey: null          , selectGroup: ''         , icon: require('icons/video')                },
     music:             { onTouchTap: null                      , hotkey: null          , selectGroup: ''         , icon: require('icons/music-note')           },
@@ -81,7 +81,7 @@ function getButtonGroups(actions) {
         b.layers, b.viewfinder, b.pan, b.zoom
       ],
       middle: [
-        b.multiFlag, b.flag, b.play, b.stop, b.pause
+        b.flag, b.slowmo, b.play, b.stop, b.pause
       ],
       right: [
         b.camera, b.record, b.help, b.toggleTimeControl
