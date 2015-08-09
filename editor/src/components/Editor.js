@@ -7,7 +7,7 @@ var CSSTransitionGroup = React.addons.CSSTransitionGroup;
 var mui = require('material-ui');
 var ThemeManager = new mui.Styles.ThemeManager();
 
-var {Paper} = mui;
+var {Paper, Styles: { Colors: { blue500, red500, lightGreen500 }}} = mui;
 var SvgDisplay = require('./SvgDisplay');
 var IconButton = require('./IconButton');
 var editorButtons = require('./editorButtons');
@@ -49,6 +49,14 @@ var Editor = React.createClass({
     return {
       muiTheme: ThemeManager.getCurrentTheme()
     };
+  },
+
+  componentWillMount() {
+    let palette = ThemeManager.getCurrentTheme().palette;
+    palette.primary1Color = blue500;
+    palette.primary2Color = red500;
+    palette.primary3Color = lightGreen500;
+    ThemeManager.setPalette(palette);
   },
 
   componentWillUnmount() {
