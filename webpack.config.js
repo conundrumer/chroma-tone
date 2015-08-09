@@ -6,6 +6,7 @@
  */
 'use strict';
 var webpack = require('webpack');
+var join = require('path').join;
 
 module.exports = {
 
@@ -19,7 +20,7 @@ module.exports = {
   devtool: false,
   entry: [
       'webpack/hot/only-dev-server',
-      './src/components/App.js'
+      './editor/components/App.js'
   ],
 
   stats: {
@@ -28,16 +29,13 @@ module.exports = {
   },
   resolve: {
     extensions: ['', '.js'],
-    modulesDirectories: ['web_modules', 'node_modules', 'bower_components'],
     alias: {
       'icons': 'material-ui-mdi/icons',
-      "react": __dirname + '/node_modules/react',
-      "react/addons": __dirname + '/node_modules/react/addons',
-      'styles': __dirname + '/src/styles',
-      'mixins': __dirname + '/src/mixins',
-      'components': __dirname + '/src/components/',
-      'stores': __dirname + '/src/stores/',
-      'actions': __dirname + '/src/actions/'
+      'assets': join(__dirname, 'assets'),
+      'core': join(__dirname, 'core'),
+      'editor': join(__dirname, 'editor'),
+      'io': join(__dirname, 'io'),
+      'renderer': join(__dirname, 'renderer')
     }
   },
   module: {
@@ -65,12 +63,6 @@ module.exports = {
     }, {
       test: /\.(woff2)(\?v=\d+\.\d+\.\d+)?$/,
       loader: "url?limit=10000&minetype=application/font-woff2"
-    }, {
-      test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/,
-      loader: "url?limit=10000&minetype=application/octet-stream"
-    }, {
-      test: /\.eot(\?v=\d+\.\d+\.\d+)?$/,
-      loader: "file"
     }, {
       test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,
       loader: "url?limit=10000&minetype=image/svg+xml"

@@ -23,9 +23,14 @@
     "amf": "TooTallNate/node-amf",
     "buffer": "^3.3.1",
     "lodash": "^3.10.0",
+    "combokeys": "^2.4.3",
+    "material-ui": "conundrumer/material-ui#build",
+    "material-ui-mdi": "^0.1.1",
+    "normalize.css": "~3.0.3",
     "react": "^0.13.3",
     "react-inlinesvg": "conundrumer/react-inlinesvg#build",
     "react-stats": "0.0.5",
+    "react-tap-event-plugin": "^0.1.7",
     "vector2d": "conundrumer/vec2d"
   },
   "devDependencies": {

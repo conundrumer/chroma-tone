@@ -14,7 +14,7 @@ var editorButtons = require('./editorButtons');
 
 //var Actions = require('actions/xxx')
 
-require('styles/Editor.less');
+require('../styles/Editor.less');
 
 function randomLines() {
   var lines = [];
