@@ -98,11 +98,30 @@ var Editor = React.createClass({
     };
   },
 
+  getActions() {
+    let {
+      setCursor,
+      toggleDebug,
+      showToolbars,
+      hideToolbars,
+      toggleTimeControl,
+      toggleHelp
+    } = this;
+    return {
+      setCursor,
+      toggleDebug,
+      showToolbars,
+      hideToolbars,
+      toggleTimeControl,
+      toggleHelp
+    };
+  },
+
   getButtonGroups() {
     let {
       buttons: b,
       buttonGroups: bs
-    } = editorButtons(this);
+    } = editorButtons(this.getActions());
 
     var styles = this.getStyles();
 
