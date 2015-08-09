@@ -5,9 +5,11 @@
 var assert = require('assert');
 var _ = require('lodash');
 
-var Vector = require.main.require('core').Vector;
 var Track = require.main.require('core').Track;
 var NoGridTrack = require.main.require('core/tracks').NoGridTrack;
+
+var makeRandomLine = require('../makeRandomLine');
+
 const NUM_LINES = 9001;
 
 describe('Track with ' + NUM_LINES + ' lines', function() {
@@ -17,27 +19,9 @@ describe('Track with ' + NUM_LINES + ' lines', function() {
   var gridSize = track.store.grid.gridSize;
 
   before(() => {
-    var rand = (k) => k ? Math.random() * rand(k-1) : Math.random();
 
     // const NUM_LINES = 35000; // similar to archeology
     const CELL_RANGE = 16;
-
-    var i = 0;
-    function makeRandomLine(range) {
-      let v = new Vector(1, 0);
-      let u = new Vector(1, 0);
-      v.rotate(rand() * Math.PI * 2).mulS(rand() * range * 8);
-      u.rotate(rand() * Math.PI * 2).mulS(rand(2) * range);
-      u.add(v);
-      return {
-        x1: v.x,
-        y1: v.y,
-        x2: u.x,
-        y2: u.y,
-        id: i++,
-        type: Math.floor(3 * rand())
-      };
-    }
 
     console.log('Generating random track...');
     _.times(NUM_LINES, () => {
