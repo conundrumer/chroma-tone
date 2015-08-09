@@ -12,7 +12,7 @@ require('../styles/main.less');
 var React = require('react');
 
 var Editor = require('./Editor');
-var Display = require('renderer/Display');
+var { Display } = require('renderer');
 var { Track } = require('core');
 var makeRandomLine = require('../../test/makeRandomLine');
 
