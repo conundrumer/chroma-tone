@@ -11,12 +11,6 @@ var IconButton = React.createClass({
     muiTheme: React.PropTypes.object
   },
 
-  getDefaultProps() {
-    return {
-      style: {}
-    };
-  },
-
   getInitialState() {
     return {
       keyPressed: false
@@ -42,9 +36,6 @@ var IconButton = React.createClass({
       this.props.onTouchTap();
     }
 
-    if (this.props.tooltip !== nextProps.tooltip) {
-      // this._positionTooltip();
-    }
   },
 
   componentWillUnmount() {
