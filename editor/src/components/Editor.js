@@ -68,7 +68,7 @@ var Editor = React.createClass({
   },
 
   toggleDebug() {
-    // this.setState({debugButtons: !this.state.debugButtons});
+    this.setState({debugButtons: !this.state.debugButtons});
   },
 
   toggleHelp() {
@@ -89,111 +89,100 @@ var Editor = React.createClass({
     return styles;
   },
 
-  getButtons() {
-    return editorButtons(this);
-  },
-
-  getButtonGroups() {
-    var b = this.getButtons();
-    var styles = this.getStyles();
-
-    b.toggleTimeControl.iconStyle = {};
-    b.toggleTimeControl.iconStyle.transform = this.state.timeControlVisible ? 'rotate(0deg)' : 'rotate(180deg)';
-
-    var floatUndo = _.clone(b.undo);
-    floatUndo.style = styles.floatCircle;
-    b.showToolbars.style = styles.floatCircle;
-    b.help.selected = this.state.helpEnabled;
-    b.help.selectedColor = 'green';
-
-    var timeline = {
+  getTimeline() {
+    return {
       render: (i) =>
       <div key={i} className='timeline'>
         <input type='range' min={0} max={100} defaultValue={0} style={{width: '100%'}} />
       </div>
     };
+  },
 
-    var buttonGroups = {
-      floatLeft: [
-        floatUndo
-      ],
-      floatMiddle: [
-        b.pencil, b.line, b.eraser, b.pan, b.zoom, b.play, b.stop, b.flag, b.save, b.help
-      ],
-      floatRight: [
-        b.showToolbars
-      ],
-      topGroups: [
-        [ b.save, b.undo, b.redo ],
-        [ b.select, b.pencil, b.brush, b.line, b.curve, b.multiLine, b.eraser ],
-        [ b.settings, b.chat, b.hideToolbars ]
-      ],
-      bottomGroups: [
-        [ b.layers, b.viewfinder, b.pan, b.zoom ],
-        [ b.multiFlag, b.flag, b.play, b.stop, b.pause ],
-        [ b.camera, b.record, b.help, b.toggleTimeControl ]
-      ],
-      timeControl: [
-        b.onionSkin, b.rewind, b.stepBack, timeline, b.stepForward, b.fastFoward, b.music
-      ]
+  getButtonGroups() {
+    let {
+      buttons: b,
+      buttonGroups: bs
+    } = editorButtons(this);
+
+    var styles = this.getStyles();
+
+    b.toggleTimeControl.iconStyle = {
+      transform: `rotate(${this.state.timeControlVisible ? 0 : 180}deg)`
     };
 
-    buttonGroups.floatMiddle = buttonGroups.floatMiddle.map(button => {
-      button = _.clone(button);
-      button.style = styles.smallIcon;
-      return button;
-    });
+    b.help.selected = this.state.helpEnabled;
 
-    buttonGroups.bottomGroups.concat([buttonGroups.timeControl]).forEach(buttonGroup => {
+    let addStyle = style => button => {
+      button = _.clone(button);
+      button.style = style;
+      return button;
+    };
+
+    bs.float.left = bs.float.left.map(addStyle(styles.floatCircle));
+    bs.float.right = bs.float.right.map(addStyle(styles.floatCircle));
+    bs.float.middle = bs.float.middle.map(addStyle(styles.smallIcon));
+
+    _.values(bs.bottom).concat(_.values(bs.timeControl)).forEach(buttonGroup => {
       buttonGroup.forEach(button => {
         button.tooltipPosition = 'top-center';
       });
     });
 
-    return buttonGroups;
+    bs.timeControl.middle = [this.getTimeline()];
+
+    return bs;
   },
 
-  renderButtons(buttons) {
-    return buttons.map(({icon, tooltip, ...props}, i) =>
-      props.render ?
-        props.render(i) :
-      this.state.debugButtons ?
-        <button key={i} style={{width: 48, height: 48, padding: 0}} {...props} /> :
-        <IconButton {...props}
-          key={i}
-          style={props.style || this.getStyles().defaultIcon}
-          combokeys={this.state.combokeys}
-          tooltip={this.state.helpEnabled ? tooltip : null}
-          selected={props.selected || this.state.cursor && this.state.cursor === props.hotkey}
-          disabled={!props.onTouchTap}
-        >
-          {icon}
-        </IconButton>
+  renderButton({icon, tooltip, ...props}, i) {
+    if (props.render) {
+      return props.render(i);
+    }
+    if (this.state.debugButtons) {
+      return (
+        <button key={i} style={{width: 48, height: 48, padding: 0}} {...props} />
+      );
+    }
+    return (
+      <IconButton {...props}
+        key={i}
+        style={props.style || this.getStyles().defaultIcon}
+        combokeys={this.state.combokeys}
+        tooltip={this.state.helpEnabled ? tooltip : null}
+        selected={props.selected || this.state.cursor && this.state.cursor === props.hotkey}
+        disabled={!props.onTouchTap}
+      >
+        {icon}
+      </IconButton>
     );
   },
 
+  renderButtons(buttons) {
+    return buttons.map(this.renderButton);
+  },
+
   renderButtonGroups(groups) {
-    return groups.map((group, i) =>
-      <div key={i} className='toolbar-group'>
-        { this.renderButtons(group) }
+    return ['left', 'middle', 'right'].map( position =>
+      <div key={position} className='toolbar-group'>
+        { this.renderButtons(groups[position]) }
       </div>
     );
   },
 
-  renderFloatBar(buttonGroups) {
-    var floatPapersProps = [
-      { circle: true, children: this.renderButtons(buttonGroups.floatLeft) },
-      {
-        className: 'float-paper-bar',
-        children:
-          <Toolbar className='float-toolbar'>
-            {
-              this.renderButtons(buttonGroups.floatMiddle)
-            }
-          </Toolbar>
-      },
-      { circle: true, children: this.renderButtons(buttonGroups.floatRight) }
-    ];
+  renderFloatBar(float) {
+    let makeFloatCircle = (button, i) => (
+      { circle: true, key: i, children: this.renderButton(button) }
+    );
+
+    let floatPapersProps = float.left.map(makeFloatCircle)
+    .concat([{
+      className: 'float-paper-bar',
+      children:
+        <Toolbar className='float-toolbar'>
+          {
+            this.renderButtons(float.middle)
+          }
+        </Toolbar>
+    }]).concat(float.right.map(makeFloatCircle));
 
     return (
       <div className='float-container'>
@@ -212,7 +201,7 @@ var Editor = React.createClass({
     );
   },
 
-  renderTopBar(buttonGroups) {
+  renderTopBar(top) {
     return (
       <CSSTransitionGroup transitionName='top'>
         {
@@ -220,7 +209,7 @@ var Editor = React.createClass({
           <PaperBar className='top'>
             <Toolbar className='top'>
               {
-                this.renderButtonGroups(buttonGroups.topGroups)
+                this.renderButtonGroups(top)
               }
             </Toolbar>
           </PaperBar>
@@ -230,7 +219,9 @@ var Editor = React.createClass({
     );
   },
 
-  renderBottomBar(buttonGroups) {
+  renderBottomBar(bottom, timeControl) {
+    timeControl = _.flatten(['left', 'middle', 'right'].map(pos => timeControl[pos]));
+
     var bottomPaperBarClass = this.state.timeControlVisible ? 'bottom-extended' : 'bottom';
 
     return (
@@ -240,7 +231,7 @@ var Editor = React.createClass({
           <PaperBar className={bottomPaperBarClass}>
             <Toolbar>
               {
-                this.renderButtonGroups(buttonGroups.bottomGroups)
+                this.renderButtonGroups(bottom)
               }
             </Toolbar>
             <CSSTransitionGroup
@@ -251,7 +242,7 @@ var Editor = React.createClass({
                 this.state.timeControlVisible ?
                 <div className='toolbar-group time-control'>
                   {
-                    this.renderButtons(buttonGroups.timeControl)
+                    this.renderButtons(timeControl)
                   }
                 </div>
                 : null
@@ -265,14 +256,19 @@ var Editor = React.createClass({
   },
 
   render() {
-    var buttonGroups = this.getButtonGroups();
+    let {
+      float,
+      top,
+      bottom,
+      timeControl
+    } = this.getButtonGroups();
 
     return (
       <div className='LR-Editor'>
         <SvgDisplay lines={LINES} />
-        { this.renderFloatBar(buttonGroups) }
-        { this.renderTopBar(buttonGroups) }
-        { this.renderBottomBar(buttonGroups) }
+        { this.renderFloatBar(float) }
+        { this.renderTopBar(top) }
+        { this.renderBottomBar(bottom, timeControl) }
       </div>
     );
   }
