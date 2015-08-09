@@ -27,13 +27,15 @@ var IconButton = React.createClass({
       this.bindHotkey(nextProps.hotkey);
     }
 
-    if (!this.state.keyPressed && nextState.keyPressed) {
+    if (!this.state.disabled && !nextState.disabled && !this.state.keyPressed && nextState.keyPressed) {
       this.startRipple();
     }
 
     if (this.state.keyPressed && !nextState.keyPressed) {
       this.endRipple();
-      this.props.onTouchTap();
+      if (!this.state.disabled && !nextState.disabled) {
+        this.props.onTouchTap();
+      }
     }
 
   },
