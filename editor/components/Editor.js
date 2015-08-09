@@ -8,26 +8,12 @@ var mui = require('material-ui');
 var ThemeManager = new mui.Styles.ThemeManager();
 
 var {Paper, Styles: { Colors: { blue500, red500, lightGreen500 }}} = mui;
-var SvgDisplay = require('./SvgDisplay');
 var IconButton = require('./IconButton');
 var editorButtons = require('./editorButtons');
 
 //var Actions = require('actions/xxx')
 
 require('../styles/Editor.less');
-
-function randomLines() {
-  var lines = [];
-  var limits = 900;
-  var getNum = () => Math.random() * limits - 100;
-  var getLineType = () => Math.floor(3 * Math.random());
-  for (let i = 0; i < 40; i++) {
-    lines.push([2 * getNum(), getNum(), 2 * getNum(), getNum(), getLineType()]);
-  }
-  return lines;
-}
-
-var LINES = randomLines();
 
 var Editor = React.createClass({
 
@@ -292,7 +278,6 @@ var Editor = React.createClass({
 
     return (
       <div className='LR-Editor'>
-        <SvgDisplay lines={LINES} />
         { this.renderFloatBar(float) }
         { this.renderTopBar(top) }
         { this.renderBottomBar(bottom, timeControl) }
