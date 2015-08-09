@@ -3,5 +3,6 @@ module.exports = {
   OldTrack: require('./tracks').OldTrack,
   LineTypes: require('./lines').LineTypes,
   Vector: require('./Vector'),
-  getRiderCam: require('./getRiderCam')
+  getRiderCam: require('./getRiderCam'),
+  getBoundingBox: require('./getBoundingBox')
 };

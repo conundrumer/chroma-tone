@@ -3,11 +3,10 @@
 var { solReader } = require('../../io');
 var React = require('react');
 var Display = require('../Display');
-var getBoundingBox = require('../getBoundingBox');
 var FPSStats = require('react-stats').FPSStats;
 require('buffer');
 
-var { Track, OldTrack, getRiderCam } = require('../../core');
+var { Track, OldTrack, getRiderCam, getBoundingBox } = require('../../core');
 
 var DEBUG = false;
 
