@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "./node_modules/.bin/mocha --recursive --compilers js:babel/register",
+    "serve": "webpack-dev-server --content-base assets",
     "renderer-demo": "webpack-dev-server --content-base assets --config renderer/demo/webpack.config.js",
     "renderer-demo-fast": "webpack-dev-server --content-base assets --config renderer/demo/webpack.config.fast.js",
     "get-fonts": "curl -o fontfiles.zip 'https://google-webfonts-helper.herokuapp.com/api/fonts/roboto?download=zip&subsets=latin&variants=regular,300,500&formats=woff,woff2' && unzip fontfiles.zip -d assets/fonts && rm fontfiles.zip"
@@ -22,8 +23,8 @@
   "dependencies": {
     "amf": "TooTallNate/node-amf",
     "buffer": "^3.3.1",
-    "lodash": "^3.10.0",
     "combokeys": "^2.4.3",
+    "lodash": "^3.10.0",
     "material-ui": "conundrumer/material-ui#build",
     "material-ui-mdi": "^0.1.1",
     "normalize.css": "~3.0.3",
@@ -31,6 +32,7 @@
     "react-inlinesvg": "conundrumer/react-inlinesvg#build",
     "react-stats": "0.0.5",
     "react-tap-event-plugin": "^0.1.7",
+    "redux": "^1.0.0-rc",
     "vector2d": "conundrumer/vec2d"
   },
   "devDependencies": {
