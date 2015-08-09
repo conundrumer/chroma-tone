@@ -146,7 +146,7 @@ var Editor = React.createClass({
 
     buttonGroups.bottomGroups.concat([buttonGroups.timeControl]).forEach(buttonGroup => {
       buttonGroup.forEach(button => {
-        button.upwardsTooltip = true;
+        button.tooltipPosition = 'top-center';
       });
     });
 
@@ -154,18 +154,21 @@ var Editor = React.createClass({
   },
 
   renderButtons(buttons) {
-    return buttons.map((button, i) =>
-      button.render ?
-        button.render(i) :
+    return buttons.map(({icon, tooltip, ...props}, i) =>
+      props.render ?
+        props.render(i) :
       this.state.debugButtons ?
-        <button key={i} style={{width: 48, height: 48, padding: 0}} {...button} /> :
-        <IconButton {...button}
+        <button key={i} style={{width: 48, height: 48, padding: 0}} {...props} /> :
+        <IconButton {...props}
           key={i}
-          style={button.style || this.getStyles().defaultIcon}
+          style={props.style || this.getStyles().defaultIcon}
           combokeys={this.state.combokeys}
-          showTooltip={this.state.helpEnabled}
-          selected={button.selected || this.state.cursor && this.state.cursor === button.hotkey}
-        />
+          tooltip={this.state.helpEnabled ? tooltip : null}
+          selected={props.selected || this.state.cursor && this.state.cursor === props.hotkey}
+          disabled={!props.onTouchTap}
+        >
+          {icon}
+        </IconButton>
     );
   },
 
