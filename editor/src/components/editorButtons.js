@@ -2,6 +2,8 @@
 /*eslint comma-spacing: 0*/
 'use strict';
 
+var _ = require('lodash');
+
 module.exports = function(editor) {
   var setCursor = (hotkey) => () => editor.setCursor(hotkey);
   var buttons = {
@@ -39,6 +41,10 @@ module.exports = function(editor) {
     settings:          { onTouchTap: null                     , hotkey: null          , selectGroup: ''         , icon: require('icons/settings')             },
     help:              { onTouchTap: editor.toggleHelp        , hotkey: 'h'           , selectGroup: 'help'     , icon: require('icons/help-circle')          }
   };
+
+  _.forEach(buttons, (props, key) => {
+    props.tooltip = _.startCase(key) + (props.hotkey ? ` (${props.hotkey || 'no hotkey assigned'})` : '');
+  });
 
   return buttons;
 
