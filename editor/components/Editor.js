@@ -9,9 +9,7 @@ var ThemeManager = new mui.Styles.ThemeManager();
 
 var {Paper, Styles: { Colors: { blue500, red500, lightGreen500 }}} = mui;
 var IconButton = require('./IconButton');
-var editorButtons = require('./editorButtons');
-
-//var Actions = require('actions/xxx')
+var { getButtons, getButtonGroups } = require('../buttons');
 
 require('../styles/Editor.less');
 
@@ -66,10 +64,7 @@ var Editor = React.createClass({
   },
 
   getButtonGroups() {
-    let {
-      buttons: b,
-      buttonGroups: bs
-    } = editorButtons();
+    let b = getButtons();
 
     var styles = this.getStyles();
 
@@ -78,6 +73,8 @@ var Editor = React.createClass({
     };
 
     b.help.selected = this.props.helpEnabled;
+
+    let bs = getButtonGroups(b);
 
     let addStyle = style => button => {
       button = _.clone(button);

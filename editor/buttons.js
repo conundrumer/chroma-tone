@@ -2,13 +2,14 @@
 /*eslint comma-spacing: 0*/
 'use strict';
 
-var _ = require('lodash');
+import _ from 'lodash';
 
-var Icons = require('./SvgIcons');
-var { showToolbars, hideToolbars, toggleTimeControl, toggleHelp, setCursor } = require('../actions');
+import { showToolbars, hideToolbars, toggleTimeControl, toggleHelp, setCursor } from './actions';
+import Icons from './components/SvgIcons';
 
-function getButtons() {
-  var buttons = {
+
+export function getButtons() {
+  return _.forEach({
     select:            { action: setCursor('1')      , hotkey: '1'           , icon: require('icons/cursor-default') },
     pencil:            { action: setCursor('2')      , hotkey: '2'           , icon: require('icons/pencil')         },
     brush:             { action: setCursor('3')      , hotkey: '3'           , icon: require('icons/brush')          },
@@ -42,20 +43,14 @@ function getButtons() {
     chat:              { action: null                , hotkey: null          , icon: require('icons/message')        },
     settings:          { action: null                , hotkey: null          , icon: require('icons/settings')       },
     help:              { action: toggleHelp()        , hotkey: 'h'           , icon: require('icons/help-circle')    }
-  };
-
-  _.forEach(buttons, (props, key) => {
+  }, (props, key) => {
+    props.name = key;
     props.tooltip = _.startCase(key) + (props.hotkey ? ` (${props.hotkey || 'no hotkey assigned'})` : '');
   });
-
-  return buttons;
-
 }
 
-function getButtonGroups() {
-  let b = getButtons();
-
-  let buttonGroups = {
+export function getButtonGroups(b) {
+  return {
     float: {
       left: [
         b.undo
@@ -99,11 +94,4 @@ function getButtonGroups() {
       ]
     }
   };
-
-  return {
-    buttons: b,
-    buttonGroups
-  };
 }
-
-module.exports = getButtonGroups;
