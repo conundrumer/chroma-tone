@@ -4,7 +4,7 @@
 
 import _ from 'lodash';
 
-import { showToolbars, hideToolbars, toggleTimeControl, toggleHelp, setTool } from './actions';
+import { showToolbars, hideToolbars, toggleTimeControl, toggleButton, setTool } from './actions';
 import Icons from './components/SvgIcons';
 
 
@@ -42,7 +42,7 @@ export function getButtons() {
     toggleTimeControl: { action: toggleTimeControl() , hotkey: null          , icon: require('icons/chevron-down')   },
     chat:              { action: null                , hotkey: null          , icon: require('icons/message')        },
     settings:          { action: null                , hotkey: null          , icon: require('icons/settings')       },
-    help:              { action: toggleHelp()        , hotkey: 'h'           , icon: require('icons/help-circle')    }
+    help:              { action: toggleButton        , hotkey: 'h'           , icon: require('icons/help-circle')    }
   }, (props, key) => {
     props.name = key;
     props.tooltip = _.startCase(key) + (props.hotkey ? ` (${props.hotkey || 'no hotkey assigned'})` : '');

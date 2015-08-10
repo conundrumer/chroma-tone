@@ -5,7 +5,7 @@ import {
   SHOW_TOOLBARS,
   HIDE_TOOLBARS,
   TOGGLE_TIME_CONTROL,
-  TOGGLE_HELP,
+  TOGGLE_BUTTON,
   SET_TOOL
 } from './actions';
 
@@ -23,7 +23,7 @@ export function windowSize(state = {width: 1, height: 1}, action) {
 const initToolbars = {
   toolbarsVisible: false,
   timeControlVisible: false,
-  helpEnabled: false,
+  toggled: Object.create(null),
   tool: null
 };
 export function toolbars(state = initToolbars, action) {
@@ -40,9 +40,11 @@ export function toolbars(state = initToolbars, action) {
       return {...state,
         timeControlVisible: !state.timeControlVisible
       };
-    case TOGGLE_HELP:
+    case TOGGLE_BUTTON:
       return {...state,
-        helpEnabled: !state.helpEnabled
+        toggled: {...state.toggled,
+          [action.name]: !state.toggled[action.name]
+        }
       };
     case SET_TOOL:
       return {...state,

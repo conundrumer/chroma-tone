@@ -72,8 +72,6 @@ var Editor = React.createClass({
       transform: `rotate(${this.props.timeControlVisible ? 0 : 180}deg)`
     };
 
-    b.help.selected = this.props.helpEnabled;
-
     let bs = getButtonGroups(b);
 
     let addStyle = style => button => {
@@ -112,8 +110,8 @@ var Editor = React.createClass({
         onTouchTap={ action ? () => this.props.dispatch(action) : null}
         style={style || this.getStyles().defaultIcon}
         combokeys={this.state.combokeys}
-        tooltip={this.props.helpEnabled ? tooltip : null}
-        selected={props.selected || this.props.tool && this.props.tool === name}
+        tooltip={this.props.selected.help ? tooltip : null}
+        selected={this.props.selected[name]}
         disabled={!action}
       >
         {icon}

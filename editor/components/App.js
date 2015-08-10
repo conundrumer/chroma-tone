@@ -52,8 +52,15 @@ var App = React.createClass({
   }
 });
 
-function select(state) {
-  return state;
+function select({toolbars: {toggled, tool, ...toolbars}, ...state}) {
+  return {...state,
+    toolbars: {...toolbars,
+      selected: {
+        ...toggled,
+        [tool]: true
+      }
+    }
+  };
 }
 
 module.exports = connect(select)(App);

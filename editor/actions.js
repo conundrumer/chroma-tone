@@ -8,7 +8,7 @@ export const RESIZE = 'RESIZE';
 export const SHOW_TOOLBARS = 'SHOW_TOOLBARS';
 export const HIDE_TOOLBARS = 'HIDE_TOOLBARS';
 export const TOGGLE_TIME_CONTROL = 'TOGGLE_TIME_CONTROL';
-export const TOGGLE_HELP = 'TOGGLE_HELP';
+export const TOGGLE_BUTTON = 'TOGGLE_BUTTON';
 export const SET_TOOL = 'SET_TOOL';
 
 
@@ -40,9 +40,10 @@ export function toggleTimeControl() {
     type: TOGGLE_TIME_CONTROL
   };
 }
-export function toggleHelp() {
+export function toggleButton(name) {
   return {
-    type: TOGGLE_HELP
+    type: TOGGLE_BUTTON,
+    name: name
   };
 }
 export function setTool(tool) {
