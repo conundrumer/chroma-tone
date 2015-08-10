@@ -5,6 +5,7 @@ var Grid = require('./Grid');
 var GridV62 = require('./GridV62');
 var getCellHash = require('./getCellHash');
 
+// TODO: use composition instead of inheritance
 class GridStore extends LineStore {
   constructor() {
     super();
