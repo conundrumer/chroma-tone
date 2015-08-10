@@ -3,48 +3,45 @@
 'use strict';
 
 var _ = require('lodash');
-var { bindActionCreators } = require('redux');
 
 var Icons = require('./SvgIcons');
 var { showToolbars, hideToolbars, toggleTimeControl, toggleHelp, setCursor } = require('../actions');
 
-function getButtons(dispatch) {
-  var actions = bindActionCreators({ showToolbars, hideToolbars, toggleTimeControl, toggleHelp }, dispatch);
-  var makeSetCursor = (hotkey) => () => dispatch(setCursor(hotkey));
+function getButtons() {
   var buttons = {
-    select:            { onTouchTap: makeSetCursor('1')        , hotkey: '1'           , selectGroup: 'cursor'   , icon: require('icons/cursor-default')       },
-    pencil:            { onTouchTap: makeSetCursor('2')        , hotkey: '2'           , selectGroup: 'cursor'   , icon: require('icons/pencil')               },
-    brush:             { onTouchTap: makeSetCursor('3')        , hotkey: '3'           , selectGroup: 'cursor'   , icon: require('icons/brush')                },
-    line:              { onTouchTap: makeSetCursor('4')        , hotkey: '4'           , selectGroup: 'cursor'   , icon: Icons.Line                            },
-    curve:             { onTouchTap: makeSetCursor('5')        , hotkey: '5'           , selectGroup: 'cursor'   , icon: Icons.Curve                           },
-    multiLine:         { onTouchTap: makeSetCursor('6')        , hotkey: '6'           , selectGroup: 'cursor'   , icon: Icons.MultiLine                       },
-    eraser:            { onTouchTap: makeSetCursor('7')        , hotkey: '7'           , selectGroup: 'cursor'   , icon: require('icons/eraser')               },
-    save:              { onTouchTap: null                      , hotkey: null          , selectGroup: ''         , icon: require('icons/content-save')         },
-    undo:              { onTouchTap: null                      , hotkey: 'mod+z'       , selectGroup: null       , icon: require('icons/undo-variant')         },
-    redo:              { onTouchTap: null                      , hotkey: 'mod+shift+z' , selectGroup: null       , icon: require('icons/redo-variant')         },
-    pan:               { onTouchTap: null                      , hotkey: null          , selectGroup: 'cursor'   , icon: require('icons/cursor-move')          },
-    zoom:              { onTouchTap: null                      , hotkey: null          , selectGroup: 'cursor'   , icon: require('icons/magnify')              },
-    viewfinder:        { onTouchTap: null                      , hotkey: null          , selectGroup: ''         , icon: Icons.Viewfinder                      },
-    layers:            { onTouchTap: null                      , hotkey: null          , selectGroup: ''         , icon: require('icons/layers')               },
-    play:              { onTouchTap: null                      , hotkey: null          , selectGroup: 'playback' , icon: require('icons/play')                 },
-    pause:             { onTouchTap: null                      , hotkey: null          , selectGroup: 'playback' , icon: require('icons/pause')                },
-    stop:              { onTouchTap: null                      , hotkey: null          , selectGroup: 'playback' , icon: require('icons/stop')                 },
-    rewind:            { onTouchTap: null                      , hotkey: null          , selectGroup: null       , icon: require('icons/rewind')               },
-    fastFoward:        { onTouchTap: null                      , hotkey: null          , selectGroup: null       , icon: require('icons/fast-forward')         },
-    stepBack:          { onTouchTap: null                      , hotkey: null          , selectGroup: null       , icon: require('icons/skip-previous')        },
-    stepForward:       { onTouchTap: null                      , hotkey: null          , selectGroup: null       , icon: require('icons/skip-next')            },
-    flag:              { onTouchTap: null                      , hotkey: null          , selectGroup: ''         , icon: require('icons/flag-variant')         },
-    slowmo:            { onTouchTap: null                      , hotkey: null          , selectGroup: ''         , icon: Icons.SlowMotion                      },
-    onionSkin:         { onTouchTap: null                      , hotkey: null          , selectGroup: ''         , icon: Icons.OnionSkin                       },
-    camera:            { onTouchTap: null                      , hotkey: null          , selectGroup: ''         , icon: require('icons/video')                },
-    music:             { onTouchTap: null                      , hotkey: null          , selectGroup: ''         , icon: require('icons/music-note')           },
-    record:            { onTouchTap: null                      , hotkey: null          , selectGroup: ''         , icon: require('icons/movie')                },
-    showToolbars:      { onTouchTap: actions.showToolbars      , hotkey: null          , selectGroup: null       , icon: require('icons/chevron-down')         },
-    hideToolbars:      { onTouchTap: actions.hideToolbars      , hotkey: null          , selectGroup: null       , icon: require('icons/chevron-up')           },
-    toggleTimeControl: { onTouchTap: actions.toggleTimeControl , hotkey: null          , selectGroup: null       , icon: require('icons/chevron-down')         },
-    chat:              { onTouchTap: null                      , hotkey: null          , selectGroup: ''         , icon: require('icons/message')              },
-    settings:          { onTouchTap: null                      , hotkey: null          , selectGroup: ''         , icon: require('icons/settings')             },
-    help:              { onTouchTap: actions.toggleHelp        , hotkey: 'h'           , selectGroup: 'help'     , icon: require('icons/help-circle')          }
+    select:            { action: setCursor('1')      , hotkey: '1'           , icon: require('icons/cursor-default') },
+    pencil:            { action: setCursor('2')      , hotkey: '2'           , icon: require('icons/pencil')         },
+    brush:             { action: setCursor('3')      , hotkey: '3'           , icon: require('icons/brush')          },
+    line:              { action: setCursor('4')      , hotkey: '4'           , icon: Icons.Line                      },
+    curve:             { action: setCursor('5')      , hotkey: '5'           , icon: Icons.Curve                     },
+    multiLine:         { action: setCursor('6')      , hotkey: '6'           , icon: Icons.MultiLine                 },
+    eraser:            { action: setCursor('7')      , hotkey: '7'           , icon: require('icons/eraser')         },
+    save:              { action: null                , hotkey: null          , icon: require('icons/content-save')   },
+    undo:              { action: null                , hotkey: 'mod+z'       , icon: require('icons/undo-variant')   },
+    redo:              { action: null                , hotkey: 'mod+shift+z' , icon: require('icons/redo-variant')   },
+    pan:               { action: null                , hotkey: null          , icon: require('icons/cursor-move')    },
+    zoom:              { action: null                , hotkey: null          , icon: require('icons/magnify')        },
+    viewfinder:        { action: null                , hotkey: null          , icon: Icons.Viewfinder                },
+    layers:            { action: null                , hotkey: null          , icon: require('icons/layers')         },
+    play:              { action: null                , hotkey: null          , icon: require('icons/play')           },
+    pause:             { action: null                , hotkey: null          , icon: require('icons/pause')          },
+    stop:              { action: null                , hotkey: null          , icon: require('icons/stop')           },
+    rewind:            { action: null                , hotkey: null          , icon: require('icons/rewind')         },
+    fastFoward:        { action: null                , hotkey: null          , icon: require('icons/fast-forward')   },
+    stepBack:          { action: null                , hotkey: null          , icon: require('icons/skip-previous')  },
+    stepForward:       { action: null                , hotkey: null          , icon: require('icons/skip-next')      },
+    flag:              { action: null                , hotkey: null          , icon: require('icons/flag-variant')   },
+    slowmo:            { action: null                , hotkey: null          , icon: Icons.SlowMotion                },
+    onionSkin:         { action: null                , hotkey: null          , icon: Icons.OnionSkin                 },
+    camera:            { action: null                , hotkey: null          , icon: require('icons/video')          },
+    music:             { action: null                , hotkey: null          , icon: require('icons/music-note')     },
+    record:            { action: null                , hotkey: null          , icon: require('icons/movie')          },
+    showToolbars:      { action: showToolbars()      , hotkey: null          , icon: require('icons/chevron-down')   },
+    hideToolbars:      { action: hideToolbars()      , hotkey: null          , icon: require('icons/chevron-up')     },
+    toggleTimeControl: { action: toggleTimeControl() , hotkey: null          , icon: require('icons/chevron-down')   },
+    chat:              { action: null                , hotkey: null          , icon: require('icons/message')        },
+    settings:          { action: null                , hotkey: null          , icon: require('icons/settings')       },
+    help:              { action: toggleHelp()        , hotkey: 'h'           , icon: require('icons/help-circle')    }
   };
 
   _.forEach(buttons, (props, key) => {
@@ -55,8 +52,8 @@ function getButtons(dispatch) {
 
 }
 
-function getButtonGroups(dispatch) {
-  let b = getButtons(dispatch);
+function getButtonGroups() {
+  let b = getButtons();
 
   let buttonGroups = {
     float: {

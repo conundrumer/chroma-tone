@@ -69,7 +69,7 @@ var Editor = React.createClass({
     let {
       buttons: b,
       buttonGroups: bs
-    } = editorButtons(this.props.dispatch);
+    } = editorButtons();
 
     var styles = this.getStyles();
 
@@ -100,7 +100,7 @@ var Editor = React.createClass({
     return bs;
   },
 
-  renderButton({icon, tooltip, ...props}, i) {
+  renderButton({icon, tooltip, action, style, ...props}, i) {
     if (props.render) {
       return props.render(i);
     }
@@ -112,11 +112,12 @@ var Editor = React.createClass({
     return (
       <IconButton {...props}
         key={i}
-        style={props.style || this.getStyles().defaultIcon}
+        onTouchTap={ action ? () => this.props.dispatch(action) : null}
+        style={style || this.getStyles().defaultIcon}
         combokeys={this.state.combokeys}
         tooltip={this.props.helpEnabled ? tooltip : null}
         selected={props.selected || this.props.cursor && this.props.cursor === props.hotkey}
-        disabled={!props.onTouchTap}
+        disabled={!action}
       >
         {icon}
       </IconButton>
