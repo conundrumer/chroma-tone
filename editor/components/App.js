@@ -30,38 +30,16 @@ function randomLines() {
 var DEBUG = false;
 var randomTrack = new Track(randomLines(), {x: 0, y: 0}, DEBUG);
 
-function getWindowDimensions() {
-  return {
-    width: window.innerWidth || 1, // sometimes it's zero????
-    height: window.innerHeight || 1 // sometimes it's zero????
-  };
-}
+var { connect } = require('react-redux');
 
 var App = React.createClass({
-
-  getInitialState() {
-    let initState = getWindowDimensions();
-    return initState;
-  },
-
-  componentDidMount() {
-    this.time = null;
-    window.addEventListener('resize', this.onResize);
-    this.onResize(true);
-  },
-
-  onResize(force) {
-    if (window.innerWidth === 0) {
-      console.log('innerWidth is zero, getting it again')
-      setTimeout(() => this.onResize(force), 0);
-      return;
-    }
-    if (this.state.width !== window.innerWidth || force) {
-      this.setState(getWindowDimensions());
-    }
-  },
-
   render() {
+    let {
+      windowSize: {
+        width,
+        height
+      }
+    } = this.props;
     return (
       <div className='main'>
         <Display
@@ -70,14 +48,59 @@ var App = React.createClass({
           rider={randomTrack.getRiderStateAtFrame(0)}
           cam={{x: 0, y: 0, z: 1}}
           lines={randomTrack.lines}
-          width={this.state.width}
-          height={this.state.height}
+          width={width}
+          height={height}
         />
         <Editor />
       </div>
     );
   }
 });
-React.render(<App />, document.getElementById('content'));
+
+function select(state) {
+  return state;
+}
+
+App = connect(select)(App);
+
+// action types
+const RESIZE = 'RESIZE';
+
+// reducers
+function windowSize(state = {width: 1, height: 1}, action) {
+  switch (action.type) {
+    case RESIZE:
+      return action.windowSize;
+    default:
+      return state;
+  }
+}
+
+// actions
+function setWindowSize({ width, height }) {
+  return {
+    type: RESIZE,
+    windowSize: { width, height }
+  };
+}
+
+// main
+var { createStore, combineReducers } = require('redux');
+var { Provider } = require('react-redux');
+
+let editorApp = combineReducers({ windowSize });
+let store = createStore(editorApp);
+
+var browser = require('browser-size')();
+browser.on('resize', () => {
+  store.dispatch(setWindowSize(browser));
+});
+
+let rootElement = document.getElementById('content')
+React.render(
+  <Provider store={store}>
+    {() => <App />}
+  </Provider>,
+  rootElement);
 
 module.exports = App;
