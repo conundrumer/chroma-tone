@@ -49,7 +49,8 @@ var App = React.createClass({
       zoom: 1,
       skipFrames: false,
       framesSkipped: 0,
-      width: window.innerWidth || 1 // sometimes it's zero????
+      width: window.innerWidth || 1, // sometimes it's zero????
+      height: window.innerHeight || 1 // sometimes it's zero????
     };
   },
 
@@ -67,7 +68,8 @@ var App = React.createClass({
     }
     if (this.state.width !== window.innerWidth || force) {
       this.setState({
-        width: window.innerWidth || 1
+        width: window.innerWidth || 1,
+        height: window.innerHeight || 1
       });
       this.setInitCamera();
     }
@@ -110,7 +112,7 @@ var App = React.createClass({
     this.setState({
       initPanx: cx,
       initPany: cy,
-      initZoom: w / this.state.width
+      initZoom: w / Math.min(this.state.width, this.state.height)
     });
   },
 
@@ -213,9 +215,10 @@ var App = React.createClass({
   },
 
   getHeight() {
-    let [x1, y1, x2, y2] = this.state.boundingBox;
-    let [w, h] = [x2 - x1, y2 - y1];
-    return Math.round(h / w * this.state.width);
+    // let [x1, y1, x2, y2] = this.state.boundingBox;
+    // let [w, h] = [x2 - x1, y2 - y1];
+    // return Math.round(h / w * this.state.width);
+    return this.state.height;
   },
 
   getViewBox() {
