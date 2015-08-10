@@ -5,6 +5,7 @@
 var _ = require('lodash');
 var { bindActionCreators } = require('redux');
 
+var Icons = require('./SvgIcons');
 var { showToolbars, hideToolbars, toggleTimeControl, toggleHelp, setCursor } = require('../actions');
 
 function getButtons(dispatch) {
@@ -14,16 +15,16 @@ function getButtons(dispatch) {
     select:            { onTouchTap: makeSetCursor('1')        , hotkey: '1'           , selectGroup: 'cursor'   , icon: require('icons/cursor-default')       },
     pencil:            { onTouchTap: makeSetCursor('2')        , hotkey: '2'           , selectGroup: 'cursor'   , icon: require('icons/pencil')               },
     brush:             { onTouchTap: makeSetCursor('3')        , hotkey: '3'           , selectGroup: 'cursor'   , icon: require('icons/brush')                },
-    line:              { onTouchTap: makeSetCursor('4')        , hotkey: '4'           , selectGroup: 'cursor'   , icon: require('./SvgIcons').Line            },
-    curve:             { onTouchTap: makeSetCursor('5')        , hotkey: '5'           , selectGroup: 'cursor'   , icon: require('./SvgIcons').Curve           },
-    multiLine:         { onTouchTap: makeSetCursor('6')        , hotkey: '6'           , selectGroup: 'cursor'   , icon: require('./SvgIcons').MultiLine       },
+    line:              { onTouchTap: makeSetCursor('4')        , hotkey: '4'           , selectGroup: 'cursor'   , icon: Icons.Line                            },
+    curve:             { onTouchTap: makeSetCursor('5')        , hotkey: '5'           , selectGroup: 'cursor'   , icon: Icons.Curve                           },
+    multiLine:         { onTouchTap: makeSetCursor('6')        , hotkey: '6'           , selectGroup: 'cursor'   , icon: Icons.MultiLine                       },
     eraser:            { onTouchTap: makeSetCursor('7')        , hotkey: '7'           , selectGroup: 'cursor'   , icon: require('icons/eraser')               },
     save:              { onTouchTap: null                      , hotkey: null          , selectGroup: ''         , icon: require('icons/content-save')         },
     undo:              { onTouchTap: null                      , hotkey: 'mod+z'       , selectGroup: null       , icon: require('icons/undo-variant')         },
     redo:              { onTouchTap: null                      , hotkey: 'mod+shift+z' , selectGroup: null       , icon: require('icons/redo-variant')         },
     pan:               { onTouchTap: null                      , hotkey: null          , selectGroup: 'cursor'   , icon: require('icons/cursor-move')          },
     zoom:              { onTouchTap: null                      , hotkey: null          , selectGroup: 'cursor'   , icon: require('icons/magnify')              },
-    viewfinder:        { onTouchTap: null                      , hotkey: null          , selectGroup: ''         , icon: require('./SvgIcons').Viewfinder      },
+    viewfinder:        { onTouchTap: null                      , hotkey: null          , selectGroup: ''         , icon: Icons.Viewfinder                      },
     layers:            { onTouchTap: null                      , hotkey: null          , selectGroup: ''         , icon: require('icons/layers')               },
     play:              { onTouchTap: null                      , hotkey: null          , selectGroup: 'playback' , icon: require('icons/play')                 },
     pause:             { onTouchTap: null                      , hotkey: null          , selectGroup: 'playback' , icon: require('icons/pause')                },
@@ -33,8 +34,8 @@ function getButtons(dispatch) {
     stepBack:          { onTouchTap: null                      , hotkey: null          , selectGroup: null       , icon: require('icons/skip-previous')        },
     stepForward:       { onTouchTap: null                      , hotkey: null          , selectGroup: null       , icon: require('icons/skip-next')            },
     flag:              { onTouchTap: null                      , hotkey: null          , selectGroup: ''         , icon: require('icons/flag-variant')         },
-    slowmo:            { onTouchTap: null                      , hotkey: null          , selectGroup: ''         , icon: require('./SvgIcons').SlowMotion      },
-    onionSkin:         { onTouchTap: null                      , hotkey: null          , selectGroup: ''         , icon: require('./SvgIcons').OnionSkin       },
+    slowmo:            { onTouchTap: null                      , hotkey: null          , selectGroup: ''         , icon: Icons.SlowMotion                      },
+    onionSkin:         { onTouchTap: null                      , hotkey: null          , selectGroup: ''         , icon: Icons.OnionSkin                       },
     camera:            { onTouchTap: null                      , hotkey: null          , selectGroup: ''         , icon: require('icons/video')                },
     music:             { onTouchTap: null                      , hotkey: null          , selectGroup: ''         , icon: require('icons/music-note')           },
     record:            { onTouchTap: null                      , hotkey: null          , selectGroup: ''         , icon: require('icons/movie')                },
