@@ -15,10 +15,10 @@ var { createStore, combineReducers } = require('redux');
 var { Provider } = require('react-redux');
 
 var initWindowResizeHandler = require('./windowResize');
-var { windowSize } = require('./reducers');
+var reducers = require('./reducers');
 var App = require('./components/App');
 
-let editorApp = combineReducers({ windowSize });
+let editorApp = combineReducers(reducers);
 let store = createStore(editorApp);
 
 

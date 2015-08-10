@@ -28,10 +28,12 @@ var randomTrack = new Track(randomLines(), {x: 0, y: 0}, DEBUG);
 var App = React.createClass({
   render() {
     let {
+      dispatch,
       windowSize: {
         width,
         height
-      }
+      },
+      toolbars
     } = this.props;
     return (
       <div className='main'>
@@ -44,7 +46,7 @@ var App = React.createClass({
           width={width}
           height={height}
         />
-        <Editor />
+        <Editor dispatch={dispatch} {...toolbars}/>
       </div>
     );
   }

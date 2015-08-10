@@ -20,9 +20,6 @@ var Editor = React.createClass({
   getInitialState() {
     return {
       debugButtons: false,
-      toolbarsVisible: false,
-      timeControlVisible: false,
-      helpEnabled: false,
       combokeys: new Combokeys(document)
     };
   },
@@ -49,30 +46,6 @@ var Editor = React.createClass({
     this.state.combokeys.detach();
   },
 
-  showToolbars() {
-    this.setState({ toolbarsVisible: true });
-  },
-
-  hideToolbars() {
-    this.setState({ toolbarsVisible: false });
-  },
-
-  toggleTimeControl() {
-    this.setState({ timeControlVisible: !this.state.timeControlVisible });
-  },
-
-  toggleDebug() {
-    this.setState({debugButtons: !this.state.debugButtons});
-  },
-
-  toggleHelp() {
-    this.setState({ helpEnabled: !this.state.helpEnabled });
-  },
-
-  setCursor(hotkey) {
-    this.setState({cursor: hotkey});
-  },
-
   getStyles() {
     var styles = {
       floatCircle: { padding: '0px', width: 42, height: 42 },
@@ -92,38 +65,19 @@ var Editor = React.createClass({
     };
   },
 
-  getActions() {
-    let {
-      setCursor,
-      toggleDebug,
-      showToolbars,
-      hideToolbars,
-      toggleTimeControl,
-      toggleHelp
-    } = this;
-    return {
-      setCursor,
-      toggleDebug,
-      showToolbars,
-      hideToolbars,
-      toggleTimeControl,
-      toggleHelp
-    };
-  },
-
   getButtonGroups() {
     let {
       buttons: b,
       buttonGroups: bs
-    } = editorButtons(this.getActions());
+    } = editorButtons(this.props.dispatch);
 
     var styles = this.getStyles();
 
     b.toggleTimeControl.iconStyle = {
-      transform: `rotate(${this.state.timeControlVisible ? 0 : 180}deg)`
+      transform: `rotate(${this.props.timeControlVisible ? 0 : 180}deg)`
     };
 
-    b.help.selected = this.state.helpEnabled;
+    b.help.selected = this.props.helpEnabled;
 
     let addStyle = style => button => {
       button = _.clone(button);
@@ -160,8 +114,8 @@ var Editor = React.createClass({
         key={i}
         style={props.style || this.getStyles().defaultIcon}
         combokeys={this.state.combokeys}
-        tooltip={this.state.helpEnabled ? tooltip : null}
-        selected={props.selected || this.state.cursor && this.state.cursor === props.hotkey}
+        tooltip={this.props.helpEnabled ? tooltip : null}
+        selected={props.selected || this.props.cursor && this.props.cursor === props.hotkey}
         disabled={!props.onTouchTap}
       >
         {icon}
@@ -202,7 +156,7 @@ var Editor = React.createClass({
         {floatPapersProps.map((props, i) =>
           <CSSTransitionGroup key={i} transitionName='float-paper'>
             {
-              !this.state.toolbarsVisible ?
+              !this.props.toolbarsVisible ?
                 <FloatPaper {...props}>
                   {props.children}
                 </FloatPaper>
@@ -218,7 +172,7 @@ var Editor = React.createClass({
     return (
       <CSSTransitionGroup transitionName='top'>
         {
-          this.state.toolbarsVisible ?
+          this.props.toolbarsVisible ?
           <PaperBar className='top'>
             <Toolbar className='top'>
               {
@@ -235,12 +189,12 @@ var Editor = React.createClass({
   renderBottomBar(bottom, timeControl) {
     timeControl = _.flatten(['left', 'middle', 'right'].map(pos => timeControl[pos]));
 
-    var bottomPaperBarClass = this.state.timeControlVisible ? 'bottom-extended' : 'bottom';
+    var bottomPaperBarClass = this.props.timeControlVisible ? 'bottom-extended' : 'bottom';
 
     return (
       <CSSTransitionGroup transitionName={bottomPaperBarClass}>
         {
-          this.state.toolbarsVisible ?
+          this.props.toolbarsVisible ?
           <PaperBar className={bottomPaperBarClass}>
             <Toolbar>
               {
@@ -252,7 +206,7 @@ var Editor = React.createClass({
               transitionName='time-control-toolbar'
             >
               {
-                this.state.timeControlVisible ?
+                this.props.timeControlVisible ?
                 <div className='toolbar-group time-control'>
                   {
                     this.renderButtons(timeControl)

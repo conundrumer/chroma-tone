@@ -3,19 +3,23 @@
 'use strict';
 
 var _ = require('lodash');
+var { bindActionCreators } = require('redux');
 
-function getButtons(actions) {
-  var setCursor = (hotkey) => () => actions.setCursor(hotkey);
+var { showToolbars, hideToolbars, toggleTimeControl, toggleHelp, setCursor } = require('../actions');
+
+function getButtons(dispatch) {
+  var actions = bindActionCreators({ showToolbars, hideToolbars, toggleTimeControl, toggleHelp }, dispatch);
+  var makeSetCursor = (hotkey) => () => dispatch(setCursor(hotkey));
   var buttons = {
-    select:            { onTouchTap: setCursor('1')            , hotkey: '1'           , selectGroup: 'cursor'   , icon: require('icons/cursor-default')       },
-    pencil:            { onTouchTap: setCursor('2')            , hotkey: '2'           , selectGroup: 'cursor'   , icon: require('icons/pencil')               },
-    brush:             { onTouchTap: setCursor('3')            , hotkey: '3'           , selectGroup: 'cursor'   , icon: require('icons/brush')                },
-    line:              { onTouchTap: setCursor('4')            , hotkey: '4'           , selectGroup: 'cursor'   , icon: require('./SvgIcons').Line            },
-    curve:             { onTouchTap: setCursor('5')            , hotkey: '5'           , selectGroup: 'cursor'   , icon: require('./SvgIcons').Curve           },
-    multiLine:         { onTouchTap: setCursor('6')            , hotkey: '6'           , selectGroup: 'cursor'   , icon: require('./SvgIcons').MultiLine       },
-    eraser:            { onTouchTap: setCursor('7')            , hotkey: '7'           , selectGroup: 'cursor'   , icon: require('icons/eraser')               },
+    select:            { onTouchTap: makeSetCursor('1')        , hotkey: '1'           , selectGroup: 'cursor'   , icon: require('icons/cursor-default')       },
+    pencil:            { onTouchTap: makeSetCursor('2')        , hotkey: '2'           , selectGroup: 'cursor'   , icon: require('icons/pencil')               },
+    brush:             { onTouchTap: makeSetCursor('3')        , hotkey: '3'           , selectGroup: 'cursor'   , icon: require('icons/brush')                },
+    line:              { onTouchTap: makeSetCursor('4')        , hotkey: '4'           , selectGroup: 'cursor'   , icon: require('./SvgIcons').Line            },
+    curve:             { onTouchTap: makeSetCursor('5')        , hotkey: '5'           , selectGroup: 'cursor'   , icon: require('./SvgIcons').Curve           },
+    multiLine:         { onTouchTap: makeSetCursor('6')        , hotkey: '6'           , selectGroup: 'cursor'   , icon: require('./SvgIcons').MultiLine       },
+    eraser:            { onTouchTap: makeSetCursor('7')        , hotkey: '7'           , selectGroup: 'cursor'   , icon: require('icons/eraser')               },
     save:              { onTouchTap: null                      , hotkey: null          , selectGroup: ''         , icon: require('icons/content-save')         },
-    undo:              { onTouchTap: actions.toggleDebug       , hotkey: 'mod+z'       , selectGroup: null       , icon: require('icons/undo-variant')         },
+    undo:              { onTouchTap: null                      , hotkey: 'mod+z'       , selectGroup: null       , icon: require('icons/undo-variant')         },
     redo:              { onTouchTap: null                      , hotkey: 'mod+shift+z' , selectGroup: null       , icon: require('icons/redo-variant')         },
     pan:               { onTouchTap: null                      , hotkey: null          , selectGroup: 'cursor'   , icon: require('icons/cursor-move')          },
     zoom:              { onTouchTap: null                      , hotkey: null          , selectGroup: 'cursor'   , icon: require('icons/magnify')              },
@@ -48,10 +52,10 @@ function getButtons(actions) {
 
   return buttons;
 
-};
+}
 
-function getButtonGroups(actions) {
-  let b = getButtons(actions);
+function getButtonGroups(dispatch) {
+  let b = getButtons(dispatch);
 
   let buttonGroups = {
     float: {
