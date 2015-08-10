@@ -3,7 +3,7 @@
 var _ = require('lodash');
 var React = require('react/addons');
 var Combokeys = require('combokeys');
-var CSSTransitionGroup = React.addons.CSSTransitionGroup;
+var CSSTransitionGroup = React.addons.CSSTransitionGroup; // TODO: don't use this
 var mui = require('material-ui');
 var ThemeManager = new mui.Styles.ThemeManager();
 
