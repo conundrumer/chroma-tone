@@ -4,24 +4,24 @@
 
 import _ from 'lodash';
 
-import { showToolbars, hideToolbars, toggleTimeControl, toggleHelp, setCursor } from './actions';
+import { showToolbars, hideToolbars, toggleTimeControl, toggleHelp, setTool } from './actions';
 import Icons from './components/SvgIcons';
 
 
 export function getButtons() {
   return _.forEach({
-    select:            { action: setCursor('1')      , hotkey: '1'           , icon: require('icons/cursor-default') },
-    pencil:            { action: setCursor('2')      , hotkey: '2'           , icon: require('icons/pencil')         },
-    brush:             { action: setCursor('3')      , hotkey: '3'           , icon: require('icons/brush')          },
-    line:              { action: setCursor('4')      , hotkey: '4'           , icon: Icons.Line                      },
-    curve:             { action: setCursor('5')      , hotkey: '5'           , icon: Icons.Curve                     },
-    multiLine:         { action: setCursor('6')      , hotkey: '6'           , icon: Icons.MultiLine                 },
-    eraser:            { action: setCursor('7')      , hotkey: '7'           , icon: require('icons/eraser')         },
+    select:            { action: null                , hotkey: '1'           , icon: require('icons/cursor-default') },
+    pencil:            { action: null                , hotkey: '2'           , icon: require('icons/pencil')         },
+    brush:             { action: null                , hotkey: '3'           , icon: require('icons/brush')          },
+    line:              { action: null                , hotkey: '4'           , icon: Icons.Line                      },
+    curve:             { action: null                , hotkey: '5'           , icon: Icons.Curve                     },
+    multiLine:         { action: null                , hotkey: '6'           , icon: Icons.MultiLine                 },
+    eraser:            { action: null                , hotkey: '7'           , icon: require('icons/eraser')         },
     save:              { action: null                , hotkey: null          , icon: require('icons/content-save')   },
     undo:              { action: null                , hotkey: 'mod+z'       , icon: require('icons/undo-variant')   },
     redo:              { action: null                , hotkey: 'mod+shift+z' , icon: require('icons/redo-variant')   },
-    pan:               { action: null                , hotkey: null          , icon: require('icons/cursor-move')    },
-    zoom:              { action: null                , hotkey: null          , icon: require('icons/magnify')        },
+    pan:               { action: setTool             , hotkey: null          , icon: require('icons/cursor-move')    },
+    zoom:              { action: setTool             , hotkey: null          , icon: require('icons/magnify')        },
     viewfinder:        { action: null                , hotkey: null          , icon: Icons.Viewfinder                },
     layers:            { action: null                , hotkey: null          , icon: require('icons/layers')         },
     play:              { action: null                , hotkey: null          , icon: require('icons/play')           },
@@ -46,6 +46,9 @@ export function getButtons() {
   }, (props, key) => {
     props.name = key;
     props.tooltip = _.startCase(key) + (props.hotkey ? ` (${props.hotkey || 'no hotkey assigned'})` : '');
+    if (props.action instanceof Function) {
+      props.action = props.action(key);
+    }
   });
 }
 
