@@ -13,6 +13,14 @@ var { getButtons, getButtonGroups } = require('../buttons');
 
 require('../styles/Editor.less');
 
+function setTheme() {
+  let palette = ThemeManager.getCurrentTheme().palette;
+  palette.primary1Color = blue500;
+  palette.primary2Color = red500;
+  palette.primary3Color = lightGreen500;
+  ThemeManager.setPalette(palette);
+}
+
 var Editor = React.createClass({
 
   getInitialState() {
@@ -33,11 +41,7 @@ var Editor = React.createClass({
   },
 
   componentWillMount() {
-    let palette = ThemeManager.getCurrentTheme().palette;
-    palette.primary1Color = blue500;
-    palette.primary2Color = red500;
-    palette.primary3Color = lightGreen500;
-    ThemeManager.setPalette(palette);
+    setTheme();
   },
 
   componentWillUnmount() {
@@ -236,10 +240,19 @@ var Editor = React.createClass({
   }
 });
 
+function stopPropagation(e) {
+  e.preventDefault();
+  e.stopPropagation();
+}
+
 var Toolbar = React.createClass({
   render() {
     return (
-      <div className={'toolbar ' + (this.props.className || '')}>
+      <div
+        className={'toolbar ' + (this.props.className || '')}
+        onTouchStart={stopPropagation}
+        onMouseDown={stopPropagation}
+      >
         {this.props.children}
       </div>
     );
@@ -253,6 +266,8 @@ var PaperBar = React.createClass({
         className={'paper-bar ' + (this.props.className || '')}
         rounded={false}
         transitionEnabled={false}
+        onTouchStart={stopPropagation}
+        onMouseDown={stopPropagation}
       >
         {this.props.children}
       </Paper>
@@ -268,6 +283,8 @@ var FloatPaper = React.createClass({
         circle={this.props.circle}
         style={{boxShadow: 'null'}}
         transitionEnabled={false}
+        onTouchStart={stopPropagation}
+        onMouseDown={stopPropagation}
       >
         {this.props.children}
       </Paper>
