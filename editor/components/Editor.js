@@ -10,6 +10,7 @@ var ThemeManager = new mui.Styles.ThemeManager();
 var {Paper, Styles: { Colors: { blue500, red500, lightGreen500 }}} = mui;
 var IconButton = require('./IconButton');
 var { getButtons, getButtonGroups } = require('../buttons');
+var DrawingSurface = require('./DrawingSurface');
 
 require('../styles/Editor.less');
 
@@ -231,11 +232,11 @@ var Editor = React.createClass({
     } = this.getButtonGroups();
 
     return (
-      <div className='LR-Editor'>
+      <DrawingSurface className='LR-Editor'>
         { this.renderFloatBar(float) }
         { this.renderTopBar(top) }
         { this.renderBottomBar(bottom, timeControl) }
-      </div>
+      </DrawingSurface>
     );
   }
 });

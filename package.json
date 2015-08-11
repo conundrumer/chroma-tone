@@ -35,6 +35,7 @@
     "react-stats": "0.0.5",
     "react-tap-event-plugin": "^0.1.7",
     "redux": "^1.0.0-rc",
+    "rx": "^3.0.0",
     "vector2d": "conundrumer/vec2d"
   },
   "devDependencies": {
