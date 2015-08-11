@@ -11,18 +11,15 @@ require('assets/css/fonts.css');
 require('./styles/main.less');
 
 var React = require('react');
-var { createStore, combineReducers } = require('redux');
+var { createStore, applyMiddleware, combineReducers } = require('redux');
 var { Provider } = require('react-redux');
+var thunk = require('redux-thunk');
 
-var initWindowResizeHandler = require('./windowResize');
 var reducers = require('./reducers');
 var App = require('./components/App');
 
-let editorApp = combineReducers(reducers);
-let store = createStore(editorApp);
-
-
-initWindowResizeHandler(store.dispatch);
+const reducer = combineReducers(reducers);
+const store = applyMiddleware(thunk)(createStore)(reducer);
 
 let rootElement = document.getElementById('content');
 React.render(

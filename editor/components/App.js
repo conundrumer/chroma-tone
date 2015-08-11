@@ -6,6 +6,7 @@ var { connect } = require('react-redux');
 var { Display } = require('renderer');
 var { Track } = require('core');
 
+var { setWindowSize } = require('../actions');
 var Editor = require('./Editor');
 
 var makeRandomLine = require('../../test/makeRandomLine');
@@ -26,6 +27,31 @@ var randomTrack = new Track(randomLines(), {x: 0, y: 0}, DEBUG);
 
 
 var App = React.createClass({
+
+  componentDidMount() {
+    this.interval = setInterval(this.onResize, 100);
+  },
+
+  componentWillUnmount() {
+    clearInterval(this.interval);
+  },
+
+  onResize() {
+    let {
+      width: prevWidth,
+      height: prevHeight
+    } = this.props.windowSize;
+    // let {width, height} = this.container.getBoundingClientRect();
+    let {
+      innerWidth: width,
+      innerHeight: height
+    } = window;
+
+    if (width > 0 && height > 0 && width !== prevWidth || height !== prevHeight) {
+      this.props.dispatch(setWindowSize({width, height}));
+    }
+  },
+
   render() {
     let {
       dispatch,
@@ -36,7 +62,7 @@ var App = React.createClass({
       toolbars
     } = this.props;
     return (
-      <div className='main'>
+      <div className='main' ref={component => this.container = React.findDOMNode(component)}>
         <Display
           startPosition={randomTrack.startPosition}
           viewOptions={{ color: true, floor: true }}
