@@ -2,7 +2,7 @@
 
 var i = 0;
 
-var Vector = require('../core').Vector;
+var Vector = require('../core/Vector');
 
 var rand = (k) => k ? Math.random() * rand(k-1) : Math.random();
 

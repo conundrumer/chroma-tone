@@ -1,7 +1,7 @@
 'use strict';
 import React from 'react';
 import Rx from 'rx';
-import { Vector } from 'core';
+import Vector from 'core/Vector';
 
 import { draw } from '../actions';
 import DrawCancelledException from '../DrawCancelledException';
