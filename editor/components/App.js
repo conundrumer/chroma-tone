@@ -8,7 +8,6 @@ var { Track } = require('core');
 
 var { setWindowSize } = require('../actions');
 var Editor = require('./Editor');
-var ContextMenuBlocker = require('./ContextMenuBlocker');
 
 var makeRandomLine = require('../../test/makeRandomLine');
 
@@ -64,7 +63,11 @@ var App = React.createClass({
       toolbars
     } = this.props;
     return (
-      <div className='main' ref={component => this.container = React.findDOMNode(component)}>
+      <div
+        className='main'
+        ref={component => this.container = React.findDOMNode(component)}
+        onContextMenu={e => BLOCK_CONTEXT_MENU ? e.preventDefault() : null}
+      >
         <Display
           startPosition={randomTrack.startPosition}
           viewOptions={{ color: true, floor: true }}
@@ -75,7 +78,6 @@ var App = React.createClass({
           height={height}
         />
         <Editor dispatch={dispatch} {...toolbars}/>
-        <ContextMenuBlocker block={BLOCK_CONTEXT_MENU} />
       </div>
     );
   }
