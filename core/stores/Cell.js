@@ -1,6 +1,6 @@
 'use strict';
 
-var getCellHash = require('./getCellHash');
+var getCellHash = require('../hashNumberPair').hashIntPair;
 
 // cell containing unordered unique lines
 class Cell {

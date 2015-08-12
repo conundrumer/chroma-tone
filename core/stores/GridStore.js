@@ -3,7 +3,7 @@
 var LineStore = require('./LineStore');
 var Grid = require('./Grid');
 var GridV62 = require('./GridV62');
-var getCellHash = require('./getCellHash');
+var getCellHash = require('../hashNumberPair').hashIntPair;
 
 // TODO: use composition instead of inheritance
 class GridStore extends LineStore {

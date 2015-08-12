@@ -1,7 +1,7 @@
 'use strict';
 
 var _ = require('lodash');
-var getCellHash = require('./getCellHash');
+var getCellHash = require('../hashNumberPair').hashIntPair;
 var Cell = require('./Cell');
 var OrderedCell = require('./OrderedCell');
 
