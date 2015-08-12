@@ -13,7 +13,10 @@ import {
 export function windowSize(state = {width: 1, height: 1}, action) {
   switch (action.type) {
     case RESIZE:
-      return action.windowSize;
+      return {
+        width: action.windowSize.width,
+        height: action.windowSize.height
+      };
     default:
       return state;
   }
