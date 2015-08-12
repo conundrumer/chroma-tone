@@ -11,7 +11,6 @@ export const TOGGLE_TIME_CONTROL = 'TOGGLE_TIME_CONTROL';
 export const TOGGLE_BUTTON = 'TOGGLE_BUTTON';
 export const SET_TOOL = 'SET_TOOL';
 
-
 /**
  * action creators
  */
@@ -50,5 +49,44 @@ export function setTool(tool) {
   return {
     type: SET_TOOL,
     tool: tool
+  };
+}
+
+// drawing
+
+function debugTool(stream, dispatch, getState) {
+  stream.first().subscribe(pos => {
+    console.log('start', pos.x, pos.y);
+  });
+  return {
+    stream: stream.skip(1),
+    onNext: () => console.log('move'),
+    onCancel: () => console.log('cancel'),
+    onEnd: () => console.log('end')
+  };
+}
+
+var tools = { debugTool };
+
+import DrawCancelledException from './DrawCancelledException';
+export function draw(drawStream) {
+  return (dispatch, getState) => {
+
+    var currentTool = 'debugTool';
+
+    let {
+      stream,
+      onNext,
+      onCancel = () => {},
+      onEnd
+    } = tools[currentTool](drawStream, dispatch, getState);
+
+    stream.subscribe(onNext, (err) => {
+      if (err instanceof DrawCancelledException) {
+        onCancel();
+      } else {
+        throw err;
+      }
+    }, onEnd);
   };
 }

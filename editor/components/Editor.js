@@ -232,7 +232,7 @@ var Editor = React.createClass({
     } = this.getButtonGroups();
 
     return (
-      <DrawingSurface className='LR-Editor'>
+      <DrawingSurface className='LR-Editor' dispatch={this.props.dispatch}>
         { this.renderFloatBar(float) }
         { this.renderTopBar(top) }
         { this.renderBottomBar(bottom, timeControl) }
