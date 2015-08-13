@@ -7,6 +7,7 @@ import _ from 'lodash';
 import { showToolbars, hideToolbars, toggleTimeControl, toggleButton, setTool } from './actions';
 import Icons from './components/SvgIcons';
 
+let debugThunk = (name) => () => console.log(name);
 
 export function getButtons(dispatch) {
   return _.forEach({
@@ -18,8 +19,8 @@ export function getButtons(dispatch) {
     multiLine:         { action: null                , hotkey: '6'           , icon: Icons.MultiLine                 },
     eraser:            { action: null                , hotkey: '7'           , icon: require('icons/eraser')         },
     save:              { action: null                , hotkey: null          , icon: require('icons/content-save')   },
-    undo:              { action: null                , hotkey: 'mod+z'       , icon: require('icons/undo-variant')   },
-    redo:              { action: null                , hotkey: 'mod+shift+z' , icon: require('icons/redo-variant')   },
+    undo:              { action: debugThunk          , hotkey: 'mod+z'       , icon: require('icons/undo-variant')   },
+    redo:              { action: debugThunk          , hotkey: 'mod+shift+z' , icon: require('icons/redo-variant')   },
     pan:               { action: setTool             , hotkey: null          , icon: require('icons/cursor-move')    },
     zoom:              { action: setTool             , hotkey: null          , icon: require('icons/magnify')        },
     viewfinder:        { action: null                , hotkey: null          , icon: Icons.Viewfinder                },
@@ -49,7 +50,7 @@ export function getButtons(dispatch) {
     if (props.action instanceof Function) {
       props.action = props.action(key);
     }
-    if (props.action) {
+    if (props.action && dispatch) {
       props.boundAction = () => dispatch(props.action);
     }
   });

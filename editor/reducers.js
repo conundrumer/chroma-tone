@@ -1,11 +1,14 @@
 'use strict';
 
+import _ from 'lodash';
+
 import {
   SHOW_TOOLBARS,
   HIDE_TOOLBARS,
   TOGGLE_TIME_CONTROL,
   TOGGLE_BUTTON,
   SET_TOOL,
+  SET_HOTKEY,
   PAN,
   RESIZE
 } from './actions';
@@ -53,6 +56,17 @@ export function toolbars(state = initToolbars, action) {
     case SET_TOOL:
       return {...state,
         tool: action.tool
+      };
+    default:
+      return state;
+  }
+}
+
+export function hotkeys(state = Object.create(null), action) {
+  switch (action.type) {
+    case SET_HOTKEY:
+      return {...state,
+        [action.name]: action.hotkey
       };
     default:
       return state;

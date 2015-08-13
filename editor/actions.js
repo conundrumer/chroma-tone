@@ -10,6 +10,7 @@ export const HIDE_TOOLBARS = 'HIDE_TOOLBARS';
 export const TOGGLE_TIME_CONTROL = 'TOGGLE_TIME_CONTROL';
 export const TOGGLE_BUTTON = 'TOGGLE_BUTTON';
 export const SET_TOOL = 'SET_TOOL';
+export const SET_HOTKEY = 'SET_HOTKEY';
 export const PAN = 'PAN';
 
 /**
@@ -51,6 +52,67 @@ export function setTool(tool) {
     type: SET_TOOL,
     tool: tool
   };
+}
+
+import { getButtons } from './buttons';
+const modifierRegex = /mod|alt/;
+export function setHotkey(combokeys, ripples, name, hotkey) {
+  return (dispatch, getState) => {
+    let oldHotkey = getState().hotkeys[name];
+    if (oldHotkey) {
+      combokeys.unbind(oldHotkey, 'keydown');
+      combokeys.unbind(oldHotkey, 'keypress');
+      combokeys.unbind(oldHotkey, 'keyup');
+    }
+
+    dispatch({
+      type: SET_HOTKEY,
+      name,
+      hotkey
+    });
+
+    if (!hotkey) {
+      return
+    }
+
+    let startRipple = () => {};
+    let endRipple = () => {};
+    if (name in ripples) {
+      startRipple = () => ripples[name].forEach( ({start}) => start() );
+      endRipple = () => ripples[name].forEach( ({end}) => end() );
+    }
+
+    let hotkeyActions = getButtons(dispatch);
+    let boundAction = () => {};
+    if (name in hotkeyActions && hotkeyActions[name].boundAction) {
+      boundAction = hotkeyActions[name].boundAction;
+    }
+
+    if (modifierRegex.test(hotkey)) {
+      combokeys.bind(hotkey, (e) => {
+        e.preventDefault();
+        boundAction();
+        startRipple();
+        requestAnimationFrame(() =>
+          requestAnimationFrame(endRipple)
+        );
+      }, 'keydown');
+    } else {
+      var rippled = false;
+      combokeys.bind(hotkey, (e) => {
+        if (!rippled) {
+          startRipple();
+          rippled = true;
+        }
+      }, 'keydown');
+      combokeys.bind(hotkey, (e) => {
+        boundAction();
+        endRipple();
+        rippled = false;
+      }, 'keyup');
+    }
+
+  }
 }
 
 // drawing

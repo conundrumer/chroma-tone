@@ -2,12 +2,16 @@
 
 var React = require('react');
 var { connect } = require('react-redux');
+var Combokeys = require('combokeys');
+var _ = require('lodash');
 
 var { Display } = require('renderer');
 var { Track } = require('core');
 
-var { setWindowSize } = require('../actions');
+var { setWindowSize, setHotkey } = require('../actions');
 var Editor = require('./Editor');
+var { getButtons } = require('../buttons');
+
 
 var makeRandomLine = require('../../test/makeRandomLine');
 
@@ -27,14 +31,39 @@ var randomTrack = new Track(randomLines(), {x: 0, y: 0}, DEBUG);
 
 var BLOCK_CONTEXT_MENU = true;
 
+function setDefaultHotkeys(dispatch, combokeys, ripples) {
+  _.forEach(getButtons(), ({hotkey}, name) => {
+    dispatch(setHotkey(combokeys, ripples, name, hotkey));
+  });
+}
+
 var App = React.createClass({
+
+  componentWillMount() {
+    this.ripples = Object.create(null);
+  },
+
+  setRipple(name, start, end) {
+    let ripple = this.ripples[name];
+    if (!ripple) {
+      ripple = [];
+    }
+    ripple.push({start, end})
+
+    this.ripples[name] = ripple;
+  },
 
   componentDidMount() {
     this.interval = setInterval(this.onResize, 100);
+
+    this.combokeys = new Combokeys(document);
+    setDefaultHotkeys(this.props.dispatch, this.combokeys, this.ripples);
   },
 
   componentWillUnmount() {
     clearInterval(this.interval);
+
+    this.combokeys.detach();
   },
 
   onResize() {
@@ -78,7 +107,7 @@ var App = React.createClass({
           width={width}
           height={height}
         />
-        <Editor dispatch={dispatch} {...toolbars}/>
+        <Editor dispatch={dispatch} {...toolbars} setRipple={this.setRipple}/>
       </div>
     );
   }

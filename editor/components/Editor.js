@@ -2,7 +2,6 @@
 
 var _ = require('lodash');
 var React = require('react');
-var Combokeys = require('combokeys');
 var mui = require('material-ui');
 var classNames = require('classnames');
 var ThemeManager = new mui.Styles.ThemeManager();
@@ -27,7 +26,6 @@ const STYLES = {
   smallIcon: { padding: '6px', width: 36, height: 36, margin: '3px' }
 };
 
-var GLOBAL_COMBOKEYS = new Combokeys(document); // i need to think about this
 
 var Editor = React.createClass({
 
@@ -50,7 +48,7 @@ var Editor = React.createClass({
   // },
 
   componentWillUnmount() {
-    GLOBAL_COMBOKEYS.detach();
+    // GLOBAL_COMBOKEYS.detach();
   },
 
   getTimeline() {
@@ -87,7 +85,9 @@ var Editor = React.createClass({
         _.forEach(buttonGroup, button => {
           button.tooltip = this.props.selected.help ? button.tooltip : null;
           button.selected = this.props.selected[button.name];
-          // button.pressed = this.props.pressed[button.name];
+          button.setRipple = (startRipple, endRipple) => {
+            this.props.setRipple(button.name, startRipple, endRipple)
+          };
         });
       });
     });
@@ -141,26 +141,20 @@ const DEFAULT_ICON_STYLE = { padding: '9px', width: 42, height: 42, margin: '3px
 var Button = React.createClass({
   render() {
     let {
-      // name,
-      selected,
       icon,
-      tooltip,
       boundAction,
       style,
-      hotkey,
       render,
-      transform,
-      tooltipPosition
+      ...props
     } = this.props.buttonProps;
 
     if (render) {
       return render();
     }
     return (
-      <IconButton {...{tooltip, tooltipPosition, selected, hotkey, transform}}
+      <IconButton {...props}
         onTouchTap={boundAction}
         style={style || DEFAULT_ICON_STYLE}
-        combokeys={GLOBAL_COMBOKEYS}
         disabled={this.props.groupDisabled || !boundAction}
       >
         { icon }
