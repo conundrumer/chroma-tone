@@ -235,7 +235,7 @@ var FloatBar = React.createClass({
   render() {
     let closed = this.props.closed;
     return (
-      <div className='float-container'>
+      <div className='float-container' style={{pointerEvents: 'none'}}>
         {this.props.children.left.map( (child, i) =>
           <FloatPaper key={i} className={classNames({closed: closed})} circle={true}>
             { child }
@@ -302,8 +302,6 @@ var Toolbar = React.createClass({
     return (
       <div
         className={'toolbar ' + (this.props.className || '')}
-        onTouchStart={blockEvent}
-        onMouseDown={blockEvent}
       >
         {this.props.children}
       </div>
@@ -333,7 +331,7 @@ var FloatPaper = React.createClass({
       <Paper
         className={classNames('float-paper', this.props.className)}
         circle={this.props.circle}
-        style={{boxShadow: 'null'}}
+        style={{boxShadow: 'null', pointerEvents: 'auto'}}
         transitionEnabled={false}
         onTouchStart={blockEvent}
         onMouseDown={blockEvent}
