@@ -78,6 +78,10 @@ function makeStreamOfDrawStreams(container, unmountStream) {
 
 export default class DrawingSurface extends React.Component {
 
+  shouldComponentUpdate() {
+    return false;
+  }
+
   componentDidMount() {
     let unmountStream = Rx.Observable.create( observer => {
       this.unmountObserver = observer;
