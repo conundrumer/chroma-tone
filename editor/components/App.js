@@ -60,7 +60,8 @@ var App = React.createClass({
         width,
         height
       },
-      toolbars
+      toolbars,
+      cam
     } = this.props;
     return (
       <div
@@ -72,7 +73,7 @@ var App = React.createClass({
           startPosition={randomTrack.startPosition}
           viewOptions={{ color: true, floor: true }}
           rider={randomTrack.getRiderStateAtFrame(0)}
-          cam={{x: 0, y: 0, z: 1}}
+          cam={cam}
           lines={randomTrack.lines}
           width={width}
           height={height}
@@ -83,14 +84,15 @@ var App = React.createClass({
   }
 });
 
-function select({toolbars: {toggled, tool, ...toolbars}, ...state}) {
+function select({toolbars: {toggled, tool, ...toolbars}, editorCamera, ...state}) {
   return {...state,
     toolbars: {...toolbars,
       selected: {
         ...toggled,
         [tool]: true
       }
-    }
+    },
+    cam: editorCamera
   };
 }
 

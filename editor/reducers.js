@@ -1,12 +1,13 @@
 'use strict';
 
 import {
-  RESIZE,
   SHOW_TOOLBARS,
   HIDE_TOOLBARS,
   TOGGLE_TIME_CONTROL,
   TOGGLE_BUTTON,
-  SET_TOOL
+  SET_TOOL,
+  PAN,
+  RESIZE
 } from './actions';
 
 // display dimensions
@@ -52,6 +53,19 @@ export function toolbars(state = initToolbars, action) {
     case SET_TOOL:
       return {...state,
         tool: action.tool
+      };
+    default:
+      return state;
+  }
+}
+
+export function editorCamera(state = { x: 0, y: 0, z: 1}, action) {
+  switch (action.type) {
+    case PAN:
+      return {
+        x: action.pos.x,
+        y: action.pos.y,
+        z: state.z
       };
     default:
       return state;

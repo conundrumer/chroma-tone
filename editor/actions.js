@@ -10,6 +10,7 @@ export const HIDE_TOOLBARS = 'HIDE_TOOLBARS';
 export const TOGGLE_TIME_CONTROL = 'TOGGLE_TIME_CONTROL';
 export const TOGGLE_BUTTON = 'TOGGLE_BUTTON';
 export const SET_TOOL = 'SET_TOOL';
+export const PAN = 'PAN';
 
 /**
  * action creators
@@ -53,6 +54,12 @@ export function setTool(tool) {
 }
 
 // drawing
+export function panTo(trackPos) {
+  return {
+    type: PAN,
+    pos: trackPos
+  };
+}
 
 function debugTool(stream, dispatch, getState) {
   stream.first().subscribe(pos => {
@@ -66,24 +73,42 @@ function debugTool(stream, dispatch, getState) {
   };
 }
 
-var tools = { debugTool };
+function pan(stream, dispatch, getState) {
+  var firstPos;
+  stream.first().subscribe( pos => {
+    firstPos = pos;
+  });
+  var { x, y, z } = getState().editorCamera;
+  return {
+    stream: stream.map((pos) =>
+      firstPos.clone().subtract(pos).mulS(z).add({x, y})
+    ),
+    onNext: (trackPos) => dispatch(panTo(trackPos)),
+    onCancel: () => dispatch(panTo({x, y}))
+  };
+
+}
+
+var tools = { 'null': debugTool, pan };
 
 import DrawCancelledException from './DrawCancelledException';
 export function draw(drawStream) {
   return (dispatch, getState) => {
 
-    var currentTool = 'debugTool';
+    let { tool: currentTool } = getState().toolbars;
 
     let {
       stream,
       onNext,
-      onCancel = () => {},
+      onCancel,
       onEnd
     } = tools[currentTool](drawStream, dispatch, getState);
 
     stream.subscribe(onNext, (err) => {
       if (err instanceof DrawCancelledException) {
-        onCancel();
+        if (onCancel) {
+          onCancel();
+        }
       } else {
         throw err;
       }
