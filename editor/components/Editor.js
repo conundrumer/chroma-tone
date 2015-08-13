@@ -34,6 +34,7 @@ const STYLES = {
   smallIcon: { padding: '6px', width: 36, height: 36, margin: '3px' }
 };
 
+const DEFAULT_ICON_STYLE = { padding: '9px', width: 42, height: 42, margin: '3px' };
 
 var Editor = React.createClass({
 
@@ -89,7 +90,7 @@ var Editor = React.createClass({
 
   getTimeline() {
     return {
-      render: () => <Timeline />
+      render: (key) => <Timeline key={key} />
     };
   },
 
@@ -116,37 +117,20 @@ var Editor = React.createClass({
       });
     });
 
-    _.forEach(bs, buttonGroups => {
-      _.forEach(buttonGroups, buttonGroup => {
-        _.forEach(buttonGroup, button => {
-          button.tooltip = this.props.selected.help ? button.tooltip : null;
-          button.selected = this.props.selected[button.name];
-          button.setRipple = (startRipple, endRipple) => {
-            this.setRipple(button.name, startRipple, endRipple)
-          };
-        });
-      });
-    });
-
     bs.timeControl.middle = [this.getTimeline()];
 
     return bs;
   },
 
   isGroupDisabled(toolbar) {
-    let {
-      toolbarsVisible,
-      timeControlVisible
-    } = this.props;
-
     switch (toolbar) {
       case 'float':
-        return toolbarsVisible
+        return this.props.toolbarsVisible;
       case 'top':
       case 'bottom':
-        return !toolbarsVisible
+        return !this.props.toolbarsVisible;
       case 'timeControl':
-        return !toolbarsVisible || !timeControlVisible
+        return !this.props.toolbarsVisible || !this.props.timeControlVisible;
     }
   },
 
@@ -154,12 +138,19 @@ var Editor = React.createClass({
     let bs = this.getButtonGroups();
     return _.mapValues(bs, (buttonGroups, toolbar) =>
       _.mapValues(buttonGroups, (buttonGroup, position) =>
-        _.map(buttonGroup, (button, i) =>
-          <Button
+        _.map(buttonGroup, ({ name, tooltip, icon, boundAction, style, render, ...props }, i) =>
+          (render) ? render(toolbar + position + i) :
+          <IconButton {...props}
             key={toolbar + position + i}
-            buttonProps={button}
-            groupDisabled={this.isGroupDisabled(toolbar)}
-          />
+            onTouchTap={boundAction}
+            style={style || DEFAULT_ICON_STYLE}
+            disabled={this.isGroupDisabled(toolbar) || !boundAction}
+            tooltip={this.props.selected.help ? tooltip : null}
+            selected={this.props.selected[name]}
+            setRipple={(start, end) => this.setRipple(name, start, end)}
+          >
+            { icon }
+          </IconButton>
         )
       )
     );
@@ -207,33 +198,6 @@ var Timeline = React.createClass({
       <div className='timeline'>
         <input type='range' min={0} max={100} defaultValue={0} style={{width: '100%'}} />
       </div>
-    );
-  }
-})
-
-const DEFAULT_ICON_STYLE = { padding: '9px', width: 42, height: 42, margin: '3px' };
-
-var Button = React.createClass({
-  render() {
-    let {
-      icon,
-      boundAction,
-      style,
-      render,
-      ...props
-    } = this.props.buttonProps;
-
-    if (render) {
-      return render();
-    }
-    return (
-      <IconButton {...props}
-        onTouchTap={boundAction}
-        style={style || DEFAULT_ICON_STYLE}
-        disabled={this.props.groupDisabled || !boundAction}
-      >
-        { icon }
-      </IconButton>
     );
   }
 })
