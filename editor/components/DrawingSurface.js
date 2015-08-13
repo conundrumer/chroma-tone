@@ -7,12 +7,11 @@ import { draw } from '../actions';
 import DrawCancelledException from '../DrawCancelledException';
 
 // https://developer.mozilla.org/en-US/docs/Web/API/Touch_events#Copying_a_touch_object
-function copyEvent({identifier, pageX, pageY}) {
-  return { id: identifier, pageX, pageY };
+function copyEvent({identifier, buttons, pageX, pageY}) {
+  return { id: identifier, buttons, pageX, pageY };
 }
 function blockEvent(e) {
   e.preventDefault();
-  e.stopPropagation();
 }
 function makeStreamFromChangedTouches(e) {
   return Rx.Observable.from(e.changedTouches);
@@ -22,7 +21,6 @@ function makeExceptionStream() {
 }
 
 function makeStreamOfDrawStreams(container, unmountStream) {
-
   let makeStreamFromEvent = (eventType, node, doBlockEvent) => {
     let stream = Rx.Observable.fromEvent(node, eventType)
       .takeUntil(unmountStream);
@@ -55,6 +53,13 @@ function makeStreamOfDrawStreams(container, unmountStream) {
       .merge(makeStreamFromEvent(...mouseArgs))
       .map(copyEvent)
   );
+
+  // handle mouseup not firing
+  let mouseMoveEndStream;
+  [moveStream, mouseMoveEndStream] = moveStream.partition( e =>
+    e.id || e.buttons > 0
+  );
+  endStream = endStream.merge(mouseMoveEndStream);
 
   let makeDrawStreamFromStartEvent = (startEvent) => {
     let partOfStream = ({id}) => startEvent.id === id;
