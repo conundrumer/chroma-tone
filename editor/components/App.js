@@ -73,6 +73,7 @@ var App = React.createClass({
         onContextMenu={e => BLOCK_CONTEXT_MENU ? e.preventDefault() : null}
       >
         <Display
+          frame={0}
           startPosition={randomTrack.startPosition}
           viewOptions={{ color: true, floor: true }}
           rider={randomTrack.getRiderStateAtFrame(0)}

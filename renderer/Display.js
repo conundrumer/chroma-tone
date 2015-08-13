@@ -18,6 +18,7 @@ var PropTypes = React.PropTypes;
 var Display = React.createClass({
 
   propTypes: {
+    frame: PropTypes.number.isRequired,
     lines: PropTypes.array.isRequired,
     rider: PropTypes.object.isRequired,
     startPosition: PropTypes.shape({
@@ -66,7 +67,7 @@ var Display = React.createClass({
       <div ref='container' style={this.getStyle()} >
         <Lines {...this.props} {...viewOptions} lines={this.props.lines} viewBox={viewBox} width={this.props.width} height={this.props.height} />
         <svg style={{position: 'absolute'}} viewBox={viewBox}>
-          <Rider i={0} rider={this.props.rider} frameIndex={this.props.frame} seed={seed} />
+          <Rider i={0} rider={this.props.rider} frame={this.props.frame} seed={seed} />
         </svg>
       </div>
     );

@@ -317,6 +317,7 @@ var App = React.createClass({
         {
           this.state.track ?
             <Display
+              frame={this.state.frame}
               startPosition={this.state.track.startPosition}
               viewOptions={{color, floor, accArrow, snapDot}}
               rider={this.getRider()}
