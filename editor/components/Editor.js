@@ -67,9 +67,7 @@ var Editor = React.createClass({
   getButtonGroups() {
     let b = getButtons();
 
-    b.toggleTimeControl.iconStyle = {
-      transform: `rotate(${this.props.timeControlVisible ? 0 : 180}deg)`
-    };
+    b.toggleTimeControl.transform = `rotate(${this.props.timeControlVisible ? 0 : 180}deg)`;
 
     let bs = getButtonGroups(b);
 
@@ -95,7 +93,7 @@ var Editor = React.createClass({
   },
 
   renderButton(props, i) {
-    let {name, icon, tooltip, action, style, hotkey, render} = props;
+    let {name, icon, tooltip, action, style, hotkey, render, transform} = props;
     if (render) {
       return render(i);
     }
@@ -108,12 +106,13 @@ var Editor = React.createClass({
       <IconButton
         key={i}
         onTouchTap={ action ? () => this.props.dispatch(action) : null}
-        style={style || this.getStyles().defaultIcon}
+        style={style || STYLES.defaultIcon}
         combokeys={this.state.combokeys}
         tooltip={this.props.selected.help ? tooltip : null}
         selected={this.props.selected[name]}
         disabled={!action}
         hotkey={hotkey}
+        transform={transform}
       >
         {icon}
       </IconButton>

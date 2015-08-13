@@ -26,20 +26,23 @@ var IconButton = React.createClass({
       style,
       tooltip,
       selected,
-      disabled
+      disabled,
+      transform
     } = this.props;
 
     let {
       style: style_,
       tooltip: tooltip_,
       selected: selected_,
-      disabled: disabled_
+      disabled: disabled_,
+      transform: transform_
     } = nextProps;
 
     return style !== style_
       || tooltip !== tooltip_
       || selected !== selected_
-      || disabled !== disabled_;
+      || disabled !== disabled_
+      || transform !== transform_;
   },
 
   componentWillUpdate(nextProps, nextState) {
@@ -122,10 +125,17 @@ var IconButton = React.createClass({
   },
 
   render() {
-    var className = 'icon-button';
-
+    let iconStyle = null;
+    if (this.props.transform) {
+      iconStyle = { transform: this.props.transform };
+    }
     return (
-      <MuiIconButton {...this.props} className={className} ref='iconButton' onTouchTap={this.props.onTouchTap || () => {}}>
+      <MuiIconButton {...this.props}
+        className='icon-button'
+        ref='iconButton'
+        iconStyle={iconStyle}
+        onTouchTap={this.props.onTouchTap || () => {}}
+      >
         <this.props.children color={this.getColor()} disabled={this.props.disabled}/>
       </MuiIconButton>
     );
