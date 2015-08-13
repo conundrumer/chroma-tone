@@ -232,18 +232,18 @@ var Editor = React.createClass({
     } = this.getButtonGroups();
 
     return (
-      <DrawingSurface className='LR-Editor' dispatch={this.props.dispatch}>
+      <div className='LR-Editor' >
+        <DrawingSurface dispatch={this.props.dispatch} />
         { this.renderFloatBar(float) }
         { this.renderTopBar(top) }
         { this.renderBottomBar(bottom, timeControl) }
-      </DrawingSurface>
+      </div>
     );
   }
 });
 
-function stopPropagation(e) {
+function blockEvent(e) {
   e.preventDefault();
-  e.stopPropagation();
 }
 
 var Toolbar = React.createClass({
@@ -251,8 +251,8 @@ var Toolbar = React.createClass({
     return (
       <div
         className={'toolbar ' + (this.props.className || '')}
-        onTouchStart={stopPropagation}
-        onMouseDown={stopPropagation}
+        onTouchStart={blockEvent}
+        onMouseDown={blockEvent}
       >
         {this.props.children}
       </div>
@@ -267,8 +267,8 @@ var PaperBar = React.createClass({
         className={'paper-bar ' + (this.props.className || '')}
         rounded={false}
         transitionEnabled={false}
-        onTouchStart={stopPropagation}
-        onMouseDown={stopPropagation}
+        onTouchStart={blockEvent}
+        onMouseDown={blockEvent}
       >
         {this.props.children}
       </Paper>
@@ -284,8 +284,8 @@ var FloatPaper = React.createClass({
         circle={this.props.circle}
         style={{boxShadow: 'null'}}
         transitionEnabled={false}
-        onTouchStart={stopPropagation}
-        onMouseDown={stopPropagation}
+        onTouchStart={blockEvent}
+        onMouseDown={blockEvent}
       >
         {this.props.children}
       </Paper>

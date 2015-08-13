@@ -99,7 +99,7 @@ export default class DrawingSurface extends React.Component {
 
   render() {
     return (
-      <div className={this.props.className} ref={(component) => { this.container = React.findDOMNode(component); }}>
+      <div style={{ position: 'absolute', width: '100%', height: '100%'}} ref={(component) => { this.container = React.findDOMNode(component); }}>
         { this.props.children }
       </div>
     );
