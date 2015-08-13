@@ -133,13 +133,45 @@ var Editor = React.createClass({
     return bs;
   },
 
+  isGroupDisabled(toolbar) {
+    let {
+      toolbarsVisible,
+      timeControlVisible
+    } = this.props;
+
+    switch (toolbar) {
+      case 'float':
+        return toolbarsVisible
+      case 'top':
+      case 'bottom':
+        return !toolbarsVisible
+      case 'timeControl':
+        return !toolbarsVisible || !timeControlVisible
+    }
+  },
+
+  renderButtons() {
+    let bs = this.getButtonGroups();
+    return _.mapValues(bs, (buttonGroups, toolbar) =>
+      _.mapValues(buttonGroups, (buttonGroup, position) =>
+        _.map(buttonGroup, (button, i) =>
+          <Button
+            key={toolbar + position + i}
+            buttonProps={button}
+            groupDisabled={this.isGroupDisabled(toolbar)}
+          />
+        )
+      )
+    );
+  },
+
   render() {
     let {
       float,
       top,
       bottom,
       timeControl
-    } = this.getButtonGroups();
+    } = this.renderButtons();
 
     let {
       toolbarsVisible,
@@ -149,14 +181,21 @@ var Editor = React.createClass({
     return (
       <div className='LR-Editor' >
         <DrawingSurface dispatch={this.props.dispatch} />
-        <FloatBar buttonGroups={float} closed={toolbarsVisible} />
-        <TopBar buttonGroups={top} closed={!toolbarsVisible} />
+        <FloatBar closed={toolbarsVisible}>
+          { float }
+        </FloatBar>
+        <TopBar closed={!toolbarsVisible}>
+          { top }
+        </TopBar>
         <BottomBar
           buttonGroups={bottom}
           closed={!toolbarsVisible}
           timeControlGroup={timeControl}
           timeControlClosed={!timeControlVisible}
-        />
+        >
+          { bottom }
+          { timeControl }
+        </BottomBar>
       </div>
     );
   }
@@ -199,19 +238,13 @@ var Button = React.createClass({
   }
 })
 
-function renderButtons(buttons, groupDisabled) {
-  return buttons.map((buttonProps, i) =>
-    <Button key={i} buttonProps={buttonProps} groupDisabled={groupDisabled} />
-  );
-}
-
 var ButtonGroups = React.createClass({
   render() {
     return (
       <Toolbar className={this.props.className}>
         {['left', 'middle', 'right'].map( position =>
           <div key={position} className='toolbar-group'>
-            { renderButtons(this.props.buttonGroups[position], this.props.disabled) }
+            { this.props.children[position] }
           </div>
         )}
       </Toolbar>
@@ -220,33 +253,25 @@ var ButtonGroups = React.createClass({
 })
 
 var FloatBar = React.createClass({
+
   render() {
     let closed = this.props.closed;
-
-    let makeFloatCircle = (buttonProps, i) => ({
-      className: classNames({closed: closed}),
-      circle: true,
-      key: i,
-      children: <Button buttonProps={buttonProps} groupDisabled={closed} />
-    });
-
-    let floatPapersProps = this.props.buttonGroups.left.map(makeFloatCircle)
-    .concat([{
-      className: classNames('float-paper-bar', {closed: closed}),
-      children:
-        <Toolbar className='float-toolbar'>
-          { renderButtons(this.props.buttonGroups.middle, closed) }
-        </Toolbar>
-    }]).concat(this.props.buttonGroups.right.map(makeFloatCircle));
-
     return (
       <div className='float-container'>
-        {floatPapersProps.map(({children, ...props}, i) =>
-          <div key={i}>
-            <FloatPaper {...props}>
-              { children }
-            </FloatPaper>
-          </div>
+        {this.props.children.left.map( (child, i) =>
+          <FloatPaper key={i} className={classNames({closed: closed})} circle={true}>
+            { child }
+          </FloatPaper>
+        )}
+        <FloatPaper className={classNames('float-paper-bar', {closed: closed})}>
+          <Toolbar className='float-toolbar'>
+            { this.props.children.middle }
+          </Toolbar>
+        </FloatPaper>
+        {this.props.children.right.map( (child, i) =>
+          <FloatPaper key={-i-1} className={classNames({closed: closed})} circle={true}>
+            { child }
+          </FloatPaper>
         )}
       </div>
     );
@@ -254,22 +279,22 @@ var FloatBar = React.createClass({
 })
 
 var TopBar = React.createClass({
+
   render() {
     let closed = this.props.closed;
     return (
       <PaperBar className={classNames('top', {closed: closed})}>
-        <ButtonGroups className='top' buttonGroups={this.props.buttonGroups} disabled={closed} />
+        <ButtonGroups className='top'>
+          { this.props.children }
+        </ButtonGroups>
       </PaperBar>
     );
   }
 })
 
 var BottomBar = React.createClass({
-  render() {
-    let timeControlButtons = _.flatten(['left', 'middle', 'right'].map(pos =>
-      this.props.timeControlGroup[pos]
-    ));
 
+  render() {
     let closed = this.props.closed;
     let timeControlClosed = this.props.timeControlClosed;
 
@@ -277,10 +302,12 @@ var BottomBar = React.createClass({
 
     return (
       <PaperBar className={classNames(bottomPaperBarClass, {closed: closed})}>
-        <ButtonGroups buttonGroups={this.props.buttonGroups} disabled={closed} />
+        <ButtonGroups>
+          { this.props.children[0] }
+        </ButtonGroups>
         <div className={classNames('toolbar', 'time-control-toolbar', {closed: timeControlClosed})}>
           <div className='toolbar-group time-control'>
-            { renderButtons(timeControlButtons, timeControlClosed) }
+            { _.flatten(_.values(this.props.children[1])) }
           </div>
         </div>
       </PaperBar>
