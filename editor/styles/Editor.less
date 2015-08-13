@@ -1,5 +1,4 @@
 @import 'var.less';
-@import 'react-transition.less';
 
 @small-icon-height: 42px;
 @icon-width: 48px;
@@ -18,7 +17,12 @@
   position: relative;
 
   .float-paper {
-    .react-transition(box-shadow, @z-depth-shadow-0, @z-depth-shadow-1, ease-in, ease-out);
+    transition: ease-in @transition-time;
+    box-shadow: @z-depth-shadow-1;
+    &.closed {
+      transition: ease-out @transition-time;
+      box-shadow: @z-depth-shadow-0;
+    }
   }
 
   .float-paper-bar {
@@ -35,20 +39,36 @@
 
     &.top {
       top: 0;
-      .react-transition(transform, translateY(-1 * @retracted-paper-bar-height), translateY(0));
+      transition: ease-out @transition-time;
+      transform: translateY(0);
+      &.closed {
+        transition: ease-in @transition-time;
+        transform: translateY(-1 * @retracted-paper-bar-height);
+      }
     }
 
     &.bottom {
-      transition: @transition-time ease-out;
       bottom: 0;
       height: 2 * @toolbar-height;
-      .react-transition(transform, translateY(@extended-paper-bar-height), translateY(@toolbar-height));
+
+      transition: ease-out @transition-time;
+      transform: translateY(@toolbar-height);
+      &.closed {
+        transition: ease-in @transition-time;
+        transform: translateY(@extended-paper-bar-height);
+      }
 
     }
 
     &.bottom-extended {
       .bottom;
-      .react-transition(transform, translateY(@extended-paper-bar-height), translateY(0));
+
+      transition: ease-out @transition-time;
+      transform: translateY(0);
+      &.closed {
+        transition: ease-in @transition-time;
+        transform: translateY(@extended-paper-bar-height);
+      }
     }
   }
 
@@ -59,7 +79,6 @@
     position: absolute;
     width: 100%;
     height: @toolbar-height;
-    .react-transition(opacity, 0.99, 1);
   }
 
   .toolbar {
@@ -85,7 +104,6 @@
   }
 
   .time-control-toolbar {
-    .react-transition(opacity, 0.99, 1);
   }
 
   .toolbar-group {

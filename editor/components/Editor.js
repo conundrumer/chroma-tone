@@ -1,10 +1,10 @@
 'use strict';
 
 var _ = require('lodash');
-var React = require('react/addons');
+var React = require('react');
 var Combokeys = require('combokeys');
-var CSSTransitionGroup = React.addons.CSSTransitionGroup; // TODO: don't use this
 var mui = require('material-ui');
+var classNames = require('classnames');
 var ThemeManager = new mui.Styles.ThemeManager();
 
 var {Paper, Styles: { Colors: { blue500, red500, lightGreen500 }}} = mui;
@@ -92,7 +92,7 @@ var Editor = React.createClass({
     return bs;
   },
 
-  renderButton(props, i) {
+  renderButton(props, i, disabled = false) {
     let {name, icon, tooltip, action, style, hotkey, render, transform} = props;
     if (render) {
       return render(i);
@@ -110,111 +110,89 @@ var Editor = React.createClass({
         combokeys={this.state.combokeys}
         tooltip={this.props.selected.help ? tooltip : null}
         selected={this.props.selected[name]}
-        disabled={!action}
+        disabled={disabled || !action}
         hotkey={hotkey}
         transform={transform}
       >
-        {icon}
+        { icon }
       </IconButton>
     );
   },
 
-  renderButtons(buttons) {
-    return buttons.map(this.renderButton);
+  renderButtons(buttons, disabled) {
+    return buttons.map((button, i) => this.renderButton(button, i, disabled));
   },
 
-  renderButtonGroups(groups) {
+  renderButtonGroups(groups, disabled) {
     return ['left', 'middle', 'right'].map( position =>
       <div key={position} className='toolbar-group'>
-        { this.renderButtons(groups[position]) }
+        { this.renderButtons(groups[position], disabled) }
       </div>
     );
   },
 
   renderFloatBar(float) {
-    let makeFloatCircle = (button, i) => (
-      { circle: true, key: i, children: this.renderButton(button) }
-    );
+    let closed = this.props.toolbarsVisible;
+
+    let makeFloatCircle = (button, i) => ({
+      className: classNames({closed: closed}),
+      circle: true,
+      key: i,
+      children: this.renderButton(button, closed)
+    });
 
     let floatPapersProps = float.left.map(makeFloatCircle)
     .concat([{
-      className: 'float-paper-bar',
+      className: classNames('float-paper-bar', {closed: closed}),
       children:
         <Toolbar className='float-toolbar'>
-          {
-            this.renderButtons(float.middle)
-          }
+          { this.renderButtons(float.middle, closed) }
         </Toolbar>
     }]).concat(float.right.map(makeFloatCircle));
 
     return (
       <div className='float-container'>
         {floatPapersProps.map((props, i) =>
-          <CSSTransitionGroup key={i} transitionName='float-paper'>
-            {
-              !this.props.toolbarsVisible ?
-                <FloatPaper {...props}>
-                  {props.children}
-                </FloatPaper>
-              : null
-            }
-          </CSSTransitionGroup>
+          <div key={i}>
+            <FloatPaper {...props}>
+              { props.children }
+            </FloatPaper>
+          </div>
         )}
       </div>
     );
   },
 
   renderTopBar(top) {
+    let closed = !this.props.toolbarsVisible;
     return (
-      <CSSTransitionGroup transitionName='top'>
-        {
-          this.props.toolbarsVisible ?
-          <PaperBar className='top'>
-            <Toolbar className='top'>
-              {
-                this.renderButtonGroups(top)
-              }
-            </Toolbar>
-          </PaperBar>
-          : null
-        }
-      </CSSTransitionGroup>
+      <PaperBar className={classNames('top', {closed: closed})}>
+        <Toolbar className='top'>
+          { this.renderButtonGroups(top, closed) }
+        </Toolbar>
+      </PaperBar>
     );
   },
 
   renderBottomBar(bottom, timeControl) {
     timeControl = _.flatten(['left', 'middle', 'right'].map(pos => timeControl[pos]));
 
-    var bottomPaperBarClass = this.props.timeControlVisible ? 'bottom-extended' : 'bottom';
+    let closed = !this.props.toolbarsVisible;
+    let timeControlClosed = !this.props.timeControlVisible;
+
+    let bottomPaperBarClass = !timeControlClosed ? 'bottom-extended' : 'bottom';
 
     return (
-      <CSSTransitionGroup transitionName={bottomPaperBarClass}>
-        {
-          this.props.toolbarsVisible ?
-          <PaperBar className={bottomPaperBarClass}>
-            <Toolbar>
-              {
-                this.renderButtonGroups(bottom)
-              }
-            </Toolbar>
-            <CSSTransitionGroup
-              className='toolbar time-control-toolbar'
-              transitionName='time-control-toolbar'
-            >
-              {
-                this.props.timeControlVisible ?
-                <div className='toolbar-group time-control'>
-                  {
-                    this.renderButtons(timeControl)
-                  }
-                </div>
-                : null
-              }
-            </CSSTransitionGroup>
-          </PaperBar>
-          : null
-        }
-      </CSSTransitionGroup>
+      <PaperBar className={classNames(bottomPaperBarClass, {closed: closed})}>
+        <Toolbar>
+          { this.renderButtonGroups(bottom, closed) }
+        </Toolbar>
+        <div className={classNames('toolbar', 'time-control-toolbar', {closed: timeControlClosed})}>
+          <div className='toolbar-group time-control'>
+            { this.renderButtons(timeControl, timeControlClosed) }
+          </div>
+        </div>
+      </PaperBar>
     );
   },
 
@@ -275,7 +253,7 @@ var FloatPaper = React.createClass({
   render() {
     return (
       <Paper
-        className={'float-paper ' + (this.props.className || '')}
+        className={classNames('float-paper', this.props.className)}
         circle={this.props.circle}
         style={{boxShadow: 'null'}}
         transitionEnabled={false}
