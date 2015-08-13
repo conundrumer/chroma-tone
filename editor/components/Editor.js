@@ -4,12 +4,14 @@ var _ = require('lodash');
 var React = require('react');
 var mui = require('material-ui');
 var classNames = require('classnames');
+var Combokeys = require('combokeys');
 var ThemeManager = new mui.Styles.ThemeManager();
 
 var {Paper, Styles: { Colors: { blue500, red500, lightGreen500 }}} = mui;
 var IconButton = require('./IconButton');
 var { getButtons, getButtonGroups } = require('../buttons');
 var DrawingSurface = require('./DrawingSurface');
+var { setHotkey } = require('../actions');
 
 require('../styles/Editor.less');
 
@@ -19,6 +21,12 @@ function setTheme() {
   palette.primary2Color = red500;
   palette.primary3Color = lightGreen500;
   ThemeManager.setPalette(palette);
+}
+
+function setDefaultHotkeys(dispatch, combokeys, ripples) {
+  _.forEach(getButtons(), ({hotkey}, name) => {
+    dispatch(setHotkey(combokeys, ripples, name, hotkey));
+  });
 }
 
 const STYLES = {
@@ -41,6 +49,34 @@ var Editor = React.createClass({
 
   componentWillMount() {
     setTheme();
+    this.ripples = Object.create(null);
+  },
+
+  setRipple(name, start, end) {
+    let ripple = this.ripples[name];
+    if (!ripple) {
+      ripple = [];
+    }
+    ripple.push({start, end})
+
+    this.ripples[name] = ripple;
+  },
+
+  componentDidMount() {
+    this.interval = setInterval(this.onResize, 100);
+
+    // add ripples to indicate hotkey has occured in hidden toolbars
+    let buttons = getButtons();
+    let bs = getButtonGroups(buttons);
+    let float = _.flatten(_.values(bs.float));
+    _.forEach(buttons, b => {
+      if (!_.contains(float, b)) {
+        this.ripples[b.name].push(this.ripples.showToolbars[0]);
+      }
+    });
+
+    this.combokeys = new Combokeys(document);
+    setDefaultHotkeys(this.props.dispatch, this.combokeys, this.ripples);
   },
 
   // shouldComponentUpdate(nextProps, nextState) {
@@ -48,7 +84,7 @@ var Editor = React.createClass({
   // },
 
   componentWillUnmount() {
-    // GLOBAL_COMBOKEYS.detach();
+    this.combokeys.detach();
   },
 
   getTimeline() {
@@ -86,7 +122,7 @@ var Editor = React.createClass({
           button.tooltip = this.props.selected.help ? button.tooltip : null;
           button.selected = this.props.selected[button.name];
           button.setRipple = (startRipple, endRipple) => {
-            this.props.setRipple(button.name, startRipple, endRipple)
+            this.setRipple(button.name, startRipple, endRipple)
           };
         });
       });

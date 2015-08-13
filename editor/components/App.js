@@ -2,7 +2,6 @@
 
 var React = require('react');
 var { connect } = require('react-redux');
-var Combokeys = require('combokeys');
 var _ = require('lodash');
 
 var { Display } = require('renderer');
@@ -31,49 +30,14 @@ var randomTrack = new Track(randomLines(), {x: 0, y: 0}, DEBUG);
 
 var BLOCK_CONTEXT_MENU = true;
 
-function setDefaultHotkeys(dispatch, combokeys, ripples) {
-  _.forEach(getButtons(), ({hotkey}, name) => {
-    dispatch(setHotkey(combokeys, ripples, name, hotkey));
-  });
-}
-
 var App = React.createClass({
-
-  componentWillMount() {
-    this.ripples = Object.create(null);
-  },
-
-  setRipple(name, start, end) {
-    let ripple = this.ripples[name];
-    if (!ripple) {
-      ripple = [];
-    }
-    ripple.push({start, end})
-
-    this.ripples[name] = ripple;
-  },
 
   componentDidMount() {
     this.interval = setInterval(this.onResize, 100);
-
-    // add ripples to indicate hotkey has occured in hidden toolbars
-    let buttons = getButtons();
-    let bs = getButtonGroups(buttons);
-    let float = _.flatten(_.values(bs.float));
-    _.forEach(buttons, b => {
-      if (!_.contains(float, b)) {
-        this.ripples[b.name].push(this.ripples.showToolbars[0]);
-      }
-    });
-
-    this.combokeys = new Combokeys(document);
-    setDefaultHotkeys(this.props.dispatch, this.combokeys, this.ripples);
   },
 
   componentWillUnmount() {
     clearInterval(this.interval);
-
-    this.combokeys.detach();
   },
 
   onResize() {
@@ -117,7 +81,7 @@ var App = React.createClass({
           width={width}
           height={height}
         />
-        <Editor dispatch={dispatch} {...toolbars} setRipple={this.setRipple}/>
+        <Editor dispatch={dispatch} {...toolbars} />
       </div>
     );
   }
