@@ -10,7 +10,7 @@ var { Track } = require('core');
 
 var { setWindowSize, setHotkey } = require('../actions');
 var Editor = require('./Editor');
-var { getButtons } = require('../buttons');
+var { getButtons, getButtonGroups } = require('../buttons');
 
 
 var makeRandomLine = require('../../test/makeRandomLine');
@@ -55,6 +55,16 @@ var App = React.createClass({
 
   componentDidMount() {
     this.interval = setInterval(this.onResize, 100);
+
+    // add ripples to indicate hotkey has occured in hidden toolbars
+    let buttons = getButtons();
+    let bs = getButtonGroups(buttons);
+    let float = _.flatten(_.values(bs.float));
+    _.forEach(buttons, b => {
+      if (!_.contains(float, b)) {
+        this.ripples[b.name].push(this.ripples.showToolbars[0]);
+      }
+    });
 
     this.combokeys = new Combokeys(document);
     setDefaultHotkeys(this.props.dispatch, this.combokeys, this.ripples);
