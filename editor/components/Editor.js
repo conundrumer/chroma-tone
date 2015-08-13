@@ -80,9 +80,23 @@ var Editor = React.createClass({
     setDefaultHotkeys(this.props.dispatch, this.combokeys, this.ripples);
   },
 
-  // shouldComponentUpdate(nextProps, nextState) {
-  //   return false;
-  // },
+  shouldComponentUpdate(nextProps) {
+    let {
+      toolbarsVisible,
+      timeControlVisible,
+      selected
+    } = this.props;
+
+    let {
+      toolbarsVisible: toolbarsVisible_,
+      timeControlVisible: timeControlVisible_,
+      selected: selected_
+    } = nextProps;
+
+    return toolbarsVisible !== toolbarsVisible_
+      || timeControlVisible !== timeControlVisible_
+      || !_.isEqual(selected, selected_);
+  },
 
   componentWillUnmount() {
     this.combokeys.detach();
