@@ -9,7 +9,7 @@ import {
   TOGGLE_BUTTON,
   SET_TOOL,
   SET_HOTKEY,
-  PAN,
+  SET_CAM,
   RESIZE
 } from './actions';
 
@@ -75,12 +75,8 @@ export function hotkeys(state = Object.create(null), action) {
 
 export function editorCamera(state = { x: 0, y: 0, z: 1}, action) {
   switch (action.type) {
-    case PAN:
-      return {
-        x: action.pos.x,
-        y: action.pos.y,
-        z: state.z
-      };
+    case SET_CAM:
+      return action.cam;
     default:
       return state;
   }

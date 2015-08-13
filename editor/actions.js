@@ -11,7 +11,7 @@ export const TOGGLE_TIME_CONTROL = 'TOGGLE_TIME_CONTROL';
 export const TOGGLE_BUTTON = 'TOGGLE_BUTTON';
 export const SET_TOOL = 'SET_TOOL';
 export const SET_HOTKEY = 'SET_HOTKEY';
-export const PAN = 'PAN';
+export const SET_CAM = 'SET_CAM';
 
 /**
  * action creators
@@ -61,7 +61,6 @@ export function setHotkey(combokeys, ripples, name, hotkey) {
     let oldHotkey = getState().hotkeys[name];
     if (oldHotkey) {
       combokeys.unbind(oldHotkey, 'keydown');
-      combokeys.unbind(oldHotkey, 'keypress');
       combokeys.unbind(oldHotkey, 'keyup');
     }
 
@@ -116,10 +115,10 @@ export function setHotkey(combokeys, ripples, name, hotkey) {
 }
 
 // drawing
-export function panTo(trackPos) {
+export function setCam(cam) {
   return {
-    type: PAN,
-    pos: trackPos
+    type: SET_CAM,
+    cam
   };
 }
 
@@ -145,8 +144,8 @@ function pan(stream, dispatch, getState) {
     stream: stream.map((pos) =>
       firstPos.clone().subtract(pos).mulS(z).add({x, y})
     ),
-    onNext: (trackPos) => dispatch(panTo(trackPos)),
-    onCancel: () => dispatch(panTo({x, y}))
+    onNext: (trackPos) => dispatch(setCam({x: trackPos.x, y: trackPos.y, z})),
+    onCancel: () => dispatch(setCam({x, y, z}))
   };
 
 }
