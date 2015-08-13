@@ -22,20 +22,14 @@ function setTheme() {
   ThemeManager.setPalette(palette);
 }
 
-var STYLES = {
+const STYLES = {
   floatCircle: { padding: '0px', width: 42, height: 42 },
-  smallIcon: { padding: '6px', width: 36, height: 36, margin: '3px' },
-  defaultIcon: { padding: '9px', width: 42, height: 42, margin: '3px' }
+  smallIcon: { padding: '6px', width: 36, height: 36, margin: '3px' }
 };
 
-var Editor = React.createClass({
+var GLOBAL_COMBOKEYS = new Combokeys(document); // i need to think about this
 
-  getInitialState() {
-    return {
-      debugButtons: false,
-      combokeys: new Combokeys(document)
-    };
-  },
+var Editor = React.createClass({
 
   childContextTypes: {
     muiTheme: React.PropTypes.object
@@ -51,21 +45,22 @@ var Editor = React.createClass({
     setTheme();
   },
 
+  // shouldComponentUpdate(nextProps, nextState) {
+  //   return false;
+  // },
+
   componentWillUnmount() {
-    this.state.combokeys.detach();
+    GLOBAL_COMBOKEYS.detach();
   },
 
   getTimeline() {
     return {
-      render: (i) =>
-      <div key={i} className='timeline'>
-        <input type='range' min={0} max={100} defaultValue={0} style={{width: '100%'}} />
-      </div>
+      render: () => <Timeline />
     };
   },
 
   getButtonGroups() {
-    let b = getButtons();
+    let b = getButtons(this.props.dispatch);
 
     b.toggleTimeControl.transform = `rotate(${this.props.timeControlVisible ? 0 : 180}deg)`;
 
@@ -87,113 +82,19 @@ var Editor = React.createClass({
       });
     });
 
+    _.forEach(bs, buttonGroups => {
+      _.forEach(buttonGroups, buttonGroup => {
+        _.forEach(buttonGroup, button => {
+          button.tooltip = this.props.selected.help ? button.tooltip : null;
+          button.selected = this.props.selected[button.name];
+          // button.pressed = this.props.pressed[button.name];
+        });
+      });
+    });
+
     bs.timeControl.middle = [this.getTimeline()];
 
     return bs;
-  },
-
-  renderButton(props, i, disabled = false) {
-    let {name, icon, tooltip, action, style, hotkey, render, transform} = props;
-    if (render) {
-      return render(i);
-    }
-    if (this.state.debugButtons) {
-      return (
-        <button key={i} style={{width: 48, height: 48, padding: 0}} {...props} />
-      );
-    }
-    return (
-      <IconButton
-        key={i}
-        onTouchTap={ action ? () => this.props.dispatch(action) : null}
-        style={style || STYLES.defaultIcon}
-        combokeys={this.state.combokeys}
-        tooltip={this.props.selected.help ? tooltip : null}
-        selected={this.props.selected[name]}
-        disabled={disabled || !action}
-        hotkey={hotkey}
-        transform={transform}
-      >
-        { icon }
-      </IconButton>
-    );
-  },
-
-  renderButtons(buttons, disabled) {
-    return buttons.map((button, i) => this.renderButton(button, i, disabled));
-  },
-
-  renderButtonGroups(groups, disabled) {
-    return ['left', 'middle', 'right'].map( position =>
-      <div key={position} className='toolbar-group'>
-        { this.renderButtons(groups[position], disabled) }
-      </div>
-    );
-  },
-
-  renderFloatBar(float) {
-    let closed = this.props.toolbarsVisible;
-
-    let makeFloatCircle = (button, i) => ({
-      className: classNames({closed: closed}),
-      circle: true,
-      key: i,
-      children: this.renderButton(button, closed)
-    });
-
-    let floatPapersProps = float.left.map(makeFloatCircle)
-    .concat([{
-      className: classNames('float-paper-bar', {closed: closed}),
-      children:
-        <Toolbar className='float-toolbar'>
-          { this.renderButtons(float.middle, closed) }
-        </Toolbar>
-    }]).concat(float.right.map(makeFloatCircle));
-
-    return (
-      <div className='float-container'>
-        {floatPapersProps.map((props, i) =>
-          <div key={i}>
-            <FloatPaper {...props}>
-              { props.children }
-            </FloatPaper>
-          </div>
-        )}
-      </div>
-    );
-  },
-
-  renderTopBar(top) {
-    let closed = !this.props.toolbarsVisible;
-    return (
-      <PaperBar className={classNames('top', {closed: closed})}>
-        <Toolbar className='top'>
-          { this.renderButtonGroups(top, closed) }
-        </Toolbar>
-      </PaperBar>
-    );
-  },
-
-  renderBottomBar(bottom, timeControl) {
-    timeControl = _.flatten(['left', 'middle', 'right'].map(pos => timeControl[pos]));
-
-    let closed = !this.props.toolbarsVisible;
-    let timeControlClosed = !this.props.timeControlVisible;
-
-    let bottomPaperBarClass = !timeControlClosed ? 'bottom-extended' : 'bottom';
-
-    return (
-      <PaperBar className={classNames(bottomPaperBarClass, {closed: closed})}>
-        <Toolbar>
-          { this.renderButtonGroups(bottom, closed) }
-        </Toolbar>
-        <div className={classNames('toolbar', 'time-control-toolbar', {closed: timeControlClosed})}>
-          <div className='toolbar-group time-control'>
-            { this.renderButtons(timeControl, timeControlClosed) }
-          </div>
-        </div>
-      </PaperBar>
-    );
   },
 
   render() {
@@ -204,16 +105,158 @@ var Editor = React.createClass({
       timeControl
     } = this.getButtonGroups();
 
+    let {
+      toolbarsVisible,
+      timeControlVisible
+    } = this.props;
+
     return (
       <div className='LR-Editor' >
         <DrawingSurface dispatch={this.props.dispatch} />
-        { this.renderFloatBar(float) }
-        { this.renderTopBar(top) }
-        { this.renderBottomBar(bottom, timeControl) }
+        <FloatBar buttonGroups={float} closed={toolbarsVisible} />
+        <TopBar buttonGroups={top} closed={!toolbarsVisible} />
+        <BottomBar
+          buttonGroups={bottom}
+          closed={!toolbarsVisible}
+          timeControlGroup={timeControl}
+          timeControlClosed={!timeControlVisible}
+        />
       </div>
     );
   }
 });
+
+var Timeline = React.createClass({
+  render() {
+    return (
+      <div className='timeline'>
+        <input type='range' min={0} max={100} defaultValue={0} style={{width: '100%'}} />
+      </div>
+    );
+  }
+})
+
+const DEFAULT_ICON_STYLE = { padding: '9px', width: 42, height: 42, margin: '3px' };
+
+var Button = React.createClass({
+  render() {
+    let {
+      // name,
+      selected,
+      icon,
+      tooltip,
+      boundAction,
+      style,
+      hotkey,
+      render,
+      transform,
+      tooltipPosition
+    } = this.props.buttonProps;
+
+    if (render) {
+      return render();
+    }
+    return (
+      <IconButton {...{tooltip, tooltipPosition, selected, hotkey, transform}}
+        onTouchTap={boundAction}
+        style={style || DEFAULT_ICON_STYLE}
+        combokeys={GLOBAL_COMBOKEYS}
+        disabled={this.props.groupDisabled || !boundAction}
+      >
+        { icon }
+      </IconButton>
+    );
+  }
+})
+
+function renderButtons(buttons, groupDisabled) {
+  return buttons.map((buttonProps, i) =>
+    <Button key={i} buttonProps={buttonProps} groupDisabled={groupDisabled} />
+  );
+}
+
+var ButtonGroups = React.createClass({
+  render() {
+    return (
+      <Toolbar className={this.props.className}>
+        {['left', 'middle', 'right'].map( position =>
+          <div key={position} className='toolbar-group'>
+            { renderButtons(this.props.buttonGroups[position], this.props.disabled) }
+          </div>
+        )}
+      </Toolbar>
+    );
+  }
+})
+
+var FloatBar = React.createClass({
+  render() {
+    let closed = this.props.closed;
+
+    let makeFloatCircle = (buttonProps, i) => ({
+      className: classNames({closed: closed}),
+      circle: true,
+      key: i,
+      children: <Button buttonProps={buttonProps} groupDisabled={closed} />
+    });
+
+    let floatPapersProps = this.props.buttonGroups.left.map(makeFloatCircle)
+    .concat([{
+      className: classNames('float-paper-bar', {closed: closed}),
+      children:
+        <Toolbar className='float-toolbar'>
+          { renderButtons(this.props.buttonGroups.middle, closed) }
+        </Toolbar>
+    }]).concat(this.props.buttonGroups.right.map(makeFloatCircle));
+
+    return (
+      <div className='float-container'>
+        {floatPapersProps.map(({children, ...props}, i) =>
+          <div key={i}>
+            <FloatPaper {...props}>
+              { children }
+            </FloatPaper>
+          </div>
+        )}
+      </div>
+    );
+  }
+})
+
+var TopBar = React.createClass({
+  render() {
+    let closed = this.props.closed;
+    return (
+      <PaperBar className={classNames('top', {closed: closed})}>
+        <ButtonGroups className='top' buttonGroups={this.props.buttonGroups} disabled={closed} />
+      </PaperBar>
+    );
+  }
+})
+
+var BottomBar = React.createClass({
+  render() {
+    let timeControlButtons = _.flatten(['left', 'middle', 'right'].map(pos =>
+      this.props.timeControlGroup[pos]
+    ));
+
+    let closed = this.props.closed;
+    let timeControlClosed = this.props.timeControlClosed;
+
+    let bottomPaperBarClass = !timeControlClosed ? 'bottom-extended' : 'bottom';
+
+    return (
+      <PaperBar className={classNames(bottomPaperBarClass, {closed: closed})}>
+        <ButtonGroups buttonGroups={this.props.buttonGroups} disabled={closed} />
+        <div className={classNames('toolbar', 'time-control-toolbar', {closed: timeControlClosed})}>
+          <div className='toolbar-group time-control'>
+            { renderButtons(timeControlButtons, timeControlClosed) }
+          </div>
+        </div>
+      </PaperBar>
+    );
+  }
+})
 
 function blockEvent(e) {
   e.preventDefault();

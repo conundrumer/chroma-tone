@@ -8,7 +8,7 @@ import { showToolbars, hideToolbars, toggleTimeControl, toggleButton, setTool } 
 import Icons from './components/SvgIcons';
 
 
-export function getButtons() {
+export function getButtons(dispatch) {
   return _.forEach({
     select:            { action: null                , hotkey: '1'           , icon: require('icons/cursor-default') },
     pencil:            { action: null                , hotkey: '2'           , icon: require('icons/pencil')         },
@@ -48,6 +48,9 @@ export function getButtons() {
     props.tooltip = _.startCase(key) + (props.hotkey ? ` (${props.hotkey || 'no hotkey assigned'})` : '');
     if (props.action instanceof Function) {
       props.action = props.action(key);
+    }
+    if (props.action) {
+      props.boundAction = () => dispatch(props.action);
     }
   });
 }
