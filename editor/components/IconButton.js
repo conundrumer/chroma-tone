@@ -1,7 +1,7 @@
 /* eslint no-underscore-dangle: 0*/
 'use strict';
 
-var React = require('react/addons');
+var React = require('react');
 
 var MuiIconButton = require('material-ui').IconButton;
 
@@ -19,6 +19,27 @@ var IconButton = React.createClass({
 
   componentWillMount() {
     this.bindHotkey(this.props.hotkey);
+  },
+
+  shouldComponentUpdate(nextProps, nextState) {
+    let {
+      style,
+      tooltip,
+      selected,
+      disabled
+    } = this.props;
+
+    let {
+      style: style_,
+      tooltip: tooltip_,
+      selected: selected_,
+      disabled: disabled_
+    } = nextProps;
+
+    return style !== style_
+      || tooltip !== tooltip_
+      || selected !== selected_
+      || disabled !== disabled_;
   },
 
   componentWillUpdate(nextProps, nextState) {

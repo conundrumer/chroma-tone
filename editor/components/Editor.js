@@ -22,6 +22,12 @@ function setTheme() {
   ThemeManager.setPalette(palette);
 }
 
+var STYLES = {
+  floatCircle: { padding: '0px', width: 42, height: 42 },
+  smallIcon: { padding: '6px', width: 36, height: 36, margin: '3px' },
+  defaultIcon: { padding: '9px', width: 42, height: 42, margin: '3px' }
+};
+
 var Editor = React.createClass({
 
   getInitialState() {
@@ -49,16 +55,6 @@ var Editor = React.createClass({
     this.state.combokeys.detach();
   },
 
-  getStyles() {
-    var styles = {
-      floatCircle: { padding: '0px', width: 42, height: 42 },
-      smallIcon: { padding: '6px', width: 36, height: 36, margin: '3px' },
-      defaultIcon: { padding: '9px', width: 42, height: 42, margin: '3px' }
-    };
-
-    return styles;
-  },
-
   getTimeline() {
     return {
       render: (i) =>
@@ -70,8 +66,6 @@ var Editor = React.createClass({
 
   getButtonGroups() {
     let b = getButtons();
-
-    var styles = this.getStyles();
 
     b.toggleTimeControl.iconStyle = {
       transform: `rotate(${this.props.timeControlVisible ? 0 : 180}deg)`
@@ -85,9 +79,9 @@ var Editor = React.createClass({
       return button;
     };
 
-    bs.float.left = bs.float.left.map(addStyle(styles.floatCircle));
-    bs.float.right = bs.float.right.map(addStyle(styles.floatCircle));
-    bs.float.middle = bs.float.middle.map(addStyle(styles.smallIcon));
+    bs.float.left = bs.float.left.map(addStyle(STYLES.floatCircle));
+    bs.float.right = bs.float.right.map(addStyle(STYLES.floatCircle));
+    bs.float.middle = bs.float.middle.map(addStyle(STYLES.smallIcon));
 
     _.values(bs.bottom).concat(_.values(bs.timeControl)).forEach(buttonGroup => {
       buttonGroup.forEach(button => {
@@ -100,9 +94,10 @@ var Editor = React.createClass({
     return bs;
   },
 
-  renderButton({name, icon, tooltip, action, style, ...props}, i) {
-    if (props.render) {
-      return props.render(i);
+  renderButton(props, i) {
+    let {name, icon, tooltip, action, style, hotkey, render} = props;
+    if (render) {
+      return render(i);
     }
     if (this.state.debugButtons) {
       return (
@@ -110,7 +105,7 @@ var Editor = React.createClass({
       );
     }
     return (
-      <IconButton {...props}
+      <IconButton
         key={i}
         onTouchTap={ action ? () => this.props.dispatch(action) : null}
         style={style || this.getStyles().defaultIcon}
@@ -118,6 +113,7 @@ var Editor = React.createClass({
         tooltip={this.props.selected.help ? tooltip : null}
         selected={this.props.selected[name]}
         disabled={!action}
+        hotkey={hotkey}
       >
         {icon}
       </IconButton>
