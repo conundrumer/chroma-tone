@@ -13,8 +13,31 @@ import {
   RESIZE
 } from './actions';
 
+const INIT = {
+  windowSize: {
+    width: 1,
+    height: 1
+  },
+  toolbars: {
+    toolbarsVisible: false,
+    timeControlVisible: false,
+    toggled: Object.create(null),
+    tool: null
+  },
+  hotkeys: Object.create(null),
+  editorCamera: {
+    x: 0,
+    y: 0,
+    z: 1
+  },
+  frame: {
+    index: 0,
+    maxIndex: 0
+  },
+};
+
 // display dimensions
-export function windowSize(state = {width: 1, height: 1}, action) {
+export function windowSize(state = INIT.windowSize, action) {
   switch (action.type) {
     case RESIZE:
       return {
@@ -27,13 +50,7 @@ export function windowSize(state = {width: 1, height: 1}, action) {
 }
 
 // toolbars
-const initToolbars = {
-  toolbarsVisible: false,
-  timeControlVisible: false,
-  toggled: Object.create(null),
-  tool: null
-};
-export function toolbars(state = initToolbars, action) {
+export function toolbars(state = INIT.toolbars, action) {
   switch (action.type) {
     case SHOW_TOOLBARS:
       return {...state,
@@ -62,7 +79,7 @@ export function toolbars(state = initToolbars, action) {
   }
 }
 
-export function hotkeys(state = Object.create(null), action) {
+export function hotkeys(state = INIT.hotkeys, action) {
   switch (action.type) {
     case SET_HOTKEY:
       return {...state,
@@ -73,11 +90,15 @@ export function hotkeys(state = Object.create(null), action) {
   }
 }
 
-export function editorCamera(state = { x: 0, y: 0, z: 1}, action) {
+export function editorCamera(state = INIT.editorCamera, action) {
   switch (action.type) {
     case SET_CAM:
       return action.cam;
     default:
       return state;
   }
+}
+
+function frame(state = INIT.frame, action) {
+
 }
