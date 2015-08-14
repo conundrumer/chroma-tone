@@ -7,9 +7,10 @@ var classNames = require('classnames');
 var Combokeys = require('combokeys');
 var ThemeManager = new mui.Styles.ThemeManager();
 
-var {Paper, Styles: { Colors: { blue500, red500, lightGreen500 }}} = mui;
+var {Paper, IconMenu, Styles: { Colors: { blue500, red500, lightGreen500 }}} = mui;
+var MenuItem = require('material-ui/lib/menus/menu-item');
 var IconButton = require('./IconButton');
-var { getButtons, getButtonGroups } = require('../buttons');
+var { getButtons, getButtonGroups, getMenus } = require('../buttons');
 var DrawingSurface = require('./DrawingSurface');
 var { setHotkey } = require('../actions');
 
@@ -71,7 +72,7 @@ var Editor = React.createClass({
     let bs = getButtonGroups(buttons);
     let float = _.flatten(_.values(bs.float));
     _.forEach(buttons, b => {
-      if (!_.contains(float, b)) {
+      if (b.name in this.ripples && !_.contains(float, b)) {
         this.ripples[b.name].push(this.ripples.showToolbars[0]);
       }
     });
@@ -84,17 +85,20 @@ var Editor = React.createClass({
     let {
       toolbarsVisible,
       timeControlVisible,
+      leftNavVisible,
       selected
     } = this.props;
 
     let {
       toolbarsVisible: toolbarsVisible_,
       timeControlVisible: timeControlVisible_,
+      leftNavVisible: leftNavVisible_,
       selected: selected_
     } = nextProps;
 
     return toolbarsVisible !== toolbarsVisible_
       || timeControlVisible !== timeControlVisible_
+      || leftNavVisible !== leftNavVisible_
       || !_.isEqual(selected, selected_);
   },
 
@@ -133,7 +137,7 @@ var Editor = React.createClass({
 
     bs.timeControl.middle = [this.getTimeline()];
 
-    return bs;
+    return {buttonGroups: bs, menus: getMenus(b)};
   },
 
   isGroupDisabled(toolbar) {
@@ -148,24 +152,58 @@ var Editor = React.createClass({
     }
   },
 
+  renderButton({ name, tooltip, icon, boundAction, style, render, ...props }, key) {
+    if (render) {
+      return render(key);
+    }
+    return (
+      <IconButton {...props}
+        key={key}
+        onTouchTap={boundAction}
+        style={style || DEFAULT_ICON_STYLE}
+        disabled={this.isGroupDisabled(toolbar) || !boundAction}
+        tooltip={this.props.selected.help ? tooltip : null}
+        selected={this.props.selected[name]}
+        setRipple={(start, end) => this.setRipple(name, start, end)}
+      >
+        { icon }
+      </IconButton>
+    );
+  },
+
+  renderMenuButton(button, key, menuItems, openDirection) {
+    return (
+      <IconMenu
+        key={key}
+        iconButtonElement={this.renderButton(button, key)}
+        openDirection={openDirection}
+        desktop={true}
+      >
+        {menuItems.map(({icon: ItemIcon, tooltip, boundAction}, i) =>
+          <MenuItem
+            key={i}
+            leftIcon={<ItemIcon/>}
+            primaryText={tooltip}
+            onTouchTap={boundAction}
+            disabled={!boundAction}
+          />
+        )}
+      </IconMenu>
+    );
+  },
+
   renderButtons() {
-    let bs = this.getButtonGroups();
+    let {buttonGroups: bs, menus} = this.getButtonGroups();
     return _.mapValues(bs, (buttonGroups, toolbar) =>
       _.mapValues(buttonGroups, (buttonGroup, position) =>
-        _.map(buttonGroup, ({ name, tooltip, icon, boundAction, style, render, ...props }, i) =>
-          (render) ? render(toolbar + position + i) :
-          <IconButton {...props}
-            key={toolbar + position + i}
-            onTouchTap={boundAction}
-            style={style || DEFAULT_ICON_STYLE}
-            disabled={this.isGroupDisabled(toolbar) || !boundAction}
-            tooltip={this.props.selected.help ? tooltip : null}
-            selected={this.props.selected[name]}
-            setRipple={(start, end) => this.setRipple(name, start, end)}
-          >
-            { icon }
-          </IconButton>
-        )
+        _.map(buttonGroup, (button, i) => {
+          let key = toolbar + position + i;
+          if (button.name in menus) {
+            let {items, openDirection} = menus[button.name];
+            return this.renderMenuButton(button, key, items, openDirection);
+          }
+          return this.renderButton(button, key);
+        })
       )
     );
   },
@@ -182,7 +220,6 @@ var Editor = React.createClass({
       toolbarsVisible,
       timeControlVisible
     } = this.props;
-
     return (
       <div className='LR-Editor' >
         <DrawingSurface dispatch={this.props.dispatch} />
