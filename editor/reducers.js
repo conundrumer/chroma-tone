@@ -10,7 +10,8 @@ import {
   SET_TOOL,
   SET_HOTKEY,
   SET_CAM,
-  RESIZE
+  RESIZE,
+  SET_FRAME,
 } from './actions';
 
 const INIT = {
@@ -99,6 +100,15 @@ export function editorCamera(state = INIT.editorCamera, action) {
   }
 }
 
-function frame(state = INIT.frame, action) {
-
+export function frame(state = INIT.frame, action) {
+  switch (action.type) {
+    case SET_FRAME: {
+      return {
+        index: action.index,
+        maxIndex: Math.max(state.index, action.index)
+      };
+    }
+    default:
+      return state;
+  }
 }

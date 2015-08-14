@@ -12,6 +12,7 @@ export const TOGGLE_BUTTON = 'TOGGLE_BUTTON';
 export const SET_TOOL = 'SET_TOOL';
 export const SET_HOTKEY = 'SET_HOTKEY';
 export const SET_CAM = 'SET_CAM';
+export const SET_FRAME = 'SET_FRAME';
 
 /**
  * action creators
@@ -114,11 +115,17 @@ export function setHotkey(combokeys, ripples, name, hotkey) {
   }
 }
 
-// drawing
 export function setCam(cam) {
   return {
     type: SET_CAM,
     cam
+  };
+}
+
+export function setFrame(index) {
+  return {
+    type: SET_FRAME,
+    index: index
   };
 }
 
