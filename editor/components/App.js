@@ -66,6 +66,7 @@ var App = React.createClass({
       toolbars,
       cam,
       playback,
+      playing,
     } = this.props;
 
     // let maxRadius = Math.max(cam.z * (Math.min(width, height) / 2) - 15);
@@ -80,14 +81,14 @@ var App = React.createClass({
         <Display
           frame={playback.index}
           startPosition={randomTrack.startPosition}
-          viewOptions={{ color: true, floor: true }}
+          viewOptions={{ color: !playing, floor: true }}
           rider={randomTrack.getRiderStateAtFrame(playback.index)}
           cam={cam}
           lines={randomTrack.lines}
           width={width}
           height={height}
         />
-        <Editor dispatch={dispatch} {...toolbars} />
+        <Editor dispatch={dispatch} {...toolbars} playing={playing}/>
       </div>
     );
   }
@@ -108,6 +109,7 @@ function select({
         [playback.state]: playback.state !== 'stop'
       }
     },
+    playing: playback.state !== 'stop' && playback.state !== 'pause',
     playback,
     cam: editorCamera
   };

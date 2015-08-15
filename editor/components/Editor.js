@@ -117,6 +117,10 @@ var Editor = React.createClass({
 
     b.toggleTimeControl.transform = `rotate(${this.props.timeControlVisible ? 0 : 180}deg)`;
 
+    ['undo', 'redo', 'select', 'pencil', 'brush', 'line', 'curve', 'multiLine', 'eraser'].forEach( tool => {
+      b[tool].disabled = this.props.playing;
+    });
+
     let bs = getButtonGroups(b);
 
     let addStyle = style => button => {
@@ -129,8 +133,22 @@ var Editor = React.createClass({
     bs.float.right = bs.float.right.map(addStyle(STYLES.floatCircle));
     bs.float.middle = bs.float.middle.map(addStyle(STYLES.smallIcon));
 
-    _.values(bs.bottom).concat(_.values(bs.timeControl)).forEach(buttonGroup => {
-      buttonGroup.forEach(button => {
+    // _.flatten(_.values(bs.float)).forEach(button => {
+    //   button.disabled = this.props.toolbarsVisible;
+    // });
+
+    // ['top', 'bottom', 'timeControl'].forEach( toolbar => {
+    //   _.flatten(_.values(bs[toolbar])).forEach(button => {
+    //     button.disabled = !this.props.toolbarsVisible;
+    //   });
+    // });
+
+    // _.flatten(_.values(bs.timeControl)).forEach(button => {
+    //   button.disabled = button.disabled || !this.props.timeControlVisible;
+    // });
+
+    ['bottom', 'timeControl'].forEach( toolbar => {
+      _.flatten(_.values(bs[toolbar])).forEach(button => {
         button.tooltipPosition = 'top-center';
       });
     });
@@ -140,19 +158,7 @@ var Editor = React.createClass({
     return {buttonGroups: bs, menus: getMenus(b)};
   },
 
-  isGroupDisabled(toolbar) {
-    switch (toolbar) {
-      case 'float':
-        return this.props.toolbarsVisible;
-      case 'top':
-      case 'bottom':
-        return !this.props.toolbarsVisible;
-      case 'timeControl':
-        return !this.props.toolbarsVisible || !this.props.timeControlVisible;
-    }
-  },
-
-  renderButton({ name, tooltip, icon, boundAction, style, render, ...props }, key) {
+  renderButton({ name, tooltip, icon, boundAction, style, render, disabled, ...props }, key) {
     if (render) {
       return render(key);
     }
@@ -161,7 +167,7 @@ var Editor = React.createClass({
         key={key}
         onTouchTap={boundAction}
         style={style || DEFAULT_ICON_STYLE}
-        disabled={this.isGroupDisabled(toolbar) || !boundAction}
+        disabled={disabled || !boundAction}
         tooltip={this.props.selected.help ? tooltip : null}
         selected={this.props.selected[name]}
         setRipple={(start, end) => this.setRipple(name, start, end)}
