@@ -26,9 +26,9 @@ const INIT = {
   toolbars: {
     toolbarsVisible: false,
     timeControlVisible: false,
-    toggled: Object.create(null),
     tool: 'debugTool',
   },
+  toggled: Object.create(null),
   hotkeys: Object.create(null),
   editorCamera: {
     x: 0,
@@ -36,6 +36,7 @@ const INIT = {
     z: 1
   },
   playback: {
+    state: 'stop',
     index: 0,
     maxIndex: 0,
     rate: 0,
@@ -71,15 +72,26 @@ export function toolbars(state = INIT.toolbars, action) {
       return {...state,
         timeControlVisible: !state.timeControlVisible
       };
-    case TOGGLE_BUTTON:
-      return {...state,
-        toggled: {...state.toggled,
-          [action.name]: !state.toggled[action.name]
-        }
-      };
     case SET_TOOL:
       return {...state,
         tool: action.tool
+      };
+    default:
+      return state;
+  }
+}
+
+export function toggled(state = INIT.toggled, action) {
+  switch (action.type) {
+    case TOGGLE_BUTTON:
+      let isToggled;
+      if (typeof action.isToggled === 'boolean') {
+        isToggled = action.isToggled;
+      } else {
+        isToggled = !state[action.name];
+      }
+      return {...state,
+        [action.name]: isToggled
       };
     default:
       return state;
@@ -107,7 +119,6 @@ export function editorCamera(state = INIT.editorCamera, action) {
 }
 
 export function playback(state = INIT.playback, action) {
-  console.log(state.index, state.maxIndex)
   switch (action.type) {
     case INC_FRAME_INDEX:
       action.index = state.index + 1;

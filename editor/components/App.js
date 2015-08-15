@@ -93,7 +93,7 @@ var App = React.createClass({
   }
 });
 
-function select({toolbars: {toggled, tool, ...toolbars}, editorCamera, ...state}) {
+function select({toolbars: {tool, ...toolbars}, toggled, editorCamera, ...state}) {
   return {...state,
     toolbars: {...toolbars,
       selected: {
