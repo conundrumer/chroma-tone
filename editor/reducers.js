@@ -16,6 +16,7 @@ import {
   SET_FRAME_RATE,
   INC_FRAME_INDEX,
   DEC_FRAME_INDEX,
+  SET_PLAYBACK_STATE,
 } from './actions';
 
 const INIT = {
@@ -145,6 +146,10 @@ export function playback(state = INIT.playback, action) {
     case SET_FRAME_RATE:
       return {...state,
         rate: action.index,
+      };
+    case SET_PLAYBACK_STATE:
+      return {...state,
+        state: action.state
       };
     default:
       return state;

@@ -93,14 +93,22 @@ var App = React.createClass({
   }
 });
 
-function select({toolbars: {tool, ...toolbars}, toggled, editorCamera, ...state}) {
+function select({
+  toolbars: {tool, ...toolbars},
+  toggled,
+  editorCamera,
+  playback,
+  ...state
+}) {
   return {...state,
     toolbars: {...toolbars,
       selected: {
         ...toggled,
-        [tool]: true
+        [tool]: true,
+        [playback.state]: playback.state !== 'stop'
       }
     },
+    playback,
     cam: editorCamera
   };
 }

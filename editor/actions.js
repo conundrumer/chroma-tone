@@ -21,6 +21,7 @@ export const SET_FRAME_MAX_INDEX = 'SET_FRAME_MAX_INDEX';
 export const SET_FRAME_RATE = 'SET_FRAME_RATE';
 export const INC_FRAME_INDEX = 'INC_FRAME_INDEX';
 export const DEC_FRAME_INDEX = 'DEC_FRAME_INDEX';
+export const SET_PLAYBACK_STATE = 'SET_PLAYBACK_STATE';
 
 /**
  * action creators
@@ -117,6 +118,12 @@ export function setFrameRate(rate) {
   return {
     type: SET_FRAME_RATE,
     rate: rate
+  };
+}
+export function setPlaybackState(state) {
+  return {
+    type: SET_PLAYBACK_STATE,
+    state: state
   };
 }
 

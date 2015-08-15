@@ -13,6 +13,7 @@ import {
   setTool,
   incFrameIndex,
   decFrameIndex,
+  setPlaybackState
 } from './actions';
 import Icons from './components/SvgIcons';
 
@@ -33,15 +34,15 @@ export function getButtons(dispatch) {
     zoom:              { action: setTool             , hotkey: null          , icon: require('icons/magnify')        },
     viewfinder:        { action: null                , hotkey: null          , icon: Icons.Viewfinder                },
     layers:            { action: null                , hotkey: null          , icon: require('icons/layers')         },
-    play:              { action: null                , hotkey: null          , icon: require('icons/play')           },
-    pause:             { action: null                , hotkey: null          , icon: require('icons/pause')          },
-    stop:              { action: null                , hotkey: null          , icon: require('icons/stop')           },
-    rewind:            { action: null                , hotkey: null          , icon: require('icons/rewind')         },
-    fastFoward:        { action: null                , hotkey: null          , icon: require('icons/fast-forward')   },
+    play:              { action: setPlaybackState    , hotkey: null          , icon: require('icons/play')           },
+    pause:             { action: setPlaybackState    , hotkey: null          , icon: require('icons/pause')          },
+    stop:              { action: setPlaybackState    , hotkey: null          , icon: require('icons/stop')           },
+    reverse:           { action: null                , hotkey: null          , icon: require('icons/rewind')         },
+    forward:           { action: null                , hotkey: null          , icon: require('icons/fast-forward')   },
     stepBack:          { action: decFrameIndex()     , hotkey: null          , icon: require('icons/skip-previous')  },
     stepForward:       { action: incFrameIndex()     , hotkey: null          , icon: require('icons/skip-next')      },
     flag:              { action: null                , hotkey: null          , icon: require('icons/flag-variant')   },
-    slowmo:            { action: null                , hotkey: null          , icon: Icons.SlowMotion                },
+    slowmo:            { action: setPlaybackState    , hotkey: null          , icon: Icons.SlowMotion                },
     onionSkin:         { action: null                , hotkey: null          , icon: Icons.OnionSkin                 },
     camera:            { action: null                , hotkey: null          , icon: require('icons/video')          },
     music:             { action: null                , hotkey: null          , icon: require('icons/music-note')     },
@@ -157,8 +158,8 @@ export function getButtonGroups(b) {
         b.flag,
         b.slowmo,
         b.play,
+        b.pause,
         b.stop,
-        b.pause
       ],
       right: [
         b.camera,
@@ -170,13 +171,13 @@ export function getButtonGroups(b) {
     timeControl: {
       left: [
         b.onionSkin,
-        b.rewind,
+        b.reverse,
         b.stepBack
       ],
       middle: [],
       right: [
         b.stepForward,
-        b.fastFoward,
+        b.forward,
         b.music
       ]
     },
