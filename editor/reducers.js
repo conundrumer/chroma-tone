@@ -3,6 +3,7 @@
 import _ from 'lodash';
 
 import {
+  RESIZE,
   SHOW_TOOLBARS,
   HIDE_TOOLBARS,
   TOGGLE_TIME_CONTROL,
@@ -10,8 +11,11 @@ import {
   SET_TOOL,
   SET_HOTKEY,
   SET_CAM,
-  RESIZE,
-  SET_FRAME,
+  SET_FRAME_INDEX,
+  SET_FRAME_MAX_INDEX,
+  SET_FRAME_RATE,
+  INC_FRAME_INDEX,
+  DEC_FRAME_INDEX,
 } from './actions';
 
 const INIT = {
@@ -23,7 +27,7 @@ const INIT = {
     toolbarsVisible: false,
     timeControlVisible: false,
     toggled: Object.create(null),
-    tool: 'debugTool'
+    tool: 'debugTool',
   },
   hotkeys: Object.create(null),
   editorCamera: {
@@ -31,9 +35,11 @@ const INIT = {
     y: 0,
     z: 1
   },
-  frame: {
+  playback: {
     index: 0,
-    maxIndex: 0
+    maxIndex: 0,
+    rate: 0,
+    skipFrames: false
   },
 };
 
@@ -100,14 +106,35 @@ export function editorCamera(state = INIT.editorCamera, action) {
   }
 }
 
-export function frame(state = INIT.frame, action) {
+export function playback(state = INIT.playback, action) {
+  console.log(state.index, state.maxIndex)
   switch (action.type) {
-    case SET_FRAME: {
-      return {
-        index: action.index,
-        maxIndex: Math.max(state.index, action.index)
+    case INC_FRAME_INDEX:
+      action.index = state.index + 1;
+      break;
+    case DEC_FRAME_INDEX:
+      action.index = state.index - 1;
+      break;
+  }
+  switch (action.type) {
+    case INC_FRAME_INDEX:
+    case DEC_FRAME_INDEX:
+    case SET_FRAME_INDEX:
+      let index = Math.max(0, action.index);
+      return {...state,
+        index: index,
+        maxIndex: Math.max(state.index, index)
       };
-    }
+    case SET_FRAME_MAX_INDEX:
+      let maxIndex = Math.max(0, action.maxIndex);
+      return {...state,
+        index: Math.min(state.index, maxIndex),
+        maxIndex: maxIndex,
+      };
+    case SET_FRAME_RATE:
+      return {...state,
+        rate: action.index,
+      };
     default:
       return state;
   }

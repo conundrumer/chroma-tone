@@ -11,7 +11,8 @@ import {
   hideLeftNav,
   toggleButton,
   setTool,
-
+  incFrameIndex,
+  decFrameIndex,
 } from './actions';
 import Icons from './components/SvgIcons';
 
@@ -37,8 +38,8 @@ export function getButtons(dispatch) {
     stop:              { action: null                , hotkey: null          , icon: require('icons/stop')           },
     rewind:            { action: null                , hotkey: null          , icon: require('icons/rewind')         },
     fastFoward:        { action: null                , hotkey: null          , icon: require('icons/fast-forward')   },
-    stepBack:          { action: null                , hotkey: null          , icon: require('icons/skip-previous')  },
-    stepForward:       { action: null                , hotkey: null          , icon: require('icons/skip-next')      },
+    stepBack:          { action: decFrameIndex()     , hotkey: null          , icon: require('icons/skip-previous')  },
+    stepForward:       { action: incFrameIndex()     , hotkey: null          , icon: require('icons/skip-next')      },
     flag:              { action: null                , hotkey: null          , icon: require('icons/flag-variant')   },
     slowmo:            { action: null                , hotkey: null          , icon: Icons.SlowMotion                },
     onionSkin:         { action: null                , hotkey: null          , icon: Icons.OnionSkin                 },

@@ -16,7 +16,11 @@ export const TOGGLE_BUTTON = 'TOGGLE_BUTTON';
 export const SET_TOOL = 'SET_TOOL';
 export const SET_HOTKEY = 'SET_HOTKEY';
 export const SET_CAM = 'SET_CAM';
-export const SET_FRAME = 'SET_FRAME';
+export const SET_FRAME_INDEX = 'SET_FRAME_INDEX';
+export const SET_FRAME_MAX_INDEX = 'SET_FRAME_MAX_INDEX';
+export const SET_FRAME_RATE = 'SET_FRAME_RATE';
+export const INC_FRAME_INDEX = 'INC_FRAME_INDEX';
+export const DEC_FRAME_INDEX = 'DEC_FRAME_INDEX';
 
 /**
  * action creators
@@ -86,10 +90,33 @@ export function setCam(cam) {
   };
 }
 
-export function setFrame(index) {
+// playback
+export function incFrameIndex() {
   return {
-    type: SET_FRAME,
+    type: INC_FRAME_INDEX
+  };
+}
+export function decFrameIndex() {
+  return {
+    type: DEC_FRAME_INDEX
+  };
+}
+export function setFrameIndex(index) {
+  return {
+    type: SET_FRAME_INDEX,
     index: index
+  };
+}
+export function setFrameMaxIndex(maxIndex) {
+  return {
+    type: SET_FRAME_MAX_INDEX,
+    maxIndex: maxIndex
+  };
+}
+export function setFrameRate(rate) {
+  return {
+    type: SET_FRAME_RATE,
+    rate: rate
   };
 }
 

@@ -64,8 +64,13 @@ var App = React.createClass({
         height
       },
       toolbars,
-      cam
+      cam,
+      playback,
     } = this.props;
+
+    // let maxRadius = Math.max(cam.z * (Math.min(width, height) / 2) - 15);
+    // let {x, y} = getRiderCam(randomTrack, playback.index, maxRadius);
+
     return (
       <div
         className='main'
@@ -73,10 +78,10 @@ var App = React.createClass({
         onContextMenu={e => BLOCK_CONTEXT_MENU ? e.preventDefault() : null}
       >
         <Display
-          frame={0}
+          frame={playback.index}
           startPosition={randomTrack.startPosition}
           viewOptions={{ color: true, floor: true }}
-          rider={randomTrack.getRiderStateAtFrame(0)}
+          rider={randomTrack.getRiderStateAtFrame(playback.index)}
           cam={cam}
           lines={randomTrack.lines}
           width={width}
