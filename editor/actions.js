@@ -1,6 +1,7 @@
 'use strict';
 
 import * as tools from './tools';
+import bindHotkey from './bindHotkey';
 import DrawCancelledException from './DrawCancelledException';
 
 /**
@@ -58,8 +59,6 @@ export function setTool(tool) {
   };
 }
 
-import { getButtons } from './buttons';
-const modifierRegex = /mod|alt/;
 export function setHotkey(combokeys, ripples, name, hotkey) {
   return (dispatch, getState) => {
     let oldHotkey = getState().hotkeys[name];
@@ -74,47 +73,9 @@ export function setHotkey(combokeys, ripples, name, hotkey) {
       hotkey
     });
 
-    if (!hotkey) {
-      return
+    if (hotkey) {
+      bindHotkey(combokeys, ripples, name, hotkey, dispatch);
     }
-
-    let startRipple = () => {};
-    let endRipple = () => {};
-    if (name in ripples) {
-      startRipple = () => ripples[name].forEach( ({start}) => start() );
-      endRipple = () => ripples[name].forEach( ({end}) => end() );
-    }
-
-    let hotkeyActions = getButtons(dispatch);
-    let boundAction = () => {};
-    if (name in hotkeyActions && hotkeyActions[name].boundAction) {
-      boundAction = hotkeyActions[name].boundAction;
-    }
-
-    if (modifierRegex.test(hotkey)) {
-      combokeys.bind(hotkey, (e) => {
-        e.preventDefault();
-        boundAction();
-        startRipple();
-        requestAnimationFrame(() =>
-          requestAnimationFrame(endRipple)
-        );
-      }, 'keydown');
-    } else {
-      var rippled = false;
-      combokeys.bind(hotkey, (e) => {
-        if (!rippled) {
-          startRipple();
-          rippled = true;
-        }
-      }, 'keydown');
-      combokeys.bind(hotkey, (e) => {
-        boundAction();
-        endRipple();
-        rippled = false;
-      }, 'keyup');
-    }
-
   }
 }
 

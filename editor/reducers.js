@@ -23,7 +23,7 @@ const INIT = {
     toolbarsVisible: false,
     timeControlVisible: false,
     toggled: Object.create(null),
-    tool: null
+    tool: 'debugTool'
   },
   hotkeys: Object.create(null),
   editorCamera: {
