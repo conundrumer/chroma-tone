@@ -1,8 +1,8 @@
 'use strict';
 
-var GridV62 = require('./GridV62');
+import GridV62 from './GridV62';
 
-class GridV61 extends GridV62 {
+export default class GridV61 extends GridV62 {
 
   getDelta(line, cellPos) {
     return {
@@ -34,5 +34,3 @@ class GridV61 extends GridV62 {
   }
 
 }
-
-module.exports = GridV61;

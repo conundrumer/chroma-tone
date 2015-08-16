@@ -1,4 +1,4 @@
-/*eslint-env node, mocha */
+/* eslint-env node, mocha */
 
 'use strict';
 
@@ -72,7 +72,6 @@ describe('Track', () => {
     });
   });
 
-
   describe('Default single line with debug enabled', () => {
     it('able to be created', () => {
       defaultTrack = new Track(defaultLines, {x: 0, y: 0}, true);
@@ -114,7 +113,7 @@ describe('Track', () => {
         trackData = tracks[0];
         let startPos = trackData.startPosition;
         track = new Track(trackData.lines, { x: startPos[0], y: startPos[1] });
-        assert(track.lines.length === 645);
+        assert(track.getLines().length === 645);
         done();
       });
     });
@@ -131,13 +130,12 @@ describe('Track', () => {
       let startPos = trackData.startPosition;
       let shuffledTrack = new Track([], { x: startPos[0], y: startPos[1] });
 
-
       var addRemoveLines = (lines) => {
         let removedLines = [];
         _.forEach(lines, (line, i) => {
           shuffledTrack.addLine(lines.pop());
           if (i % 3 === 2) {
-            let lineToRemove = _.sample(shuffledTrack.lines);
+            let lineToRemove = _.sample(shuffledTrack.getLines());
             shuffledTrack.removeLine(lineToRemove);
             removedLines.push(lineToRemove);
           }
@@ -147,7 +145,7 @@ describe('Track', () => {
         }
       };
 
-      addRemoveLines(track.lines);
+      addRemoveLines(track.getLines());
 
       _.times(1300, (i) => {
         assert.deepEqual(shuffledTrack.getRiderStateAtFrame(i), track.getRiderStateAtFrame(i));

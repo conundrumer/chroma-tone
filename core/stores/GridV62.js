@@ -1,6 +1,6 @@
 'use strict';
 
-var Grid = require('./Grid');
+import GridStore from './GridStore';
 
 function getBox(x1, y1, x2, y2) {
   let left = Math.min(x1, x2);
@@ -28,7 +28,7 @@ function inBounds(p, box) {
   );
 }
 
-class GridV62 extends Grid {
+export default class GridV62 extends GridStore {
 
   getCellPosAndOffset(px, py) {
     let {x, y} = this.getCellPos(px, py);
@@ -118,5 +118,3 @@ class GridV62 extends Grid {
     };
   }
 }
-
-module.exports = GridV62;

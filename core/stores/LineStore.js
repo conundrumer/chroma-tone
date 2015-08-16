@@ -1,43 +1,57 @@
-'use strict';
+import Store from './Store';
+import MapStore from './MapStore';
+import GridStore from './GridStore';
+import SolidGridStore from './SolidGridStore';
+import GridV62 from './GridV62';
+import GridV61 from './GridV61';
+import Cell from './Cell';
+import OrderedCell from './OrderedCell';
 
-var _ = require('lodash');
+export default class LineStore extends Store {
 
-class LineStore {
-  constructor() {
-    // if performance problems, will make this array sorted
-    this.lines = [];
+  static get GRID_SIZE() {
+    return 14;
+  }
+
+  constructor(useV61 = false) {
+    super();
+    this.lines = new MapStore();
+    this.grid = new GridStore(LineStore.GRID_SIZE * 4, Cell);
+    let solidGrid = new (useV61 ? GridV61 : GridV62)(LineStore.GRID_SIZE, OrderedCell);
+    this.solidGrid = new SolidGridStore(solidGrid);
   }
 
   addLine(line) {
-    this.lines.push(line);
+    this.lines.addLine(line);
+    this.grid.addLine(line);
+    this.solidGrid.addLine(line);
   }
 
   removeLine(line) {
-    this.lines = _.without(this.lines, line);
+    this.lines.removeLine(line);
+    this.grid.removeLine(line);
+    this.solidGrid.removeLine(line);
   }
 
-  // returns an array of lines in this bounding box or radius
-  getLines(x1, y1, x2, y2) {
-    if (y2 === undefined) {
-      let r = x2;
-      return this.getLinesInRadius(x1, y1, r);
-    }
-    return this.getLinesInBox(x1, y1, x2, y2);
+  getLines() {
+    return this.lines.getLines();
   }
 
   getLinesInRadius(x, y, r) {
-    return _.filter(this.lines, line => line.inRadius(x, y, r));
+    return this.grid.getLinesInRadius(x, y, r);
   }
 
   getLinesInBox(x1, y1, x2, y2) {
-    return _.filter(this.lines, line => line.inBox(x1, y1, x2, y2));
+    let [w, h] = [x2 - x1, y2 - y1];
+    // i'll do this for now until i implement kd trees
+    if (((w / this.grid.gridSize) | 0) * ((h / this.grid.gridSize) | 0) > 200) {
+      return this.lines.getLinesInBox(x1, y1, x2, y2);
+    }
+    return this.grid.getLinesInBox(x1, y1, x2, y2);
   }
 
-  // the ordering of the lines affects the physics
-  getSolidLinesAt(x, y, debug = false) { // eslint-disable-line no-unused-vars
-    return _.filter(this.lines, line => line.isSolid);
+  getSolidLinesAt(x, y, debug) {
+    return this.solidGrid.getSolidLinesAt(x, y, debug);
   }
 
 }
-
-module.exports = LineStore;

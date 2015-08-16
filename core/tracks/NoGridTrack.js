@@ -1,13 +1,13 @@
 'use strict';
 
-var Track = require('./Track');
-var { LineStore } = require('../stores');
+import Track from './Track';
+import MapStore from '../stores/MapStore';
 
-class NoGridTrack extends Track {
+export default class NoGridTrack extends Track {
 
-  getNewStore() {
-    return new LineStore();
+  constructor(lineData, startPosition, debug) {
+    super(lineData, startPosition, debug);
+    this.store = new MapStore();
   }
-}
 
-module.exports = NoGridTrack;
+}

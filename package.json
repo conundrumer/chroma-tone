@@ -25,6 +25,7 @@
     "buffer": "^3.3.1",
     "classnames": "^2.1.3",
     "combokeys": "^2.4.3",
+    "immutable": "^3.7.4",
     "lodash": "^3.10.0",
     "material-ui": "conundrumer/material-ui#build",
     "material-ui-mdi": "^0.1.1",

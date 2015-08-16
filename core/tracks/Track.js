@@ -1,23 +1,29 @@
 'use strict';
 
-var _ = require('lodash');
+import _ from 'lodash';
+import { Store, LineStore } from '../stores';
+import { Rider, DebugRider } from '../riders';
+import { makeLine } from '../lines';
 
-var { GridStore } = require('../stores');
-var { Rider, DebugRider } = require('../riders');
-var { makeLine } = require('../lines');
+export default class Track extends Store {
 
-class Track {
-  constructor(lineData, startPosition, debug = false) {
+  get isV61() {
+    return false;
+  }
+
+  constructor(lineData, startPosition = { x: 0, y: 0 }, debug = false) {
+    super();
+
     this.debug = debug;
 
-    this.startPosition = startPosition || { x: 0, y: 0 };
+    this.setStartPosition(startPosition);
 
-    this.store = this.getNewStore();
+    this.store = new LineStore(this.isV61);
 
     lineData.forEach( data => this.addLine(data) );
   }
 
-  set startPosition(pos) {
+  setStartPosition(pos) {
     this.startX = pos.x;
     this.startY = pos.y;
     this.rider = new (this.debug ? DebugRider : Rider)(pos.x, pos.y);
@@ -25,32 +31,14 @@ class Track {
     this.resetFrameCache(); // moving the start point changes everything
   }
 
-  get startPosition() {
+  getStartPosition() {
     return {
       x: this.startX,
       y: this.startY
     };
   }
 
-  get lines() {
-    return this.store.lines;
-  }
-
-  addLine(l) {
-    let line = makeLine(l);
-    this.store.addLine(line);
-    this.updateFrameCache(line);
-  }
-
-  removeLine(line) {
-    this.store.removeLine(line);
-    this.updateFrameCache(line, true);
-  }
-
-  getLines(x1, y1, x2, y2) {
-    return this.store.getLines(x1, y1, x2, y2);
-  }
-
+  // TODO: refactor this to be less mutative, less oop more fn
   getRiderStateAtFrame(frameNum) {
     if (frameNum < this.frameCache.length) {
       return this.frameCache[frameNum];
@@ -79,8 +67,23 @@ class Track {
     this.frameCache = [ this.initRiderState ];
   }
 
-  getNewStore() {
-    return new GridStore();
+  get lineStore() {
+    return this.store.lines;
+  }
+
+  getLines() {
+    return this.store.getLines();
+  }
+
+  addLine(l) {
+    let line = makeLine(l);
+    this.store.addLine(line);
+    this.updateFrameCache(line);
+  }
+
+  removeLine(line) {
+    this.store.removeLine(line);
+    this.updateFrameCache(line, true);
   }
 
   getLinesInRadius(x, y, r) {
@@ -92,5 +95,3 @@ class Track {
   }
 
 }
-
-module.exports = Track;

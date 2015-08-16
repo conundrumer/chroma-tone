@@ -1,5 +1,7 @@
-module.exports = {
-  LineStore: require('./LineStore'),
-  GridStore: require('./GridStore'),
-  OldGridStore: require('./OldGridStore')
+import Store from './Store';
+import LineStore from './LineStore';
+
+export {
+  Store,
+  LineStore,
 };

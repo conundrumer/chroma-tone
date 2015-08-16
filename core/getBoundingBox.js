@@ -1,3 +1,4 @@
+// todo: organize LineStore datastructure to make computing bounding box more efficient
 'use strict';
 
 var _ = require('lodash');

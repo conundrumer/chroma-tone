@@ -1,13 +1,10 @@
 'use strict';
 
-var Track = require('./Track');
-var { OldGridStore } = require('../stores');
+import Track from './Track';
 
-class OldTrack extends Track {
+export default class OldTrack extends Track {
 
-  getNewStore() {
-    return new OldGridStore();
+  get isV61() {
+    return true;
   }
 }
-
-module.exports = OldTrack;
