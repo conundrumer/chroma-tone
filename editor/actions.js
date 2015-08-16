@@ -3,6 +3,7 @@
 import * as tools from './tools';
 import bindHotkey from './bindHotkey';
 import DrawCancelledException from './DrawCancelledException';
+import { setIndexAndRate, startPlayback } from './playback'
 
 /**
  * action types
@@ -114,16 +115,29 @@ export function setFrameMaxIndex(maxIndex) {
     maxIndex: maxIndex
   };
 }
+
 export function setFrameRate(rate) {
-  return {
-    type: SET_FRAME_RATE,
-    rate: rate
+  return (dispatch, getState) => {
+    let prevRate = getState().playback.rate;
+
+    // dispatches are synchronous so rate is immediately set
+    dispatch({
+      type: SET_FRAME_RATE,
+      rate: rate
+    });
+
+    if (prevRate === 0 && rate !== 0) {
+      startPlayback(dispatch, getState);
+    }
   };
 }
 export function setPlaybackState(state) {
-  return {
-    type: SET_PLAYBACK_STATE,
-    state: state
+  return (dispatch, getState) => {
+    setIndexAndRate(state, dispatch, getState);
+    dispatch({
+      type: SET_PLAYBACK_STATE,
+      state: state
+    });
   };
 }
 

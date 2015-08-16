@@ -41,7 +41,8 @@ const INIT = {
     index: 0,
     maxIndex: 0,
     rate: 0,
-    skipFrames: false
+    skipFrames: false,
+    flag: 0
   },
 };
 
@@ -135,7 +136,7 @@ export function playback(state = INIT.playback, action) {
       let index = Math.max(0, action.index);
       return {...state,
         index: index,
-        maxIndex: Math.max(state.index, index)
+        maxIndex: Math.max(state.maxIndex, index)
       };
     case SET_FRAME_MAX_INDEX:
       let maxIndex = Math.max(0, action.maxIndex);
@@ -145,7 +146,7 @@ export function playback(state = INIT.playback, action) {
       };
     case SET_FRAME_RATE:
       return {...state,
-        rate: action.index,
+        rate: action.rate,
       };
     case SET_PLAYBACK_STATE:
       return {...state,
