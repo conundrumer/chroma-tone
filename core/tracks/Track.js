@@ -4,6 +4,8 @@ import _ from 'lodash';
 import { Store, LineStore } from '../stores';
 import { Rider, DebugRider } from '../riders';
 import { makeLine } from '../lines';
+import getBoundingBox from './getBoundingBox'
+import getRiderCam from './getRiderCam'
 
 export default class Track extends Store {
 
@@ -55,6 +57,24 @@ export default class Track extends Store {
     return this.frameCache[frameNum];
   }
 
+  getBoundingBox() {
+    return getBoundingBox(this.getLines());
+  }
+
+  getRiderCam(index, maxRadius) {
+    let {
+      index: prevIndex,
+      maxRadius: prevMaxRadius,
+      cam: prevCam
+    } = this.simpleCamCache;
+    if (index === prevIndex && maxRadius === prevMaxRadius) {
+      return prevCam;
+    }
+    let cam = getRiderCam(this, index, maxRadius)
+    this.simpleCamCache = {index, maxRadius, cam}
+    return cam;
+  }
+
   updateFrameCache(line, removed) { // eslint-disable-line no-unused-vars
     // don't be too clever right now
     // any solid line modification resets the cache
@@ -65,10 +85,20 @@ export default class Track extends Store {
 
   resetFrameCache() {
     this.frameCache = [ this.initRiderState ];
+    // TODO: cache this more intelligently i guess
+    this.simpleCamCache = {
+      index: 0,
+      maxRadius: 0,
+      cam: this.getStartPosition()
+    }
   }
 
   get lineStore() {
-    return this.store.lines;
+    return this.store.lines.lineMap;
+  }
+
+  get numLines() {
+    return this.lineStore.size;
   }
 
   getLines() {

@@ -6,7 +6,7 @@ var Display = require('../Display');
 var FPSStats = require('react-stats').FPSStats;
 require('buffer');
 
-var { Track, OldTrack, getRiderCam, getBoundingBox } = require('../../core');
+var { Track, OldTrack, getBoundingBox } = require('../../core');
 
 var DEBUG = false;
 
@@ -85,7 +85,7 @@ var App = React.createClass({
     }
     let track = new VersionedTrack(trackData.lines, startPos, DEBUG);
     track.label = trackData.label;
-    let box = getBoundingBox(track.lines.concat([{
+    let box = getBoundingBox(track.getLines().concat([{
       x1: startPos.x - 10,
       y1: startPos.y - 10,
       x2: startPos.x + 10,
@@ -200,7 +200,7 @@ var App = React.createClass({
       let w = this.state.width;
       let h = this.getHeight();
       let maxRadius = Math.max(this.state.zoom * (Math.min(w, h) / 2) - 15);
-      let {x, y} = getRiderCam(this.state.track, this.state.frame, maxRadius, 1);
+      let {x, y} = this.state.track.getRiderCam(this.state.frame, maxRadius);
       return {
         x: x,
         y: y,
@@ -278,7 +278,7 @@ var App = React.createClass({
           <p>
             <b>Track name:</b> { this.state.tracks[this.state.selected].label } <br/>
             <b>Version:</b> { this.state.tracks[this.state.selected].version } <br/>
-            <b>Line count:</b> { this.state.track.lines.length }
+            <b>Line count:</b> { this.state.track.numLines }
           </p>
           : null
         }
@@ -318,7 +318,7 @@ var App = React.createClass({
           this.state.track ?
             <Display
               frame={this.state.frame}
-              startPosition={this.state.track.startPosition}
+              startPosition={this.state.track.getStartPosition()}
               viewOptions={{color, floor, accArrow, snapDot}}
               rider={this.getRider()}
               cam={this.getCam()}
