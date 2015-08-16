@@ -1,5 +1,10 @@
-module.exports = {
-  Track: require('./tracks').Track,
-  OldTrack: require('./tracks').OldTrack,
-  LineTypes: require('./lines').LineTypes
-};
+import { Track, OldTrack } from './tracks'
+import { LineTypes } from './lines'
+import getBoundingBox from './tracks/getBoundingBox'
+
+export {
+  Track,
+  OldTrack,
+  LineTypes,
+  getBoundingBox
+}
