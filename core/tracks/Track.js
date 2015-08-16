@@ -7,8 +7,8 @@ import { makeLine } from '../lines';
 
 export default class Track extends Store {
 
-  get isV61() {
-    return false;
+  makeStore() {
+    return new LineStore();
   }
 
   constructor(lineData, startPosition = { x: 0, y: 0 }, debug = false) {
@@ -18,7 +18,7 @@ export default class Track extends Store {
 
     this.setStartPosition(startPosition);
 
-    this.store = new LineStore(this.isV61);
+    this.store = this.makeStore();
 
     lineData.forEach( data => this.addLine(data) );
   }

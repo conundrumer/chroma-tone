@@ -1,10 +1,12 @@
 'use strict';
 
 import Track from './Track';
+import { LineStore } from '../stores';
 
 export default class OldTrack extends Track {
 
-  get isV61() {
-    return true;
+  makeStore() {
+    return new LineStore(true);
   }
+
 }
