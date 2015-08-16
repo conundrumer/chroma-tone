@@ -1,12 +1,17 @@
 {
   "parser": "babel-eslint",
+  "extends": ["standard", "standard-react"],
   "env": {
     "browser": true,
     "node": true
   },
   "plugins": [
-    "react"
+    "react",
+    "babel"
   ],
   "rules": {
+    "semi": 0,
+    "space-before-function-paren": 0,
+    "space-in-parens": 0
   }
 }
