@@ -4,6 +4,11 @@ import {
   RESIZE,
   SHOW_TOOLBARS,
   HIDE_TOOLBARS,
+  SHOW_SIDEBAR,
+  HIDE_SIDEBAR,
+  SELECT_SIDEBAR_ITEM,
+  SHOW_FILE_LOADER,
+  HIDE_FILE_LOADER,
   TOGGLE_TIME_CONTROL,
   TOGGLE_BUTTON,
   SET_TOOL,
@@ -18,6 +23,10 @@ import {
   ADD_LINE,
   REMOVE_LINE,
   NEW_TRACK,
+  LOAD_TRACK,
+  LOAD_FILE,
+  LOAD_FILE_SUCCESS,
+  LOAD_FILE_FAIL,
 } from './actions';
 
 import { newTrack } from './actions';
@@ -30,6 +39,8 @@ const INIT = {
   toolbars: {
     toolbarsVisible: false,
     timeControlVisible: false,
+    sidebarOpen: false,
+    sidebarSelected: -1,
     tool: 'debugTool',
   },
   toggled: Object.create(null),
@@ -46,6 +57,13 @@ const INIT = {
     rate: 0,
     skipFrames: false,
     flag: 0
+  },
+  fileLoader: {
+    open: true,
+    loadingFile: false,
+    error: null,
+    fileName: null,
+    tracks: null
   },
   trackData: trackData(null, newTrack())
 };
@@ -74,6 +92,22 @@ export function toolbars(state = INIT.toolbars, action) {
       return {...state,
         toolbarsVisible: false
       };
+    case LOAD_FILE_SUCCESS:
+      return {...state,
+        sidebarOpen: true
+      }
+    case SHOW_SIDEBAR:
+      return {...state,
+        sidebarOpen: true
+      };
+    case HIDE_SIDEBAR:
+      return {...state,
+        sidebarOpen: false
+      };
+    case SELECT_SIDEBAR_ITEM:
+      return {...state,
+        sidebarSelected: action.selected
+      }
     case TOGGLE_TIME_CONTROL:
       return {...state,
         timeControlVisible: !state.timeControlVisible
@@ -82,6 +116,37 @@ export function toolbars(state = INIT.toolbars, action) {
       return {...state,
         tool: action.tool
       };
+    default:
+      return state;
+  }
+}
+
+export function fileLoader(state = INIT.fileLoader, action) {
+  switch (action.type) {
+    case SHOW_FILE_LOADER:
+      return {...state,
+        open: true
+      };
+    case HIDE_FILE_LOADER:
+      return {...state,
+        open: false
+      };
+    case LOAD_FILE:
+      return {...state,
+        loadingFile: true
+      }
+    case LOAD_FILE_SUCCESS:
+      return {...state,
+        loadingFile: false,
+        open: false,
+        fileName: action.fileName,
+        tracks: action.tracks
+      }
+    case LOAD_FILE_FAIL:
+      return {...state,
+        loadingFile: false,
+        error: action.error
+      }
     default:
       return state;
   }
@@ -119,6 +184,8 @@ export function editorCamera(state = INIT.editorCamera, action) {
   switch (action.type) {
     case SET_CAM:
       return action.cam;
+    case NEW_TRACK:
+      return INIT.editorCamera
     default:
       return state;
   }
@@ -156,6 +223,9 @@ export function playback(state = INIT.playback, action) {
       return {...state,
         state: action.state
       };
+    case NEW_TRACK:
+    case LOAD_TRACK:
+      return INIT.playback
     default:
       return state;
   }
@@ -164,8 +234,10 @@ export function playback(state = INIT.playback, action) {
 export function trackData(state = INIT.trackData, action) {
   switch (action.type) {
     case NEW_TRACK:
+    case LOAD_TRACK:
       let { lineStore, startPosition, version, label } = action.track;
       return {
+        saved: false,
         track: action.track,
         lineStore,
         startPosition,

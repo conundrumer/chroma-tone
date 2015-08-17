@@ -15,6 +15,7 @@ import {
   decFrameIndex,
   setPlaybackState,
   newTrack,
+  showFileLoader
 } from './actions';
 import Icons from './components/SvgIcons';
 
@@ -59,7 +60,7 @@ export function getButtons(dispatch) {
     save:              { action: null                , hotkey: null          , icon: require('icons/download')       },
     load:              { action: null                , hotkey: null          , icon: require('icons/upload')         },
     saveToFile:        { action: null                , hotkey: null          , icon: require('icons/folder-download')},
-    loadFromFile:      { action: null                , hotkey: null          , icon: require('icons/folder-upload')  },
+    loadFromFile:      { action: showFileLoader()    , hotkey: null          , icon: require('icons/folder-upload')  },
     saveToServer:      { action: null                , hotkey: null          , icon: require('icons/cloud-upload')   },
     savedToServer:     { action: null                , hotkey: null          , icon: require('icons/cloud-check')    },
     loadFromServer:    { action: null                , hotkey: null          , icon: require('icons/cloud-download') },

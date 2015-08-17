@@ -3,6 +3,7 @@ import React from 'react'
 import { LeftNav, List, ListItem, ListDivider, RaisedButton } from 'material-ui'
 import ImportIcon from 'icons/import';
 import LoadFromFileIcon from 'icons/folder-upload';
+import { selectSidebarItem } from '../actions';
 
 class SideBarContents extends React.Component {
   render() {
@@ -82,21 +83,27 @@ export default class SideBar extends React.Component {
             footer={
               <div className='track-importer-footer'>
                 <RaisedButton label='cancel' />
-                <RaisedButton primary={true} label='Import' >
+                <RaisedButton primary={true} label='Import' disabled={this.props.selected < 0}>
                   <ImportIcon style={{position: 'relative', top: 6, right: 7}} color={primaryTextColor}/>
                 </RaisedButton>
               </div>
             }
           >
-            {this.props.tracks.map( ({label, version, lines}, i) =>
-              <ListItem key={i}
-                style={i === this.props.selected ? {color: selectedTextColor} : null}
-                primaryText={label}
-                secondaryText={`${lines.length} line${lines.length > 1 ? 's' : ''}`}
-                rightIcon={<div>{version}</div>}
-                onTouchTap={() => i === this.props.selected ? null : this.props.onSelect(i)}
-              />
-            )}
+            {this.props.tracks ? (
+              this.props.tracks.length < 1 ?
+                <ListItem key={0} primaryText='This file has no tracks!' disabled={true} />
+              : this.props.tracks.map( ({label, version, lines}, i) =>
+                <ListItem key={i}
+                  style={i === this.props.selected ? {color: selectedTextColor} : null}
+                  primaryText={label}
+                  secondaryText={`${lines.length} line${lines.length > 1 ? 's' : ''}`}
+                  rightIcon={<div>{version}</div>}
+                  onTouchTap={() => i === this.props.selected ? null : this.props.dispatch(selectSidebarItem(i))}
+                />
+              )
+            ) :
+              <ListItem key={0} primaryText='No file loaded!' disabled={true} />
+            }
           </SideBarContents>
         }
         menuItems={[]}

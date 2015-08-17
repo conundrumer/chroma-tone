@@ -12,6 +12,8 @@ var MenuItem = require('material-ui/lib/menus/menu-item');
 var IconButton = require('./IconButton');
 var { getButtons, getButtonGroups, getMenus } = require('../buttons');
 var DrawingSurface = require('./DrawingSurface');
+import SideBar from './SideBar';
+import FileLoader from './FileLoader';
 var { setHotkey } = require('../actions');
 
 require('../styles/Editor.less');
@@ -82,21 +84,47 @@ var Editor = React.createClass({
   },
 
   shouldComponentUpdate(nextProps) {
+    // this is getting ridiculous
     let {
       toolbarsVisible,
+      sidebarOpen,
       timeControlVisible,
       leftNavVisible,
-      selected
+      selected,
+      sidebarSelected,
+      fileLoader: {
+        open: fileLoaderOpen,
+        loadingFile,
+        error: fileLoaderError,
+        fileName,
+        tracks: fileLoaderTracks
+      }
     } = this.props;
 
     let {
       toolbarsVisible: toolbarsVisible_,
+      sidebarOpen: sidebarOpen_,
       timeControlVisible: timeControlVisible_,
       leftNavVisible: leftNavVisible_,
-      selected: selected_
+      selected: selected_,
+      sidebarSelected: sidebarSelected_,
+      fileLoader: {
+        open: fileLoaderOpen_,
+        loadingFile: loadingFile_,
+        error: fileLoaderError_,
+        fileName: fileName_,
+        tracks: fileLoaderTracks_
+      }
     } = nextProps;
 
     return toolbarsVisible !== toolbarsVisible_
+      || sidebarOpen !== sidebarOpen_
+      || sidebarSelected !== sidebarSelected_
+      || fileLoaderOpen !== fileLoaderOpen_
+      || fileLoaderError !== fileLoaderError_
+      || fileName !== fileName_
+      || fileLoaderTracks !== fileLoaderTracks_
+      || loadingFile !== loadingFile_
       || timeControlVisible !== timeControlVisible_
       || leftNavVisible !== leftNavVisible_
       || !_.isEqual(selected, selected_);
@@ -232,6 +260,13 @@ var Editor = React.createClass({
         <FloatBar closed={toolbarsVisible}>
           { float }
         </FloatBar>
+        <SideBar {...{toolbarsVisible, timeControlVisible}}
+          dispatch={this.props.dispatch}
+          open={this.props.sidebarOpen}
+          selected={this.props.sidebarSelected}
+          fileName={this.props.fileLoader.fileName}
+          tracks={this.props.fileLoader.tracks}
+        />
         <TopBar closed={!toolbarsVisible}>
           { top }
         </TopBar>
@@ -244,6 +279,7 @@ var Editor = React.createClass({
           { bottom }
           { timeControl }
         </BottomBar>
+        <FileLoader {...this.props.fileLoader} dispatch={this.props.dispatch} />
       </div>
     );
   }

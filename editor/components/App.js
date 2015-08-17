@@ -88,7 +88,8 @@ var App = React.createClass({
       playing,
       trackData: {
         track,
-      }
+      },
+      fileLoader
     } = this.props;
 
     // let maxRadius = Math.max(cam.z * (Math.min(width, height) / 2) - 15);
@@ -110,7 +111,7 @@ var App = React.createClass({
           width={width}
           height={height}
         />
-        <Editor dispatch={dispatch} {...toolbars} playing={playing}/>
+        <Editor dispatch={dispatch} {...toolbars} fileLoader={fileLoader} playing={playing}/>
       </div>
     );
   }
@@ -133,7 +134,7 @@ function select({
     },
     playing: playback.state !== 'stop' && playback.state !== 'pause',
     playback,
-    cam: editorCamera
+    cam: editorCamera,
   };
 }
 
