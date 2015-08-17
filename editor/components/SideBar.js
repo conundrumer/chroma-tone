@@ -55,7 +55,10 @@ export default class SideBar extends React.Component {
   }
 
   render() {
-    const selectedStyle = {color: this.context.muiTheme.component.menuItem.selectedTextColor};
+    let {
+      menuItem: {selectedTextColor},
+      raisedButton: {primaryTextColor}
+    } = this.context.muiTheme.component;
 
     return (
       <LeftNav
@@ -77,18 +80,17 @@ export default class SideBar extends React.Component {
               />
             }
             footer={
-              <div style={{textAlign: 'center'}}>
-                <div style={{height: 25}} />
-                <RaisedButton primary={true} label={"Import"} >
-                  <ImportIcon style={{position: 'relative', top: 6, right: 7}} color={'white'}/>
+              <div className='track-importer-footer'>
+                <RaisedButton label='cancel' />
+                <RaisedButton primary={true} label='Import' >
+                  <ImportIcon style={{position: 'relative', top: 6, right: 7}} color={primaryTextColor}/>
                 </RaisedButton>
-                <div style={{height: 25}} />
               </div>
             }
           >
             {this.props.tracks.map( ({label, version, lines}, i) =>
               <ListItem key={i}
-                style={i === this.props.selected ? selectedStyle : null}
+                style={i === this.props.selected ? {color: selectedTextColor} : null}
                 primaryText={label}
                 secondaryText={`${lines.length} line${lines.length > 1 ? 's' : ''}`}
                 rightIcon={<div>{version}</div>}
