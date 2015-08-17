@@ -16,6 +16,16 @@
   overflow: hidden;
   position: relative;
 
+  .sidebar-spacer {
+    flex-shrink: 0;
+    transition: ease-in @transition-time;
+    height: 0px;
+    &.open {
+      transition: ease-out @transition-time;
+      height: @toolbar-height;
+    }
+  }
+
   .float-paper {
     transition: ease-in @transition-time;
     box-shadow: @z-depth-shadow-1;
