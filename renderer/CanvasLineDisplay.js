@@ -9,14 +9,14 @@ var { SOLID_LINE, ACC_LINE, SCENERY_LINE } = require('../core').LineTypes;
 function getColor(type) {
   var blue500 = '#2196F3';
   var red500 = '#F44336';
-  var lightGreen500 = '#8BC34A';
+  var green500 = '#4CAF50';
   switch (type) {
     case SOLID_LINE:
       return blue500;
     case ACC_LINE:
       return red500;
     case SCENERY_LINE:
-      return lightGreen500;
+      return green500;
   }
 }
 

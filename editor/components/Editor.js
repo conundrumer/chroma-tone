@@ -7,7 +7,7 @@ var classNames = require('classnames');
 var Combokeys = require('combokeys');
 var ThemeManager = new mui.Styles.ThemeManager();
 
-var {Paper, IconMenu, Styles: { Colors: { blue500, red500, lightGreen500 }}} = mui;
+var {Paper, IconMenu, Styles: { Colors: { blue500, red500, green500 }}} = mui;
 var MenuItem = require('material-ui/lib/menus/menu-item');
 var IconButton = require('./IconButton');
 var { getButtons, getButtonGroups, getMenus } = require('../buttons');
@@ -22,8 +22,16 @@ function setTheme() {
   let palette = ThemeManager.getCurrentTheme().palette;
   palette.primary1Color = blue500;
   palette.primary2Color = red500;
-  palette.primary3Color = lightGreen500;
+  palette.primary3Color = green500;
   ThemeManager.setPalette(palette);
+  ThemeManager.setComponentThemes({
+    raisedButton: {
+      primaryColor: red500
+    },
+    menuItem: {
+      selectedTextColor: red500
+    }
+  })
 }
 
 function setDefaultHotkeys(dispatch, combokeys, ripples) {

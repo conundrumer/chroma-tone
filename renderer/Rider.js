@@ -16,7 +16,7 @@ const scarfColors = [
   'white',
   '#F44336',
   'white',
-  '#8BC34A',
+  '#4CAF50',
   'white',
   '#2196F3'
 ];
