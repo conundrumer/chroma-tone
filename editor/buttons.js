@@ -130,8 +130,8 @@ export function getButtonGroups(b) {
     top: {
       left: [
         b.file,
-        b.undo,
-        b.redo
+        b.settings,
+        b.chat,
       ],
       middle: [
         b.select,
@@ -143,17 +143,17 @@ export function getButtonGroups(b) {
         b.eraser
       ],
       right: [
-        b.settings,
-        b.chat,
-        b.hideToolbars
+        b.undo,
+        b.redo,
+        b.hideToolbars,
       ]
     },
     bottom: {
       left: [
-        b.layers,
-        b.viewfinder,
-        b.pan,
-        b.zoom
+        b.toggleTimeControl,
+        b.help,
+        b.record,
+        b.camera,
       ],
       middle: [
         b.flag,
@@ -163,23 +163,23 @@ export function getButtonGroups(b) {
         b.stop,
       ],
       right: [
-        b.camera,
-        b.record,
-        b.help,
-        b.toggleTimeControl
+        b.pan,
+        b.zoom,
+        b.viewfinder,
+        b.layers,
       ]
     },
     timeControl: {
       left: [
-        b.onionSkin,
+        b.music,
         b.reverse,
-        b.stepBack
+        b.stepBack,
       ],
       middle: [],
       right: [
         b.stepForward,
         b.forward,
-        b.music
+        b.onionSkin,
       ]
     },
   };
