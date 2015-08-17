@@ -2,13 +2,13 @@ import classNames from 'classnames';
 import React from 'react'
 import { LeftNav, List, ListItem, ListDivider, RaisedButton } from 'material-ui'
 import ImportIcon from 'icons/import';
+import LoadFromFileIcon from 'icons/folder-upload';
 
 class SideBarContents extends React.Component {
   render() {
     let {toolbarsVisible, timeControlVisible} = this.props;
     return (
       <List subheader=' ' style={{display: 'flex', flexDirection: 'column', height: '100%'}}>
-        <div style={{height: 10}} />
         <div className={classNames('sidebar-spacer', {open: toolbarsVisible})} />
         { this.props.header }
         <ListDivider style={{marginTop: 0, flexShrink: 0}} />
@@ -16,9 +16,7 @@ class SideBarContents extends React.Component {
           { this.props.children }
         </List>
         <ListDivider style={{marginTop: 0, flexShrink: 0}} />
-        <div style={{height: 25}} />
         { this.props.footer }
-        <div style={{height: 25}} />
         <div className={classNames('sidebar-spacer', {open: toolbarsVisible})} />
         <div className={classNames('sidebar-spacer', {open: toolbarsVisible && timeControlVisible})} />
       </List>
@@ -71,13 +69,20 @@ export default class SideBar extends React.Component {
             toolbarsVisible={this.props.toolbarsVisible}
             timeControlVisible={this.props.timeControlVisible}
             header={
-              <List subheader='Select a track to import' />
+              <ListItem
+                rightIcon={<LoadFromFileIcon/>}
+                disabled={true}
+                primaryText={this.props.fileName}
+                secondaryText={'Select a track to import'}
+              />
             }
             footer={
               <div style={{textAlign: 'center'}}>
+                <div style={{height: 25}} />
                 <RaisedButton primary={true} label={"Import"} >
                   <ImportIcon style={{position: 'relative', top: 6, right: 7}} color={'white'}/>
                 </RaisedButton>
+                <div style={{height: 25}} />
               </div>
             }
           >
