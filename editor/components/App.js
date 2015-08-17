@@ -5,7 +5,7 @@ var { connect } = require('react-redux');
 
 var { Display } = require('renderer');
 
-var { setWindowSize, addLine, removeLine } = require('../actions');
+var { setWindowSize, addLine, removeLine, newTrack } = require('../actions');
 var Editor = require('./Editor');
 
 var makeRandomLine = require('../../test/makeRandomLine');
@@ -33,7 +33,7 @@ var App = React.createClass({
 
     let track = this.props.trackData.track;
     let numLoadingFrames = 60;
-    let numLinesPerFrame = Math.floor(randomTrack.length / numLoadingFrames);
+    let numLinesPerFrame = Math.ceil(randomTrack.length / numLoadingFrames);
     let dispatch = this.props.dispatch;
     (function delayAddLine(n) {
       if (n >= randomTrack.length) {

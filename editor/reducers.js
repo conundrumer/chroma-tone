@@ -1,7 +1,5 @@
 'use strict';
 
-import { Track } from 'core'
-
 import {
   RESIZE,
   SHOW_TOOLBARS,
@@ -19,10 +17,10 @@ import {
   SET_PLAYBACK_STATE,
   ADD_LINE,
   REMOVE_LINE,
+  NEW_TRACK,
 } from './actions';
 
-const DEBUG = false;
-var emptyTrack = new Track([], {x: 0, y: 0}, DEBUG);
+import { newTrack } from './actions';
 
 const INIT = {
   windowSize: {
@@ -49,13 +47,7 @@ const INIT = {
     skipFrames: false,
     flag: 0
   },
-  trackData: {
-    track: emptyTrack,
-    lineStore: emptyTrack.lineStore,
-    startPosition: emptyTrack.getStartPosition(),
-    version: '6.2',
-    label: 'untitled'
-  }
+  trackData: trackData(null, newTrack())
 };
 
 // display dimensions
@@ -171,6 +163,15 @@ export function playback(state = INIT.playback, action) {
 
 export function trackData(state = INIT.trackData, action) {
   switch (action.type) {
+    case NEW_TRACK:
+      let { lineStore, startPosition, version, label } = action.track;
+      return {
+        track: action.track,
+        lineStore,
+        startPosition,
+        version,
+        label
+      }
     case ADD_LINE:
       return {...state,
         lineStore: state.track.lineStore

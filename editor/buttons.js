@@ -1,5 +1,6 @@
 /*eslint no-multi-spaces: 0 key-spacing: 0*/
 /*eslint comma-spacing: 0*/
+/*eslint standard/object-curly-even-spacing: 0*/
 'use strict';
 
 import _ from 'lodash';
@@ -8,12 +9,12 @@ import {
   showToolbars,
   hideToolbars,
   toggleTimeControl,
-  hideLeftNav,
   toggleButton,
   setTool,
   incFrameIndex,
   decFrameIndex,
-  setPlaybackState
+  setPlaybackState,
+  newTrack,
 } from './actions';
 import Icons from './components/SvgIcons';
 
@@ -65,7 +66,7 @@ export function getButtons(dispatch) {
     addCheckpoint:     { action: null                , hotkey: null          , icon: require('icons/flag')           },
     history:           { action: null                , hotkey: null          , icon: require('icons/history')        },
     editInfo:          { action: null                , hotkey: null          , icon: require('icons/pencil')         },
-    new:               { action: null                , hotkey: null          , icon: require('icons/file')           },
+    new:               { action: () => newTrack()    , hotkey: null          , icon: require('icons/file')           },
   }, (props, key) => {
     props.name = key;
     props.tooltip = _.startCase(key) + (props.hotkey ? ` (${props.hotkey})` : '');

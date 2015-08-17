@@ -4,7 +4,9 @@ import * as tools from './tools';
 import bindHotkey from './bindHotkey';
 import DrawCancelledException from './DrawCancelledException';
 import { setIndexAndRate, startPlayback } from './playback'
+import { Track, OldTrack } from 'core'
 
+const DEBUG = false;
 /**
  * action types
  */
@@ -25,6 +27,7 @@ export const DEC_FRAME_INDEX = 'DEC_FRAME_INDEX';
 export const SET_PLAYBACK_STATE = 'SET_PLAYBACK_STATE';
 export const ADD_LINE = 'ADD_LINE';
 export const REMOVE_LINE = 'REMOVE_LINE';
+export const NEW_TRACK = 'NEW_TRACK';
 
 /**
  * action creators
@@ -198,4 +201,16 @@ export function removeLine(line) {
     })
 
   }
+}
+
+export function newTrack(isV61 = false) {
+  let track = new (isV61 ? OldTrack : Track)([]);
+  return {
+    type: NEW_TRACK,
+    track: track,
+    lineStore: track.lineStore,
+    startPosition: track.startPosition,
+    label: (new Date()).toString(),
+    version: isV61 ? '6.1' : '6.2'
+  };
 }
