@@ -23,6 +23,8 @@ export const SET_FRAME_RATE = 'SET_FRAME_RATE';
 export const INC_FRAME_INDEX = 'INC_FRAME_INDEX';
 export const DEC_FRAME_INDEX = 'DEC_FRAME_INDEX';
 export const SET_PLAYBACK_STATE = 'SET_PLAYBACK_STATE';
+export const ADD_LINE = 'ADD_LINE';
+export const REMOVE_LINE = 'REMOVE_LINE';
 
 /**
  * action creators
@@ -163,4 +165,37 @@ export function draw(drawStream) {
       }
     }, onEnd);
   };
+}
+
+export function addLine(line) {
+  return (dispatch, getState) => {
+    let { track } = getState().trackData
+    if (line instanceof Array) {
+      line.forEach(l => track.addLine(l));
+    } else {
+      track.addLine(line)
+    }
+    dispatch({
+      type: ADD_LINE,
+      line: line,
+      lineStore: track.lineStore
+    })
+  }
+}
+
+export function removeLine(line) {
+  return (dispatch, getState) => {
+    let { track } = getState().trackData
+    if (line instanceof Array) {
+      line.forEach(l => track.removeLine(l));
+    } else {
+      track.removeLine(line)
+    }
+    dispatch({
+      type: ADD_LINE,
+      line: line,
+      lineStore: track.lineStore
+    })
+
+  }
 }

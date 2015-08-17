@@ -132,7 +132,7 @@ var SvgSprite = React.createClass({
 var Rider = React.createClass({
 
   shouldComponentUpdate(nextProps) {
-    return this.props.frame !== nextProps.frame || this.props.seed !== nextProps.seed;
+    return this.props.frame !== nextProps.frame || this.props.seed !== nextProps.seed || this.props.rider !== nextProps.rider;
   },
 
   getDefaultProps() {

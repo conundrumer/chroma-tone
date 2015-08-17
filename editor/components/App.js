@@ -2,31 +2,27 @@
 
 var React = require('react');
 var { connect } = require('react-redux');
-var _ = require('lodash');
 
 var { Display } = require('renderer');
-var { Track } = require('core');
 
-var { setWindowSize, setHotkey } = require('../actions');
+var { setWindowSize, addLine, removeLine } = require('../actions');
 var Editor = require('./Editor');
-var { getButtons, getButtonGroups } = require('../buttons');
-
 
 var makeRandomLine = require('../../test/makeRandomLine');
+var _ = require('lodash');
 
 function randomLines() {
   var lines = [];
   var limits = 900;
-  var numLines = 1000;
+  var numLines = 500;
 
-  for (let i = 0; i < numLines; i++) {
+  for (let i = 0; i < 2 * numLines; i++) {
     lines.push(makeRandomLine(limits, 2));
   }
   return lines;
 }
 
-var DEBUG = false;
-var randomTrack = new Track(randomLines(), {x: 0, y: 0}, DEBUG);
+var randomTrack = randomLines();
 
 var BLOCK_CONTEXT_MENU = true;
 
@@ -34,6 +30,29 @@ var App = React.createClass({
 
   componentDidMount() {
     this.interval = setInterval(this.onResize, 100);
+
+    let track = this.props.trackData.track;
+    let numLoadingFrames = 60;
+    let numLinesPerFrame = Math.floor(randomTrack.length / numLoadingFrames);
+    let dispatch = this.props.dispatch;
+    (function delayAddLine(n) {
+      if (n >= randomTrack.length) {
+
+        randomTrack = _.shuffle(track.getLines());
+
+        (function delayRemoveLine(n) {
+          if (n >= randomTrack.length / 2) {
+            return
+          }
+          dispatch(removeLine(_.slice(randomTrack, n, n + numLinesPerFrame)))
+          requestAnimationFrame(() => delayRemoveLine(n + numLinesPerFrame))
+        })(0)
+
+        return
+      }
+      dispatch(addLine(_.slice(randomTrack, n, n + numLinesPerFrame)))
+      requestAnimationFrame(() => delayAddLine(n + numLinesPerFrame))
+    })(0)
   },
 
   componentWillUnmount() {
@@ -67,6 +86,9 @@ var App = React.createClass({
       cam,
       playback,
       playing,
+      trackData: {
+        track,
+      }
     } = this.props;
 
     // let maxRadius = Math.max(cam.z * (Math.min(width, height) / 2) - 15);
@@ -80,11 +102,11 @@ var App = React.createClass({
       >
         <Display
           frame={playback.index}
-          startPosition={randomTrack.startPosition}
+          startPosition={track.getStartPosition()}
           viewOptions={{ color: !playing, floor: true }}
-          rider={randomTrack.getRiderStateAtFrame(playback.index)}
+          rider={track.getRiderStateAtFrame(playback.index)}
           cam={cam}
-          lines={randomTrack.lines}
+          lines={track.getLines()}
           width={width}
           height={height}
         />

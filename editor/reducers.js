@@ -1,6 +1,6 @@
 'use strict';
 
-import _ from 'lodash';
+import { Track } from 'core'
 
 import {
   RESIZE,
@@ -17,7 +17,12 @@ import {
   INC_FRAME_INDEX,
   DEC_FRAME_INDEX,
   SET_PLAYBACK_STATE,
+  ADD_LINE,
+  REMOVE_LINE,
 } from './actions';
+
+const DEBUG = false;
+var emptyTrack = new Track([], {x: 0, y: 0}, DEBUG);
 
 const INIT = {
   windowSize: {
@@ -44,6 +49,13 @@ const INIT = {
     skipFrames: false,
     flag: 0
   },
+  trackData: {
+    track: emptyTrack,
+    lineStore: emptyTrack.lineStore,
+    startPosition: emptyTrack.getStartPosition(),
+    version: '6.2',
+    label: 'untitled'
+  }
 };
 
 // display dimensions
@@ -152,6 +164,21 @@ export function playback(state = INIT.playback, action) {
       return {...state,
         state: action.state
       };
+    default:
+      return state;
+  }
+}
+
+export function trackData(state = INIT.trackData, action) {
+  switch (action.type) {
+    case ADD_LINE:
+      return {...state,
+        lineStore: state.track.lineStore
+      }
+    case REMOVE_LINE:
+      return {...state,
+        lineStore: state.track.lineStore
+      }
     default:
       return state;
   }
