@@ -3,7 +3,8 @@ import React from 'react'
 import { LeftNav, List, ListItem, ListDivider, RaisedButton } from 'material-ui'
 import ImportIcon from 'icons/import';
 import LoadFromFileIcon from 'icons/folder-upload';
-import { selectSidebarItem, loadTrack, setCam } from '../actions';
+/* TODO: move some actions to buttons */
+import { selectSidebarItem, loadTrack, setCam, importTrack, cancelImport } from '../actions';
 
 class SideBarContents extends React.Component {
   render() {
@@ -94,8 +95,13 @@ export default class SideBar extends React.Component {
             }
             footer={
               <div className='track-importer-footer'>
-                <RaisedButton label='cancel' />
-                <RaisedButton primary={true} label='Import' disabled={this.props.selected < 0}>
+                <RaisedButton label='cancel' onTouchTap={() => this.props.dispatch(cancelImport())}/>
+                <RaisedButton
+                  primary={true}
+                  label='Import'
+                  disabled={this.props.selected < 0}
+                  onTouchTap={() => this.props.dispatch(importTrack())}
+                >
                   <ImportIcon style={{position: 'relative', top: 6, right: 7}} color={primaryTextColor}/>
                 </RaisedButton>
               </div>

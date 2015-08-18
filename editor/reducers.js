@@ -27,10 +27,12 @@ import {
   LOAD_FILE,
   LOAD_FILE_SUCCESS,
   LOAD_FILE_FAIL,
+  IMPORT_TRACK,
+  CANCEL_IMPORT,
 } from './actions';
 
 import { newTrack } from './actions';
-
+// TODO: combine cam and windowSize to viewport
 const INIT = {
   windowSize: {
     width: 1,
@@ -94,12 +96,16 @@ export function toolbars(state = INIT.toolbars, action) {
       };
     case LOAD_FILE_SUCCESS:
       return {...state,
-        sidebarOpen: true
+        sidebarOpen: true,
+        sidebarSelected: INIT.toolbars.sidebarSelected
       }
     case SHOW_SIDEBAR:
       return {...state,
         sidebarOpen: true
       };
+    case IMPORT_TRACK:
+    case CANCEL_IMPORT:
+      /* TODO: distinguish sidebarOpen from other sidebar panels */
     case HIDE_SIDEBAR:
       return {...state,
         sidebarOpen: false

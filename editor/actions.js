@@ -34,6 +34,8 @@ export const ADD_LINE = 'ADD_LINE';
 export const REMOVE_LINE = 'REMOVE_LINE';
 export const NEW_TRACK = 'NEW_TRACK';
 export const LOAD_TRACK = 'LOAD_TRACK';
+export const IMPORT_TRACK = 'IMPORT_TRACK';
+export const CANCEL_IMPORT = 'CANCEL_IMPORT';
 export const SHOW_FILE_LOADER = 'SHOW_FILE_LOADER';
 export const HIDE_FILE_LOADER = 'HIDE_FILE_LOADER';
 export const LOAD_FILE = 'LOAD_FILE';
@@ -100,6 +102,16 @@ export function setTool(tool) {
     type: SET_TOOL,
     tool: tool
   };
+}
+export function importTrack() {
+  return {
+    type: IMPORT_TRACK
+  }
+}
+export function cancelImport() {
+  return {
+    type: CANCEL_IMPORT
+  }
 }
 
 /* thunk for side effects: mutating combokeys */
