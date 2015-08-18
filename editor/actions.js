@@ -287,18 +287,8 @@ export function loadFile([file]) {
 }
 
 export function selectSidebarItem(selected) {
-  // TODO: uhhhh not sure
-  return (dispatch, getState) => {
-    dispatch({
-      type: SELECT_SIDEBAR_ITEM,
-      selected: selected
-    })
-
-    // if (getState().loadingTrack)
-    let track = getState().fileLoader.tracks[selected];
-    dispatch(loadTrack(track))
-    // todo: do the bounding box thing
-    let [x, y] = track.startPosition;
-    dispatch(setCam({x, y, z: 1}))
+  return {
+    type: SELECT_SIDEBAR_ITEM,
+    selected: selected
   }
 }

@@ -3,7 +3,7 @@ import React from 'react'
 import { LeftNav, List, ListItem, ListDivider, RaisedButton } from 'material-ui'
 import ImportIcon from 'icons/import';
 import LoadFromFileIcon from 'icons/folder-upload';
-import { selectSidebarItem } from '../actions';
+import { selectSidebarItem, loadTrack, setCam } from '../actions';
 
 class SideBarContents extends React.Component {
   render() {
@@ -55,6 +55,18 @@ export default class SideBar extends React.Component {
     }
   }
 
+  handleSelect(i) {
+    if (i === this.props.selected) {
+      return;
+    }
+    let { tracks, dispatch } = this.props;
+    dispatch(selectSidebarItem(i));
+    dispatch(loadTrack(tracks[i]));
+    let [x, y] = tracks[i].startPosition;
+    // todo: do the bounding box thing
+    dispatch(setCam({x, y, z: 1}))
+  }
+
   render() {
     let {
       menuItem: {selectedTextColor},
@@ -98,7 +110,7 @@ export default class SideBar extends React.Component {
                   primaryText={label}
                   secondaryText={`${lines.length} line${lines.length > 1 ? 's' : ''}`}
                   rightIcon={<div>{version}</div>}
-                  onTouchTap={() => i === this.props.selected ? null : this.props.dispatch(selectSidebarItem(i))}
+                  onTouchTap={() => this.handleSelect(i)}
                 />
               )
             ) :
