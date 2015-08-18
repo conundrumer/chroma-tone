@@ -102,6 +102,7 @@ export function setTool(tool) {
   };
 }
 
+/* thunk for side effects: mutating combokeys */
 export function setHotkey(combokeys, ripples, name, hotkey) {
   return (dispatch, getState) => {
     let oldHotkey = getState().hotkeys[name];
@@ -153,6 +154,7 @@ export function setFrameMaxIndex(maxIndex) {
   };
 }
 
+/* thunk for async actions */
 export function setFrameRate(rate) {
   return (dispatch, getState) => {
     let prevRate = getState().playback.rate;
@@ -168,6 +170,7 @@ export function setFrameRate(rate) {
     }
   };
 }
+/* thunk for logic in dispatching more actions (should move to reducer) */
 export function setPlaybackState(state) {
   return (dispatch, getState) => {
     setIndexAndRate(state, dispatch, getState);
@@ -178,6 +181,7 @@ export function setPlaybackState(state) {
   };
 }
 
+/* thunk for async actions + getting state*/
 export function draw(drawStream) {
   return (dispatch, getState) => {
 
@@ -202,6 +206,7 @@ export function draw(drawStream) {
   };
 }
 
+/* thunk for side effects: mutating state.trackData.track */
 export function addLine(line) {
   return (dispatch, getState) => {
     let { track } = getState().trackData
@@ -218,6 +223,7 @@ export function addLine(line) {
   }
 }
 
+/* thunk for side effects: mutating state.trackData.track */
 export function removeLine(line) {
   return (dispatch, getState) => {
     let { track } = getState().trackData
@@ -260,6 +266,7 @@ export function loadTrack(trackData) {
   }
 }
 
+/* thunk for async actions */
 export function loadFile([file]) {
   return (dispatch) => {
     dispatch({
