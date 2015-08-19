@@ -26,7 +26,7 @@ export function getButtons(dispatch) {
     select:            { action: null                , hotkey: '1'           , icon: require('icons/cursor-default') },
     pencil:            { action: null                , hotkey: '2'           , icon: require('icons/pencil')         },
     brush:             { action: null                , hotkey: '3'           , icon: require('icons/brush')          },
-    line:              { action: null                , hotkey: '4'           , icon: Icons.Line                      },
+    line:              { action: setTool             , hotkey: '4'           , icon: Icons.Line                      },
     curve:             { action: null                , hotkey: '5'           , icon: Icons.Curve                     },
     multiLine:         { action: null                , hotkey: '6'           , icon: Icons.MultiLine                 },
     eraser:            { action: null                , hotkey: '7'           , icon: require('icons/eraser')         },

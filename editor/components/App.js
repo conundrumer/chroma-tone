@@ -30,29 +30,6 @@ var App = React.createClass({
 
   componentDidMount() {
     this.interval = setInterval(this.onResize, 100);
-
-    let track = this.props.trackData.track;
-    let numLoadingFrames = 60;
-    let numLinesPerFrame = Math.ceil(randomTrack.length / numLoadingFrames);
-    let dispatch = this.props.dispatch;
-    (function delayAddLine(n) {
-      if (n >= randomTrack.length) {
-
-        randomTrack = _.shuffle(track.getLines());
-
-        (function delayRemoveLine(n) {
-          if (n >= randomTrack.length / 2) {
-            return
-          }
-          dispatch(removeLine(_.slice(randomTrack, n, n + numLinesPerFrame)))
-          requestAnimationFrame(() => delayRemoveLine(n + numLinesPerFrame))
-        })(0)
-
-        return
-      }
-      dispatch(addLine(_.slice(randomTrack, n, n + numLinesPerFrame)))
-      requestAnimationFrame(() => delayAddLine(n + numLinesPerFrame))
-    })(0)
   },
 
   componentWillUnmount() {
