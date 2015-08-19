@@ -61,7 +61,7 @@ const INIT = {
     flag: 0
   },
   fileLoader: {
-    open: true,
+    open: false,
     loadingFile: false,
     error: null,
     fileName: null,

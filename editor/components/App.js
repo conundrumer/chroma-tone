@@ -75,6 +75,16 @@ var App = React.createClass({
     }
   },
 
+  // TODO: move this out of App into selector i guess???
+  getCam(playing, track, index, cam, width, height) {
+    if (!playing) {
+      return cam
+    }
+    let maxRadius = Math.max(cam.z * (Math.min(width, height) / 2) - 15)
+    let {x, y} = track.getRiderCam(index, maxRadius)
+    return {x, y, z: cam.z}
+  },
+
   render() {
     let {
       dispatch,
@@ -94,7 +104,7 @@ var App = React.createClass({
 
     // let maxRadius = Math.max(cam.z * (Math.min(width, height) / 2) - 15);
     // let {x, y} = getRiderCam(randomTrack, playback.index, maxRadius);
-
+    // move logic to selector maybe i think ???
     return (
       <div
         className='main'
@@ -106,7 +116,7 @@ var App = React.createClass({
           startPosition={track.getStartPosition()}
           viewOptions={{ color: !playing, floor: true }}
           rider={track.getRiderStateAtFrame(playback.index)}
-          cam={cam}
+          cam={this.getCam(playing, track, playback.index, cam, width, height)}
           lines={track.getLines()}
           width={width}
           height={height}
