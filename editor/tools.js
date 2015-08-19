@@ -63,6 +63,7 @@ export function zoom(stream, dispatch, getState) {
 }
 
 // TODO: put ID management in reducer
+// TODO: enforce minimum line length
 var tempID = 0;
 var tempLineType = 0;
 export function line(stream, dispatch, getState) {
@@ -94,6 +95,22 @@ export function line(stream, dispatch, getState) {
       if (prevLine) {
         dispatch(removeLine(prevLine))
       }
+    }
+  }
+}
+
+const ERASER_RADIUS = 5;
+export function eraser(stream, dispatch, getState) {
+  var removedLines = [];
+  return {
+    stream: stream.map((pos) => getAbsPos(pos, getState)),
+    onNext: (pos) => {
+      let linesToRemove = getState().trackData.track.getLinesInRadius(pos.x, pos.y, ERASER_RADIUS)
+      removedLines.push(linesToRemove);
+      dispatch(removeLine(linesToRemove));
+    },
+    onCancel: () => {
+      dispatch(addLine(removedLines))
     }
   }
 }
