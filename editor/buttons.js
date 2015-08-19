@@ -24,7 +24,7 @@ let debugThunk = (name) => () => console.log(name);
 export function getButtons(dispatch) {
   return _.forEach({
     select:            { action: null                , hotkey: '1'           , icon: require('icons/cursor-default') },
-    pencil:            { action: null                , hotkey: '2'           , icon: require('icons/pencil')         },
+    pencil:            { action: setTool             , hotkey: '2'           , icon: require('icons/pencil')         },
     brush:             { action: null                , hotkey: '3'           , icon: require('icons/brush')          },
     line:              { action: setTool             , hotkey: '4'           , icon: Icons.Line                      },
     curve:             { action: null                , hotkey: '5'           , icon: Icons.Curve                     },

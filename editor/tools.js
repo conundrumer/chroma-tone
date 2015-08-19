@@ -64,6 +64,7 @@ export function zoom(stream, dispatch, getState) {
 
 // TODO: put ID management in reducer
 // TODO: enforce minimum line length
+const MIN_LINE_LENGTH = 6;
 var tempID = 0;
 var tempLineType = 0;
 export function line(stream, dispatch, getState) {
@@ -75,7 +76,8 @@ export function line(stream, dispatch, getState) {
   });
 
   return {
-    stream: stream.map((pos) => getAbsPos(pos, getState)),
+    stream: stream.map((pos) => getAbsPos(pos, getState))
+      .filter(p2 => p1.distance(p2) >= MIN_LINE_LENGTH),
     onNext: (p2) => {
       if (prevLine) {
         dispatch(removeLine(prevLine))
@@ -95,6 +97,40 @@ export function line(stream, dispatch, getState) {
       if (prevLine) {
         dispatch(removeLine(prevLine))
       }
+    }
+  }
+}
+export function pencil(stream, dispatch, getState) {
+  var p0, addedLines = [];
+  stream.first().subscribe( pos => {
+    // TODO: make function to convert to absolute coordinates
+    p0 = getAbsPos(pos, getState);
+  });
+  return {
+    stream: stream.map((pos) => getAbsPos(pos, getState))
+      .scan(([prevLine, p1], p2) => {
+        if (p1.distance(p2) >= MIN_LINE_LENGTH) {
+          return [[p1, p2], p2]
+        }
+        return [null, p1]
+      }, [null, p0])
+      .map(([prevLine, p1]) => prevLine)
+      .filter(prevLine => prevLine !== null)
+    ,
+    onNext: ([p1, p2]) => {
+      let lineData = {
+        x1: p1.x,
+        y1: p1.y,
+        x2: p2.x,
+        y2: p2.y,
+        id: tempID++,
+        type: tempLineType
+      }
+      dispatch(addLine(lineData))
+      addedLines.push(lineData);
+    },
+    onCancel: () => {
+      dispatch(removeLine(addedLines))
     }
   }
 }
