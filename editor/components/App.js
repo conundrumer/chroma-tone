@@ -76,13 +76,50 @@ var App = React.createClass({
   },
 
   // TODO: move this out of App into selector i guess???
-  getCam(playing, track, index, cam, width, height) {
+  getCam() {
+    let {
+      windowSize: {
+        width,
+        height
+      },
+      cam,
+      playback: {
+        index
+      },
+      playing,
+      trackData: {
+        track,
+      },
+    } = this.props;
     if (!playing) {
       return cam
     }
-    let maxRadius = Math.max(cam.z * (Math.min(width, height) / 2) - 15)
+    let offset = 25; // TODO: make this responsive to toolbars
+    let maxRadius = Math.max(cam.z * (Math.min(width, height) / 2) - offset)
     let {x, y} = track.getRiderCam(index, maxRadius)
     return {x, y, z: cam.z}
+  },
+
+  getViewBox() {
+    let {
+      windowSize: {
+        width: w,
+        height: h
+      }
+    } = this.props;
+    let {x, y, z} = this.getCam();
+    return [
+      x - w / 2 * z,
+      y - h / 2 * z,
+      w * z,
+      h * z
+    ];
+  },
+
+  getLines() {
+    let [x1, y1, w, h] = this.getViewBox();
+    // console.log(x1, y1, x1 + w, y1 + h);
+    return this.props.trackData.track.getLinesInBox(x1, y1, x1 + w, y1 + h);
   },
 
   render() {
@@ -116,8 +153,8 @@ var App = React.createClass({
           startPosition={track.getStartPosition()}
           viewOptions={{ color: !playing, floor: true }}
           rider={track.getRiderStateAtFrame(playback.index)}
-          cam={this.getCam(playing, track, playback.index, cam, width, height)}
-          lines={track.getLines()}
+          cam={this.getCam()}
+          lines={this.getLines()}
           width={width}
           height={height}
         />
