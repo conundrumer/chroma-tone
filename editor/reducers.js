@@ -29,6 +29,7 @@ import {
   LOAD_FILE_FAIL,
   IMPORT_TRACK,
   CANCEL_IMPORT,
+  SET_FLAG,
 } from './actions';
 
 import { newTrack } from './actions';
@@ -229,6 +230,17 @@ export function playback(state = INIT.playback, action) {
       return {...state,
         state: action.state
       };
+    case SET_FLAG:
+      if (state.flag === state.index) { // TODO: reset flag if pressed twice
+        return {...state,
+          flag: INIT.playback.flag,
+          index: INIT.playback.index
+        }
+      } else {
+        return {...state,
+          flag: state.index
+        }
+      }
     case NEW_TRACK:
     case LOAD_TRACK:
       return INIT.playback

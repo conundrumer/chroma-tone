@@ -15,7 +15,8 @@ import {
   decFrameIndex,
   setPlaybackState,
   newTrack,
-  showFileLoader
+  showFileLoader,
+  setFlag,
 } from './actions';
 import Icons from './components/SvgIcons';
 
@@ -43,7 +44,7 @@ export function getButtons(dispatch) {
     forward:           { action: null                , hotkey: null          , icon: require('icons/fast-forward')   },
     stepBack:          { action: decFrameIndex()     , hotkey: null          , icon: require('icons/skip-previous')  },
     stepForward:       { action: incFrameIndex()     , hotkey: null          , icon: require('icons/skip-next')      },
-    flag:              { action: null                , hotkey: null          , icon: require('icons/flag-variant')   },
+    flag:              { action: setFlag             , hotkey: null          , icon: require('icons/flag-variant')   },
     slowmo:            { action: setPlaybackState    , hotkey: null          , icon: Icons.SlowMotion                },
     onionSkin:         { action: null                , hotkey: null          , icon: Icons.OnionSkin                 },
     camera:            { action: null                , hotkey: null          , icon: require('icons/video')          },

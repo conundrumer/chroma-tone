@@ -30,6 +30,7 @@ export const SET_FRAME_RATE = 'SET_FRAME_RATE';
 export const INC_FRAME_INDEX = 'INC_FRAME_INDEX';
 export const DEC_FRAME_INDEX = 'DEC_FRAME_INDEX';
 export const SET_PLAYBACK_STATE = 'SET_PLAYBACK_STATE';
+export const SET_FLAG = 'SET_FLAG';
 export const ADD_LINE = 'ADD_LINE';
 export const REMOVE_LINE = 'REMOVE_LINE';
 export const NEW_TRACK = 'NEW_TRACK';
@@ -192,7 +193,11 @@ export function setPlaybackState(state) {
     });
   };
 }
-
+export function setFlag() {
+  return {
+    type: SET_FLAG
+  }
+}
 /* thunk for async actions + getting state*/
 export function draw(drawStream) {
   return (dispatch, getState) => {
