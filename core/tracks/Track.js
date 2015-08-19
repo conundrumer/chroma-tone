@@ -105,6 +105,10 @@ export default class Track extends Store {
     return this.store.getLines();
   }
 
+  getLineByID(id) {
+    return this.store.lines.getLineByID(id);
+  }
+
   addLine(l) {
     let line = makeLine(l);
     this.store.addLine(line);
@@ -112,6 +116,8 @@ export default class Track extends Store {
   }
 
   removeLine(line) {
+    let id = line.id;
+    line = this.getLineByID(id);
     this.store.removeLine(line);
     this.updateFrameCache(line, true);
   }

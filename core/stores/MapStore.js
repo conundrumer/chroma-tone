@@ -17,6 +17,10 @@ export default class MapStore extends Store {
     this.lineMap = this.lineMap.delete(line.id);
   }
 
+  getLineByID(id) {
+    return this.lineMap.get(id);
+  }
+
   getLines() {
     return this.lineMap.toArray();
   }
