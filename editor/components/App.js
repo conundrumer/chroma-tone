@@ -127,8 +127,10 @@ var App = React.createClass({
       >
         <Display
           frame={playback.index}
+          flagIndex={playback.flag}
           startPosition={track.getStartPosition()}
           viewOptions={{ color: !playing, floor: true }}
+          flagRider={track.getRiderStateAtFrame(playback.flag)}
           rider={track.getRiderStateAtFrame(playback.index)}
           cam={this.getCam()}
           lines={this.getLines()}

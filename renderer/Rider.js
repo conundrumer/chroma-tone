@@ -21,6 +21,10 @@ const scarfColors = [
   '#2196F3'
 ];
 
+function getScarfColor(flag, i) {
+  return flag && scarfColors[i] !== 'white' ? 'grey' : scarfColors[i];
+}
+
 function round(x) {
   return ((x * PRECISION + 0.5) | 0) / PRECISION;
 }
@@ -119,7 +123,7 @@ var SvgSprite = React.createClass({
   render() {
     return (
       <g>
-        <style dangerouslySetInnerHTML={{ __html: getRiderCSS(this.props.namespace, this.props.i)}} />
+        <style dangerouslySetInnerHTML={{ __html: getRiderCSS(this.props.namespace, this.props.i, this.props.flag)}} />
         <foreignObject style={{display: 'none'}}>
           <Isvg src={this.props.src} uniquifyIDs={false} namespace={this.props.namespace}/>
         </foreignObject>
@@ -176,11 +180,11 @@ var Rider = React.createClass({
 
     return (
       <g id={namespace} >
-        <SvgSprite namespace={namespace} i={this.props.i} src={this.props.riderSpriteSrc} />
+        <SvgSprite namespace={namespace} i={this.props.i} src={this.props.riderSpriteSrc} flag={this.props.flag}/>
         {
           this.props.rider.scarfPoints.map( (point, i) =>
             // <ScarfSegment key={i} i={i} rider={this.props.rider} width={2} color={ (i % 2) === 0 ? '#d20202' : 'white'}/>
-            <ScarfSegment key={i} i={i} rider={this.props.rider} width={2} color={ scarfColors[i]}/>
+            <ScarfSegment key={i} i={i} rider={this.props.rider} width={2} color={ getScarfColor(this.props.flag, i)}/>
           )
         }
         {
