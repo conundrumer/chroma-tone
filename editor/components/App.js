@@ -37,10 +37,7 @@ var App = React.createClass({
   },
 
   onResize() {
-    let {
-      width: prevWidth,
-      height: prevHeight
-    } = this.props.windowSize;
+    let {w: prevWidth, h: prevHeight} = this.props.viewport;
     // let {width, height} = this.container.getBoundingClientRect();
     let {
       innerWidth: width,
@@ -52,45 +49,21 @@ var App = React.createClass({
     }
   },
 
-  // TODO: move this out of App into selector i guess???
-
-  getViewBox() {
-    let {
-      windowSize: {
-        width: w,
-        height: h
-      }
-    } = this.props;
-    let {x, y, z} = this.props.cam;
-    return [
-      x - w / 2 * z,
-      y - h / 2 * z,
-      w * z,
-      h * z
-    ];
-  },
-
-  getLines() {
-    let [x1, y1, w, h] = this.getViewBox();
-    // console.log(x1, y1, x1 + w, y1 + h);
-    return this.props.trackData.track.getLinesInBox(x1, y1, x1 + w, y1 + h);
-  },
-
   render() {
     let {
       dispatch,
-      windowSize: {
-        width,
-        height
-      },
+      viewport: {w, h},
       toolbars,
       cam,
       playback,
       playing,
-      trackData: {
-        track,
+      rider: {
+        startPosition,
+        state,
+        flagState
       },
-      fileLoader
+      fileLoader,
+      lines,
     } = this.props;
 
     // let maxRadius = Math.max(cam.z * (Math.min(width, height) / 2) - 15);
@@ -105,14 +78,14 @@ var App = React.createClass({
         <Display
           frame={playback.index}
           flagIndex={playback.flag}
-          startPosition={track.getStartPosition()}
+          startPosition={startPosition}
           viewOptions={{ color: !playing, floor: true }}
-          flagRider={track.getRiderStateAtFrame(playback.flag)}
-          rider={track.getRiderStateAtFrame(playback.index)}
+          rider={state}
+          flagRider={flagState}
           cam={this.props.cam}
-          lines={this.getLines()}
-          width={width}
-          height={height}
+          lines={lines}
+          width={w}
+          height={h}
         />
         <Editor dispatch={dispatch} {...toolbars} fileLoader={fileLoader} playing={playing}/>
       </div>
@@ -129,6 +102,24 @@ function selectCam({w, h, x, y, z}, playing, track, index) {
   return {x, y, z}
 }
 
+function selectLines({w, h}, {x, y, z}, track) {
+  let [x1, y1, width, height] = [
+    x - w / 2 * z,
+    y - h / 2 * z,
+    w * z,
+    h * z
+  ]
+  return track.getLinesInBox(x1, y1, x1 + width, y1 + height)
+}
+
+function selectRider({index, flag}, track) {
+  return {
+    startPosition: track.getStartPosition(),
+    state: track.getRiderStateAtFrame(index),
+    flagState: track.getRiderStateAtFrame(flag)
+  }
+}
+
 function select({
   toolbars: {tool, ...toolbars},
   toggled,
@@ -137,7 +128,8 @@ function select({
   trackData,
   ...state
 }) {
-  let playing = playback.state !== 'stop' && playback.state !== 'pause';
+  let playing = playback.state !== 'stop' && playback.state !== 'pause'
+  let cam = selectCam(viewport, playing, trackData.track, playback.index)
   return {...state,
     toolbars: {...toolbars,
       selected: {
@@ -148,10 +140,10 @@ function select({
     },
     playing,
     playback,
-    trackData,
-    windowSize: {width: viewport.w, height: viewport.h},
-    // cam: {x, y, z},
-    cam: selectCam(viewport, playing, trackData.track, playback.index)
+    cam,
+    viewport,
+    lines: selectLines(viewport, cam, trackData.track),
+    rider: selectRider(playback, trackData.track)
   };
 }
 
