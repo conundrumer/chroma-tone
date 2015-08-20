@@ -36,8 +36,8 @@ import { newTrack } from './actions';
 // TODO: combine cam and windowSize to viewport
 const INIT = {
   viewport: {
-    width: 1,
-    height: 1,
+    w: 1,
+    h: 1,
     x: 0,
     y: 0,
     z: 1
@@ -74,8 +74,8 @@ export function viewport(state = INIT.viewport, action) {
   switch (action.type) {
     case RESIZE:
       return {...state,
-        width: action.windowSize.width,
-        height: action.windowSize.height
+        w: action.windowSize.width,
+        h: action.windowSize.height
       };
     case SET_CAM:
       return {...state,

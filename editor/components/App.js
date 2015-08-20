@@ -53,29 +53,6 @@ var App = React.createClass({
   },
 
   // TODO: move this out of App into selector i guess???
-  getCam() {
-    let {
-      windowSize: {
-        width,
-        height
-      },
-      cam,
-      playback: {
-        index
-      },
-      playing,
-      trackData: {
-        track,
-      },
-    } = this.props;
-    if (!playing) {
-      return cam
-    }
-    let offset = 25; // TODO: make this responsive to toolbars
-    let maxRadius = Math.max(cam.z * (Math.min(width, height) / 2) - offset)
-    let {x, y} = track.getRiderCam(index, maxRadius)
-    return {x, y, z: cam.z}
-  },
 
   getViewBox() {
     let {
@@ -84,7 +61,7 @@ var App = React.createClass({
         height: h
       }
     } = this.props;
-    let {x, y, z} = this.getCam();
+    let {x, y, z} = this.props.cam;
     return [
       x - w / 2 * z,
       y - h / 2 * z,
@@ -132,7 +109,7 @@ var App = React.createClass({
           viewOptions={{ color: !playing, floor: true }}
           flagRider={track.getRiderStateAtFrame(playback.flag)}
           rider={track.getRiderStateAtFrame(playback.index)}
-          cam={this.getCam()}
+          cam={this.props.cam}
           lines={this.getLines()}
           width={width}
           height={height}
@@ -143,13 +120,24 @@ var App = React.createClass({
   }
 });
 
+function selectCam({w, h, x, y, z}, playing, track, index) {
+  if (playing) {
+    let offset = 25; // TODO: make this responsive to toolbars
+    let maxRadius = Math.max(z * (Math.min(w, h) / 2) - offset)
+    ;({x, y} = track.getRiderCam(index, maxRadius))
+  }
+  return {x, y, z}
+}
+
 function select({
   toolbars: {tool, ...toolbars},
   toggled,
-  viewport: {width, height, x, y, z},
+  viewport,
   playback,
+  trackData,
   ...state
 }) {
+  let playing = playback.state !== 'stop' && playback.state !== 'pause';
   return {...state,
     toolbars: {...toolbars,
       selected: {
@@ -158,10 +146,12 @@ function select({
         [playback.state]: playback.state !== 'stop'
       }
     },
-    playing: playback.state !== 'stop' && playback.state !== 'pause',
+    playing,
     playback,
-    windowSize: {width, height},
-    cam: {x, y, z},
+    trackData,
+    windowSize: {width: viewport.w, height: viewport.h},
+    // cam: {x, y, z},
+    cam: selectCam(viewport, playing, trackData.track, playback.index)
   };
 }
 
