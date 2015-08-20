@@ -146,7 +146,7 @@ var App = React.createClass({
 function select({
   toolbars: {tool, ...toolbars},
   toggled,
-  editorCamera,
+  viewport: {width, height, x, y, z},
   playback,
   ...state
 }) {
@@ -160,7 +160,8 @@ function select({
     },
     playing: playback.state !== 'stop' && playback.state !== 'pause',
     playback,
-    cam: editorCamera,
+    windowSize: {width, height},
+    cam: {x, y, z},
   };
 }
 

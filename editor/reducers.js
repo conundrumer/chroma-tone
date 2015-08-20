@@ -35,9 +35,12 @@ import {
 import { newTrack } from './actions';
 // TODO: combine cam and windowSize to viewport
 const INIT = {
-  windowSize: {
+  viewport: {
     width: 1,
-    height: 1
+    height: 1,
+    x: 0,
+    y: 0,
+    z: 1
   },
   toolbars: {
     toolbarsVisible: false,
@@ -48,11 +51,6 @@ const INIT = {
   },
   toggled: Object.create(null),
   hotkeys: Object.create(null),
-  editorCamera: {
-    x: 0,
-    y: 0,
-    z: 1
-  },
   playback: {
     state: 'stop',
     index: 0,
@@ -72,18 +70,29 @@ const INIT = {
 };
 
 // display dimensions
-export function windowSize(state = INIT.windowSize, action) {
+export function viewport(state = INIT.viewport, action) {
   switch (action.type) {
     case RESIZE:
-      return {
+      return {...state,
         width: action.windowSize.width,
         height: action.windowSize.height
       };
+    case SET_CAM:
+      return {...state,
+        x: action.cam.x,
+        y: action.cam.y,
+        z: action.cam.z
+      }
+    case NEW_TRACK:
+      return {...state,
+        x: INIT.viewport.x,
+        y: INIT.viewport.y,
+        z: INIT.viewport.z
+      }
     default:
       return state;
   }
 }
-
 // toolbars
 export function toolbars(state = INIT.toolbars, action) {
   switch (action.type) {
@@ -182,17 +191,6 @@ export function hotkeys(state = INIT.hotkeys, action) {
       return {...state,
         [action.name]: action.hotkey
       };
-    default:
-      return state;
-  }
-}
-
-export function editorCamera(state = INIT.editorCamera, action) {
-  switch (action.type) {
-    case SET_CAM:
-      return action.cam;
-    case NEW_TRACK:
-      return INIT.editorCamera
     default:
       return state;
   }

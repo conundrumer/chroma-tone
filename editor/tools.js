@@ -19,7 +19,7 @@ export function pan(stream, dispatch, getState) {
   stream.first().subscribe( pos => {
     firstPos = pos;
   });
-  var { x, y, z } = getState().editorCamera;
+  var { x, y, z } = getState().viewport;
   return {
     stream: stream.map((pos) =>
       firstPos.clone().subtract(pos).mulS(z).add({x, y})
@@ -31,7 +31,7 @@ export function pan(stream, dispatch, getState) {
 }
 
 function getAbsPos(relPos, getState) {
-  var { editorCamera: {x, y, z}, windowSize: {width: w, height: h} } = getState();
+  var { viewport: {width: w, height: h, x, y, z} } = getState();
   return relPos.clone().subtract({x: w/2, y: h/2}).mulS(z).add({x, y});
 }
 
@@ -42,7 +42,7 @@ const ZOOM = {
 };
 export function zoom(stream, dispatch, getState) {
   var firstPos, y0;
-  var { editorCamera: {x, y, z}, windowSize: {width: w, height: h} } = getState();
+  var { viewport: {width: w, height: h, x, y, z} } = getState();
   stream.first().subscribe( pos => {
     y0 = pos.y;
     // TODO: make function to convert to absolute coordinates
