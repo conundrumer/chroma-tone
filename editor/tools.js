@@ -1,6 +1,6 @@
 'use strict';
 
-import { setCam, addLine, removeLine } from './actions';
+import { setCam, addLine, removeLine, replaceLine } from './actions';
 
 export function debugTool(stream, dispatch, getState) {
   stream.first().subscribe(pos => {
@@ -79,9 +79,6 @@ export function line(stream, dispatch, getState) {
     stream: stream.map((pos) => getAbsPos(pos, getState))
       .filter(p2 => p1.distance(p2) >= MIN_LINE_LENGTH),
     onNext: (p2) => {
-      if (prevLine) {
-        dispatch(removeLine(prevLine))
-      }
       let lineData = {
         x1: p1.x,
         y1: p1.y,
@@ -90,7 +87,11 @@ export function line(stream, dispatch, getState) {
         id: id,
         type: tempLineType
       }
-      dispatch(addLine(lineData))
+      if (prevLine) {
+        dispatch(replaceLine(prevLine, lineData))
+      } else {
+        dispatch(addLine(lineData))
+      }
       prevLine = lineData
     },
     onCancel: () => {

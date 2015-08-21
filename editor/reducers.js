@@ -22,6 +22,7 @@ import {
   SET_PLAYBACK_STATE,
   ADD_LINE,
   REMOVE_LINE,
+  REPLACE_LINE,
   NEW_TRACK,
   LOAD_TRACK,
   LOAD_FILE,
@@ -262,11 +263,15 @@ export function trackData(state = INIT.trackData, action) {
       }
     case ADD_LINE:
       return {...state,
-        lineStore: state.track.lineStore
+        lineStore: action.lineStore
       }
     case REMOVE_LINE:
       return {...state,
-        lineStore: state.track.lineStore
+        lineStore: action.lineStore
+      }
+    case REPLACE_LINE:
+      return {...state,
+        lineStore: action.lineStore
       }
     default:
       return state;

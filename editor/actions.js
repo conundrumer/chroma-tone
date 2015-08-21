@@ -33,6 +33,7 @@ export const SET_PLAYBACK_STATE = 'SET_PLAYBACK_STATE';
 export const SET_FLAG = 'SET_FLAG';
 export const ADD_LINE = 'ADD_LINE';
 export const REMOVE_LINE = 'REMOVE_LINE';
+export const REPLACE_LINE = 'REPLACE_LINE';
 export const NEW_TRACK = 'NEW_TRACK';
 export const LOAD_TRACK = 'LOAD_TRACK';
 export const IMPORT_TRACK = 'IMPORT_TRACK';
@@ -250,7 +251,31 @@ export function removeLine(line) {
       track.removeLine(line)
     }
     dispatch({
-      type: ADD_LINE,
+      type: REMOVE_LINE,
+      line: line,
+      lineStore: track.lineStore
+    })
+
+  }
+}
+
+/* thunk for side effects: mutating state.trackData.track */
+export function replaceLine(prevLine, line) {
+  return (dispatch, getState) => {
+    let { track } = getState().trackData
+    if (prevLine instanceof Array) {
+      prevLine.forEach(l => track.removeLine(l));
+    } else {
+      track.removeLine(prevLine)
+    }
+    if (line instanceof Array) {
+      line.forEach(l => track.addLine(l));
+    } else {
+      track.addLine(line)
+    }
+    dispatch({
+      type: REPLACE_LINE,
+      prevLine: prevLine,
       line: line,
       lineStore: track.lineStore
     })
