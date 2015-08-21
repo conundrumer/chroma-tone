@@ -38,4 +38,8 @@ export default class MapStore extends Store {
     return this.lineMap.filter(this.lines, line => line.isSolid);
   }
 
+  getCellKeysAt() {
+    return []
+  }
+
 }

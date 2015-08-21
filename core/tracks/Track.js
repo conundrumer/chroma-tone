@@ -18,9 +18,9 @@ export default class Track extends Store {
 
     this.debug = debug;
 
-    this.setStartPosition(startPosition);
-
     this.store = this.makeStore();
+
+    this.setStartPosition(startPosition);
 
     lineData.forEach( data => this.addLine(data) );
   }
@@ -30,6 +30,7 @@ export default class Track extends Store {
     this.startY = pos.y;
     this.rider = new (this.debug ? DebugRider : Rider)(pos.x, pos.y);
     this.initRiderState = this.rider.getState();
+    this.initRiderCells = this.rider.getCellKeys(this.store);
     this.resetFrameCache(); // moving the start point changes everything
   }
 
@@ -43,18 +44,29 @@ export default class Track extends Store {
   // TODO: refactor this to be less mutative, less oop more fn
   getRiderStateAtFrame(frameNum) {
     if (frameNum < this.frameCache.length) {
-      return this.frameCache[frameNum];
+      return this.frameCache[frameNum].rider;
     }
 
-    this.rider.setState(_.last(this.frameCache));
+    this.rider.setState(_.last(this.frameCache).rider);
     for (let i = this.frameCache.length; i <= frameNum; i++) {
 
       this.rider.step(this.store);
 
-      this.frameCache[i] = this.rider.getState();
+      let cellKeys = this.rider.getCellKeys(this.store);
+      this.frameCache[i] = {
+        rider: this.rider.getState(),
+        cells: cellKeys
+      }
+      cellKeys.forEach(key => {
+        if (!(key in this.cellsCache)) {
+          // it must be the case that existing keys have lower indices
+          this.cellsCache[key] = i
+        }
+      })
+
     }
 
-    return this.frameCache[frameNum];
+    return this.frameCache[frameNum].rider;
   }
 
   getBoundingBox() {
@@ -75,16 +87,39 @@ export default class Track extends Store {
     return cam;
   }
 
-  updateFrameCache(line, removed) { // eslint-disable-line no-unused-vars
-    // don't be too clever right now
-    // any solid line modification resets the cache
-    if (line.isSolid) {
-      this.resetFrameCache();
+  updateFrameCache(cellKeys, removed) { // eslint-disable-line no-unused-vars
+    let cellKeysToRemove = []
+    // TODO: check to see if line actually collides for improved performance
+    cellKeys.forEach(key => {
+      if (key in this.cellsCache) {
+        let i = this.cellsCache[key]
+        while (this.frameCache.length > i) {
+          // cache invalidate frameCache
+          let { cells } = this.frameCache.pop()
+          cells.forEach( key => {
+            // cache invalidate cellsCache
+            cellKeysToRemove.push(this.cellsCache[key])
+          })
+        }
+      }
+    })
+    cellKeysToRemove.forEach( key => {
+      delete this.cellsCache[key]
+    })
+    if (this.frameCache.length === 0) {
+      this.resetFrameCache()
     }
   }
 
   resetFrameCache() {
-    this.frameCache = [ this.initRiderState ];
+    this.frameCache = [{
+      rider: this.initRiderState,
+      cells: this.initRiderCells
+    }]
+    this.cellsCache = Object.create(null)
+    // {[cellKey] => most recent frame number}
+    this.initRiderCells.forEach(key => { this.cellsCache[key] = 0 })
+
     // TODO: cache this more intelligently i guess
     this.simpleCamCache = {
       index: 0,
@@ -111,15 +146,19 @@ export default class Track extends Store {
 
   addLine(l) {
     let line = makeLine(l);
-    this.store.addLine(line);
-    this.updateFrameCache(line);
+    let cellKeys = this.store.addLine(line);
+    if (line.isSolid) {
+      this.updateFrameCache(cellKeys)
+    }
   }
 
   removeLine(line) {
     let id = line.id;
     line = this.getLineByID(id);
-    this.store.removeLine(line);
-    this.updateFrameCache(line, true);
+    let cellKeys = this.store.removeLine(line);
+    if (line.isSolid) {
+      this.updateFrameCache(cellKeys, true)
+    }
   }
 
   getLinesInRadius(x, y, r) {

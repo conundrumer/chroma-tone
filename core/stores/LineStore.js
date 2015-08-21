@@ -24,13 +24,13 @@ export default class LineStore extends Store {
   addLine(line) {
     this.lines.addLine(line);
     this.grid.addLine(line);
-    this.solidGrid.addLine(line);
+    return this.solidGrid.addLine(line);
   }
 
   removeLine(line) {
     this.lines.removeLine(line);
     this.grid.removeLine(line);
-    this.solidGrid.removeLine(line);
+    return this.solidGrid.removeLine(line);
   }
 
   getLines() {
@@ -54,4 +54,7 @@ export default class LineStore extends Store {
     return this.solidGrid.getSolidLinesAt(x, y, debug);
   }
 
+  getCellKeysAt(x, y) {
+    return this.solidGrid.getCellKeysAt(x, y);
+  }
 }

@@ -118,6 +118,18 @@ class Rider extends Entity {
     this.stepCrash();
   }
 
+  getCellKeys(lineStore) {
+    let cellKeys = Object.create(null);
+
+    this.points.forEach(({x, y}) => {
+      lineStore.getCellKeysAt(x, y).forEach(key => {
+        cellKeys[key] = key
+      })
+    })
+
+    return _.values(cellKeys)
+  }
+
   copyState() {
     return copyRider(this);
   }

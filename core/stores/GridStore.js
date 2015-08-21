@@ -27,16 +27,19 @@ export default class GridStore extends Store {
     for (let i = 0; i < cellsPos.length; i++) {
       this.addLineToCell(line, cellsPos[i]);
     }
+    return cellsPos.map(({x, y}) => getCellHash(x, y))
   }
 
   removeLine(line) {
-    _.forEach(this.linesToCells[line.id], cell => {
+    let cellsPos = this.linesToCells[line.id];
+    _.forEach(cellsPos, cell => {
       cell.remove(line);
       if (cell.getLines().length === 0) {
         delete this.cells[cell.key];
       }
     });
     delete this.linesToCells[line.id];
+    return cellsPos.map(({x, y}) => getCellHash(x, y))
   }
 
   getLinesInRadius(x, y, r) {

@@ -9,4 +9,8 @@ export default class NoGridTrack extends Track {
     return new MapStore();
   }
 
+  updateFrameCache() {
+    this.resetFrameCache();
+  }
+
 }

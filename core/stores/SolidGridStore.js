@@ -17,16 +17,20 @@ export default class SolidGridStore extends Store {
 
   addLine(line) {
     if (line.isSolid) {
-      this.grid.addLine(line);
+      let cellKeys = this.grid.addLine(line);
       this.resetSolidLinesCache();
+      return cellKeys;
     }
+    return [];
   }
 
   removeLine(line) {
     if (line.isSolid) {
-      this.grid.removeLine(line);
+      let cellKeys = this.grid.removeLine(line);
       this.resetSolidLinesCache();
+      return cellKeys;
     }
+    return [];
   }
 
   getSolidLinesAt(x, y, debug = false) { // eslint-disable-line no-unused-vars
@@ -55,4 +59,14 @@ export default class SolidGridStore extends Store {
     return lines;
   }
 
+  getCellKeysAt(x, y) {
+    let cellPos = this.grid.getCellPos(x, y)
+    let cellKeys = []
+    for (let i = -1; i <= 1; i++) {
+      for (let j = -1; j <= 1; j++) {
+        cellKeys.push(getCellHash(i + cellPos.x, j + cellPos.y))
+      }
+    }
+    return cellKeys
+  }
 }
