@@ -92,6 +92,7 @@ class Rider extends Entity {
     }
   }
   step(lineStore, gravity = GRAVITY) {
+    let collidedLines = [];
     // normally i would avoid for loops but lots of iterations here
     for (let i = 0; i < this.points.length; i++) {
       this.stepPoint(this.points[i], gravity);
@@ -103,6 +104,7 @@ class Rider extends Entity {
       for(let idx = 0; idx < this.points.length; idx++) {
         let point = this.points[idx];
         let lines = this.getSolidLines(lineStore, point);
+        collidedLines = collidedLines.concat(lines);
         for (let j = 0; j < lines.length; j++) {
           this.stepCollision(point, lines[j], i);
         }
@@ -116,6 +118,8 @@ class Rider extends Entity {
     }
 
     this.stepCrash();
+
+    return collidedLines
   }
 
   getCellKeys(lineStore) {

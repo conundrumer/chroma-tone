@@ -6,7 +6,7 @@ class DebugRider extends Rider {
 
   step(lineStore, gravity) {
     // this.initializeDebuggingthing();
-    super.step(lineStore, gravity);
+    return super.step(lineStore, gravity);
   }
 
   stepPoint(point, gravity) {

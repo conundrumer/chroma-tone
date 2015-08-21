@@ -50,12 +50,13 @@ export default class Track extends Store {
     this.rider.setState(_.last(this.frameCache).rider);
     for (let i = this.frameCache.length; i <= frameNum; i++) {
 
-      this.rider.step(this.store);
+      let collidedLines = this.rider.step(this.store);
 
       let cellKeys = this.rider.getCellKeys(this.store);
       this.frameCache[i] = {
         rider: this.rider.getState(),
-        cells: cellKeys
+        cells: cellKeys,
+        collidedLines: collidedLines
       }
       cellKeys.forEach(key => {
         if (!(key in this.cellsCache)) {
@@ -64,6 +65,12 @@ export default class Track extends Store {
         }
       })
 
+      collidedLines.forEach(({id}) => {
+        if (!(id in this.collidedLines)) {
+          // it must be the case that existing keys have lower indices
+          this.collidedLines[id] = i
+        }
+      })
     }
 
     return this.frameCache[frameNum].rider;
@@ -87,25 +94,43 @@ export default class Track extends Store {
     return cam;
   }
 
-  updateFrameCache(cellKeys, removed) { // eslint-disable-line no-unused-vars
-    let cellKeysToRemove = []
-    // TODO: check to see if line actually collides for improved performance
-    cellKeys.forEach(key => {
-      if (key in this.cellsCache) {
-        let i = this.cellsCache[key]
+  updateFrameCache(cellKeys, removedLine) { // eslint-disable-line no-unused-vars
+    if (removedLine) {
+      let collidedLinesToRemove = []
+      if (removedLine.id in this.collidedLines) {
+        let i = this.collidedLines[removedLine.id]
         while (this.frameCache.length > i) {
           // cache invalidate frameCache
-          let { cells } = this.frameCache.pop()
-          cells.forEach( key => {
-            // cache invalidate cellsCache
-            cellKeysToRemove.push(this.cellsCache[key])
+          let { collidedLines } = this.frameCache.pop()
+          collidedLines.forEach( ({id}) => {
+            // cache invalidate collidedLines
+            collidedLinesToRemove.push(this.collidedLines[id])
           })
         }
       }
-    })
-    cellKeysToRemove.forEach( key => {
-      delete this.cellsCache[key]
-    })
+      collidedLinesToRemove.forEach( line => {
+        delete this.collidedLines[line]
+      })
+    } else {
+      let cellKeysToRemove = []
+      // TODO: check to see if line actually collides for improved performance
+      cellKeys.forEach(key => {
+        if (key in this.cellsCache) {
+          let i = this.cellsCache[key]
+          while (this.frameCache.length > i) {
+            // cache invalidate frameCache
+            let { cells } = this.frameCache.pop()
+            cells.forEach( key => {
+              // cache invalidate cellsCache
+              cellKeysToRemove.push(this.cellsCache[key])
+            })
+          }
+        }
+      })
+      cellKeysToRemove.forEach( key => {
+        delete this.cellsCache[key]
+      })
+    }
     if (this.frameCache.length === 0) {
       this.resetFrameCache()
     }
@@ -114,11 +139,13 @@ export default class Track extends Store {
   resetFrameCache() {
     this.frameCache = [{
       rider: this.initRiderState,
-      cells: this.initRiderCells
+      cells: this.initRiderCells,
+      collidedLines: []
     }]
     this.cellsCache = Object.create(null)
     // {[cellKey] => most recent frame number}
     this.initRiderCells.forEach(key => { this.cellsCache[key] = 0 })
+    this.collidedLines = Object.create(null)
 
     // TODO: cache this more intelligently i guess
     this.simpleCamCache = {
@@ -157,7 +184,7 @@ export default class Track extends Store {
     line = this.getLineByID(id);
     let cellKeys = this.store.removeLine(line);
     if (line.isSolid) {
-      this.updateFrameCache(cellKeys, true)
+      this.updateFrameCache(cellKeys, line)
     }
   }
 
