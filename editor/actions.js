@@ -203,7 +203,7 @@ export function setFlag() {
 export function draw(drawStream) {
   return (dispatch, getState) => {
 
-    let { tool: currentTool } = getState().toolbars;
+    let currentTool = getState().selectedTool;
 
     let {
       stream,

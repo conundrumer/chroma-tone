@@ -94,10 +94,10 @@ var Editor = React.createClass({
   shouldComponentUpdate(nextProps) {
     // this is getting ridiculous
     let {
-      toolbarsVisible,
+      toolbarsOpen,
       sidebarOpen,
-      timeControlVisible,
-      leftNavVisible,
+      timeControlOpen,
+      leftNavOpen,
       selected,
       sidebarSelected,
       fileLoader: {
@@ -110,10 +110,10 @@ var Editor = React.createClass({
     } = this.props;
 
     let {
-      toolbarsVisible: toolbarsVisible_,
+      toolbarsOpen: toolbarsOpen_,
       sidebarOpen: sidebarOpen_,
-      timeControlVisible: timeControlVisible_,
-      leftNavVisible: leftNavVisible_,
+      timeControlOpen: timeControlOpen_,
+      leftNavOpen: leftNavOpen_,
       selected: selected_,
       sidebarSelected: sidebarSelected_,
       fileLoader: {
@@ -125,7 +125,7 @@ var Editor = React.createClass({
       }
     } = nextProps;
 
-    return toolbarsVisible !== toolbarsVisible_
+    return toolbarsOpen !== toolbarsOpen_
       || sidebarOpen !== sidebarOpen_
       || sidebarSelected !== sidebarSelected_
       || fileLoaderOpen !== fileLoaderOpen_
@@ -133,8 +133,8 @@ var Editor = React.createClass({
       || fileName !== fileName_
       || fileLoaderTracks !== fileLoaderTracks_
       || loadingFile !== loadingFile_
-      || timeControlVisible !== timeControlVisible_
-      || leftNavVisible !== leftNavVisible_
+      || timeControlOpen !== timeControlOpen_
+      || leftNavOpen !== leftNavOpen_
       || !_.isEqual(selected, selected_);
   },
 
@@ -151,7 +151,7 @@ var Editor = React.createClass({
   getButtonGroups() {
     let b = getButtons(this.props.dispatch);
 
-    b.toggleTimeControl.transform = `rotate(${this.props.timeControlVisible ? 0 : 180}deg)`;
+    b.toggleTimeControl.transform = `rotate(${this.props.timeControlOpen ? 0 : 180}deg)`;
 
     ['undo', 'redo', 'select', 'pencil', 'brush', 'line', 'curve', 'multiLine', 'eraser'].forEach( tool => {
       b[tool].disabled = this.props.playing;
@@ -170,17 +170,17 @@ var Editor = React.createClass({
     bs.float.middle = bs.float.middle.map(addStyle(STYLES.smallIcon));
 
     // _.flatten(_.values(bs.float)).forEach(button => {
-    //   button.disabled = this.props.toolbarsVisible;
+    //   button.disabled = this.props.toolbarsOpen;
     // });
 
     // ['top', 'bottom', 'timeControl'].forEach( toolbar => {
     //   _.flatten(_.values(bs[toolbar])).forEach(button => {
-    //     button.disabled = !this.props.toolbarsVisible;
+    //     button.disabled = !this.props.toolbarsOpen;
     //   });
     // });
 
     // _.flatten(_.values(bs.timeControl)).forEach(button => {
-    //   button.disabled = button.disabled || !this.props.timeControlVisible;
+    //   button.disabled = button.disabled || !this.props.timeControlOpen;
     // });
 
     ['bottom', 'timeControl'].forEach( toolbar => {
@@ -259,30 +259,30 @@ var Editor = React.createClass({
     } = this.renderButtons();
 
     let {
-      toolbarsVisible,
-      timeControlVisible
+      toolbarsOpen,
+      timeControlOpen
     } = this.props;
     return (
       <div className='LR-Editor' >
         <DrawingSurface dispatch={this.props.dispatch} />
-        <FloatBar closed={toolbarsVisible}>
+        <FloatBar closed={toolbarsOpen}>
           { float }
         </FloatBar>
-        <SideBar {...{toolbarsVisible, timeControlVisible}}
+        <SideBar {...{toolbarsOpen, timeControlOpen}}
           dispatch={this.props.dispatch}
           open={this.props.sidebarOpen}
           selected={this.props.sidebarSelected}
           fileName={this.props.fileLoader.fileName}
           tracks={this.props.fileLoader.tracks}
         />
-        <TopBar closed={!toolbarsVisible}>
+        <TopBar closed={!toolbarsOpen}>
           { top }
         </TopBar>
         <BottomBar
           buttonGroups={bottom}
-          closed={!toolbarsVisible}
+          closed={!toolbarsOpen}
           timeControlGroup={timeControl}
-          timeControlClosed={!timeControlVisible}
+          timeControlClosed={!timeControlOpen}
         >
           { bottom }
           { timeControl }

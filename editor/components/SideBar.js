@@ -8,10 +8,10 @@ import { selectSidebarItem, loadTrack, setCam, importTrack, cancelImport } from 
 
 class SideBarContents extends React.Component {
   render() {
-    let {toolbarsVisible, timeControlVisible} = this.props;
+    let {toolbarsOpen, timeControlOpen} = this.props;
     return (
       <List subheader=' ' style={{display: 'flex', flexDirection: 'column', height: '100%'}}>
-        <div className={classNames('sidebar-spacer', {open: toolbarsVisible})} />
+        <div className={classNames('sidebar-spacer', {open: toolbarsOpen})} />
         { this.props.header }
         <ListDivider style={{marginTop: 0, flexShrink: 0}} />
         <List style={{overflow: 'scroll', flexGrow: 1}}>
@@ -19,8 +19,8 @@ class SideBarContents extends React.Component {
         </List>
         <ListDivider style={{marginTop: 0, flexShrink: 0}} />
         { this.props.footer }
-        <div className={classNames('sidebar-spacer', {open: toolbarsVisible})} />
-        <div className={classNames('sidebar-spacer', {open: toolbarsVisible && timeControlVisible})} />
+        <div className={classNames('sidebar-spacer', {open: toolbarsOpen})} />
+        <div className={classNames('sidebar-spacer', {open: toolbarsOpen && timeControlOpen})} />
       </List>
     )
   }
@@ -83,8 +83,8 @@ export default class SideBar extends React.Component {
         selectedIndex={2}
         header={
           <SideBarContents
-            toolbarsVisible={this.props.toolbarsVisible}
-            timeControlVisible={this.props.timeControlVisible}
+            toolbarsOpen={this.props.toolbarsOpen}
+            timeControlOpen={this.props.timeControlOpen}
             header={
               <ListItem
                 rightIcon={<LoadFromFileIcon/>}

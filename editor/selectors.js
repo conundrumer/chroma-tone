@@ -27,7 +27,8 @@ function selectRider({index, flag}, track) {
 }
 
 export default function select({
-  toolbars: {tool, ...toolbars},
+  toolbars,
+  selectedTool,
   toggled,
   viewport,
   playback,
@@ -37,12 +38,11 @@ export default function select({
   let playing = playback.state !== 'stop' && playback.state !== 'pause'
   let cam = selectCam(viewport, playing, trackData.track, playback.index)
   return {...state,
-    toolbars: {...toolbars,
-      selected: {
-        ...toggled,
-        [tool]: true,
-        [playback.state]: playback.state !== 'stop'
-      }
+    toolbars,
+    selected: {
+      ...toggled,
+      [selectedTool]: true,
+      [playback.state]: playback.state !== 'stop'
     },
     playing,
     playback,

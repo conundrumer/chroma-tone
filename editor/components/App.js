@@ -40,6 +40,7 @@ var App = React.createClass({
       dispatch,
       viewport: {w, h},
       toolbars,
+      selected,
       cam,
       playback: {
         index,
@@ -75,6 +76,7 @@ var App = React.createClass({
           height={h}
         />
         <Editor {...toolbars}
+          selected={selected}
           dispatch={dispatch}
           fileLoader={fileLoader}
           playing={playing}

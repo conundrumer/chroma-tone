@@ -44,12 +44,12 @@ const INIT = {
     z: 1
   },
   toolbars: {
-    toolbarsVisible: false,
-    timeControlVisible: false,
+    toolbarsOpen: false,
+    timeControlOpen: false,
     sidebarOpen: false,
-    sidebarSelected: -1,
-    tool: 'debugTool',
+    sidebarSelected: -1
   },
+  selectedTool: 'debugTool',
   toggled: Object.create(null),
   hotkeys: Object.create(null),
   playback: {
@@ -99,11 +99,11 @@ export function toolbars(state = INIT.toolbars, action) {
   switch (action.type) {
     case SHOW_TOOLBARS:
       return {...state,
-        toolbarsVisible: true
+        toolbarsOpen: true
       };
     case HIDE_TOOLBARS:
       return {...state,
-        toolbarsVisible: false
+        toolbarsOpen: false
       };
     case LOAD_FILE_SUCCESS:
       return {...state,
@@ -127,12 +127,17 @@ export function toolbars(state = INIT.toolbars, action) {
       }
     case TOGGLE_TIME_CONTROL:
       return {...state,
-        timeControlVisible: !state.timeControlVisible
+        timeControlOpen: !state.timeControlOpen
       };
+    default:
+      return state;
+  }
+}
+
+export function selectedTool(state = INIT.selectedTool, action) {
+  switch (action.type) {
     case SET_TOOL:
-      return {...state,
-        tool: action.tool
-      };
+      return action.tool
     default:
       return state;
   }
