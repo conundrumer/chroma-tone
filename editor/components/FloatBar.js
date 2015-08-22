@@ -1,9 +1,10 @@
 import React from 'react'
+import PureComponent from 'react-pure-render/component';
 import classNames from 'classnames'
 import FloatPaper from './FloatPaper'
 import Toolbar from './Toolbar'
 
-export default class FloatBar extends React.Component {
+export default class FloatBar extends PureComponent {
 
   render() {
     let closed = this.props.closed;

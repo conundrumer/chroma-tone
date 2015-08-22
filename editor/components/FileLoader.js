@@ -1,10 +1,11 @@
 // import classNames from 'classnames';
 import React from 'react'
+import PureComponent from 'react-pure-render/component';
 import { Dialog, CircularProgress } from 'material-ui'
 import Dropzone from 'react-dropzone'
 import { hideFileLoader, loadFile } from '../actions'
 
-export default class FileLoader extends React.Component {
+export default class FileLoader extends PureComponent {
 
   // shouldComponentUpdate(nextProps) {
   //   return false;

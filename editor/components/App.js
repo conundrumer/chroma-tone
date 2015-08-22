@@ -52,6 +52,7 @@ var App = React.createClass({
       },
       fileLoader,
       lines,
+      timeline,
       editor
     } = this.props
 
@@ -73,7 +74,7 @@ var App = React.createClass({
           width={w}
           height={h}
         />
-        <Editor {...editor} fileLoader={fileLoader} dispatch={dispatch} />
+        <Editor {...editor} {...{editor, fileLoader, timeline}} dispatch={dispatch} />
       </div>
     );
   }

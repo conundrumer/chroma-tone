@@ -62,6 +62,15 @@ const fileLoaderSelector = createSelector(
   (open, loadingFile, error, fileName, tracks) => ({open, loadingFile, error, fileName, tracks})
 )
 
+const timelineSelector = createSelector(
+  [
+    state => state.playback.index,
+    state => state.playback.flag,
+    state => state.playback.maxIndex
+  ],
+  (index, flagIndex, maxIndex) => ({index, flagIndex, maxIndex})
+)
+
 export default function select(state) {
   let {
     viewport,
@@ -73,6 +82,7 @@ export default function select(state) {
   return {
     editor: editorSelector(state),
     fileLoader: fileLoaderSelector(state),
+    timeline: timelineSelector(state),
     inPlaybackMode,
     playback,
     cam,

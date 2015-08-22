@@ -2,7 +2,6 @@
 
 import _ from 'lodash'
 import React, { PropTypes } from 'react'
-import PureComponent from 'react-pure-render/component';
 import mui from 'material-ui'
 let {
   IconMenu,
@@ -62,10 +61,11 @@ const STYLES = {
 
 const DEFAULT_ICON_STYLE = { padding: '9px', width: 42, height: 42, margin: '3px' };
 
-export default class Editor extends PureComponent {
+export default class Editor extends React.Component {
 
   static get propTypes() {
     return {
+      editor: PropTypes.object,
       dispatch: PropTypes.func.isRequired,
       toolbarsOpen: PropTypes.bool.isRequired,
       sidebarOpen: PropTypes.bool.isRequired,
@@ -79,8 +79,19 @@ export default class Editor extends PureComponent {
         error: PropTypes.string,
         fileName: PropTypes.string,
         tracks: PropTypes.arrayOf(PropTypes.object)
-      })
+      }),
+      timeline: PropTypes.object.isRequired
     }
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (this.props.timeline !== nextProps.timeline) {
+      this.refs.timeline.setState(nextProps.timeline)
+    }
+  }
+
+  shouldComponentUpdate(nextProps) {
+    return this.props.editor !== nextProps.editor || this.props.fileLoader !== nextProps.fileLoader;
   }
 
   static get childContextTypes() {
@@ -131,7 +142,7 @@ export default class Editor extends PureComponent {
 
   getTimeline() {
     return {
-      render: (key) => <Timeline key={key} />
+      render: (key) => <Timeline ref='timeline' {...this.props.timeline} dispatch={this.props.dispatch} key={key} />
     };
   }
 

@@ -1,10 +1,11 @@
 import React from 'react'
+import PureComponent from 'react-pure-render/component';
 import classNames from 'classnames'
 import _ from 'lodash'
 import PaperBar from './PaperBar'
 import ButtonGroups from './ButtonGroups'
 
-export default class BottomBar extends React.Component {
+export default class BottomBar extends PureComponent {
   render() {
     let closed = this.props.closed;
     let timeControlClosed = this.props.timeControlClosed;

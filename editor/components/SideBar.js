@@ -1,12 +1,13 @@
 import classNames from 'classnames';
 import React from 'react'
+import PureComponent from 'react-pure-render/component';
 import { LeftNav, List, ListItem, ListDivider, RaisedButton } from 'material-ui'
 import ImportIcon from 'icons/import';
 import LoadFromFileIcon from 'icons/folder-upload';
 /* TODO: move some actions to buttons */
 import { selectSidebarItem, loadTrack, setCam, importTrack, cancelImport } from '../actions';
 
-class SideBarContents extends React.Component {
+class SideBarContents extends PureComponent {
   render() {
     let {toolbarsOpen, timeControlOpen} = this.props;
     return (
@@ -26,7 +27,7 @@ class SideBarContents extends React.Component {
   }
 }
 
-export default class SideBar extends React.Component {
+export default class SideBar extends PureComponent {
 
   static get contextTypes() {
     return {
