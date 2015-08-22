@@ -39,13 +39,10 @@ var App = React.createClass({
     let {
       dispatch,
       viewport: {w, h},
-      toolbars,
-      selected,
       cam,
       playback: {
         index,
         flag,
-        maxIndex,
       },
       inPlaybackMode,
       rider: {
@@ -55,6 +52,7 @@ var App = React.createClass({
       },
       fileLoader,
       lines,
+      editor
     } = this.props
 
     return (
@@ -75,13 +73,7 @@ var App = React.createClass({
           width={w}
           height={h}
         />
-        <Editor {...toolbars}
-          selected={selected}
-          dispatch={dispatch}
-          fileLoader={fileLoader}
-          inPlaybackMode={inPlaybackMode}
-          timeline={{index, maxIndex, flag}}
-        />
+        <Editor {...editor} fileLoader={fileLoader} dispatch={dispatch} />
       </div>
     );
   }

@@ -26,24 +26,33 @@ function selectRider({index, flag}, track) {
   }
 }
 
-export default function select({
-  toolbars,
-  selectedTool,
-  toggled,
-  viewport,
-  playback,
-  trackData,
-  ...state
-}) {
+function selectSelected({toggled, selectedTool, playback: {state: playbackState}}) {
+  return {
+    ...toggled,
+    [selectedTool]: true,
+    [playbackState]: playbackState !== 'stop'
+  }
+}
+
+function selectEditor({toolbars}, inPlaybackMode, selected) {
+  return {...toolbars, inPlaybackMode, selected}
+}
+
+function selectFileLoader({fileLoader: {open, loadingFile, error, fileName, tracks}}) {
+  return {open, loadingFile, error, fileName, tracks}
+}
+
+export default function select(state) {
+  let {
+    viewport,
+    playback,
+    trackData,
+  } = state
   let inPlaybackMode = playback.state !== 'stop' && playback.state !== 'pause'
   let cam = selectCam(viewport, inPlaybackMode, trackData.track, playback.index)
-  return {...state,
-    toolbars,
-    selected: {
-      ...toggled,
-      [selectedTool]: true,
-      [playback.state]: playback.state !== 'stop'
-    },
+  return {
+    editor: selectEditor(state, inPlaybackMode, selectSelected(state)),
+    fileLoader: selectFileLoader(state),
     inPlaybackMode,
     playback,
     cam,
