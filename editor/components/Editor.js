@@ -3,7 +3,6 @@
 var _ = require('lodash');
 var React = require('react');
 var mui = require('material-ui');
-var classNames = require('classnames');
 var Combokeys = require('combokeys');
 var ThemeManager = new mui.Styles.ThemeManager();
 
@@ -14,6 +13,11 @@ var { getButtons, getButtonGroups, getMenus } = require('../buttons');
 var DrawingSurface = require('./DrawingSurface');
 import SideBar from './SideBar';
 import FileLoader from './FileLoader';
+import Timeline from './Timeline'
+import FloatBar from './FloatBar'
+import BottomBar from './BottomBar'
+import TopBar from './TopBar'
+
 var { setHotkey } = require('../actions');
 
 require('../styles/Editor.less');
@@ -289,142 +293,6 @@ var Editor = React.createClass({
         </BottomBar>
         <FileLoader {...this.props.fileLoader} dispatch={this.props.dispatch} />
       </div>
-    );
-  }
-});
-
-var Timeline = React.createClass({
-  render() {
-    return (
-      <div className='timeline'>
-        <input type='range' min={0} max={100} defaultValue={0} style={{width: '100%'}} />
-      </div>
-    );
-  }
-})
-
-var ButtonGroups = React.createClass({
-  render() {
-    return (
-      <Toolbar className={this.props.className}>
-        {['left', 'middle', 'right'].map( position =>
-          <div key={position} className='toolbar-group'>
-            { this.props.children[position] }
-          </div>
-        )}
-      </Toolbar>
-    );
-  }
-})
-
-var FloatBar = React.createClass({
-
-  render() {
-    let closed = this.props.closed;
-    return (
-      <div className='float-container' style={{pointerEvents: 'none'}}>
-        {this.props.children.left.map( (child, i) =>
-          <FloatPaper key={i} className={classNames({closed: closed})} circle={true}>
-            { child }
-          </FloatPaper>
-        )}
-        <FloatPaper className={classNames('float-paper-bar', {closed: closed})}>
-          <Toolbar className='float-toolbar'>
-            { this.props.children.middle }
-          </Toolbar>
-        </FloatPaper>
-        {this.props.children.right.map( (child, i) =>
-          <FloatPaper key={-i-1} className={classNames({closed: closed})} circle={true}>
-            { child }
-          </FloatPaper>
-        )}
-      </div>
-    );
-  }
-})
-
-var TopBar = React.createClass({
-
-  render() {
-    let closed = this.props.closed;
-    return (
-      <PaperBar className={classNames('top', {closed: closed})}>
-        <ButtonGroups className='top'>
-          { this.props.children }
-        </ButtonGroups>
-      </PaperBar>
-    );
-  }
-})
-
-var BottomBar = React.createClass({
-
-  render() {
-    let closed = this.props.closed;
-    let timeControlClosed = this.props.timeControlClosed;
-
-    let bottomPaperBarClass = !timeControlClosed ? 'bottom-extended' : 'bottom';
-
-    return (
-      <PaperBar className={classNames(bottomPaperBarClass, {closed: closed})}>
-        <ButtonGroups>
-          { this.props.children[0] }
-        </ButtonGroups>
-        <div className={classNames('toolbar', 'time-control-toolbar', {closed: timeControlClosed})}>
-          <div className='toolbar-group time-control'>
-            { _.flatten(_.values(this.props.children[1])) }
-          </div>
-        </div>
-      </PaperBar>
-    );
-  }
-})
-
-function blockEvent(e) {
-  e.preventDefault();
-}
-
-var Toolbar = React.createClass({
-  render() {
-    return (
-      <div
-        className={'toolbar ' + (this.props.className || '')}
-      >
-        {this.props.children}
-      </div>
-    );
-  }
-});
-
-var PaperBar = React.createClass({
-  render() {
-    return (
-      <Paper
-        className={'paper-bar ' + (this.props.className || '')}
-        rounded={false}
-        transitionEnabled={false}
-        onTouchStart={blockEvent}
-        onMouseDown={blockEvent}
-      >
-        {this.props.children}
-      </Paper>
-    );
-  }
-});
-
-var FloatPaper = React.createClass({
-  render() {
-    return (
-      <Paper
-        className={classNames('float-paper', this.props.className)}
-        circle={this.props.circle}
-        style={{boxShadow: 'null', pointerEvents: 'auto'}}
-        transitionEnabled={false}
-        onTouchStart={blockEvent}
-        onMouseDown={blockEvent}
-      >
-        {this.props.children}
-      </Paper>
     );
   }
 });
