@@ -47,7 +47,7 @@ var App = React.createClass({
         flag,
         maxIndex,
       },
-      playing,
+      inPlaybackMode,
       rider: {
         startPosition,
         state,
@@ -67,7 +67,7 @@ var App = React.createClass({
           frame={index}
           flagIndex={flag}
           startPosition={startPosition}
-          viewOptions={{ color: !playing, floor: true }}
+          viewOptions={{ color: !inPlaybackMode, floor: true }}
           rider={state}
           flagRider={flagState}
           cam={cam}
@@ -79,7 +79,7 @@ var App = React.createClass({
           selected={selected}
           dispatch={dispatch}
           fileLoader={fileLoader}
-          playing={playing}
+          inPlaybackMode={inPlaybackMode}
           timeline={{index, maxIndex, flag}}
         />
       </div>

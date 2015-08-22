@@ -1,6 +1,6 @@
 
-function selectCam({w, h, x, y, z}, playing, track, index) {
-  if (playing) {
+function selectCam({w, h, x, y, z}, inPlaybackMode, track, index) {
+  if (inPlaybackMode) {
     let offset = 25; // TODO: make this responsive to toolbars
     let maxRadius = Math.max(z * (Math.min(w, h) / 2) - offset)
     ;({x, y} = track.getRiderCam(index, maxRadius))
@@ -35,8 +35,8 @@ export default function select({
   trackData,
   ...state
 }) {
-  let playing = playback.state !== 'stop' && playback.state !== 'pause'
-  let cam = selectCam(viewport, playing, trackData.track, playback.index)
+  let inPlaybackMode = playback.state !== 'stop' && playback.state !== 'pause'
+  let cam = selectCam(viewport, inPlaybackMode, trackData.track, playback.index)
   return {...state,
     toolbars,
     selected: {
@@ -44,7 +44,7 @@ export default function select({
       [selectedTool]: true,
       [playback.state]: playback.state !== 'stop'
     },
-    playing,
+    inPlaybackMode,
     playback,
     cam,
     viewport,

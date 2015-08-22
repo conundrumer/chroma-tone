@@ -71,7 +71,7 @@ export default class Editor extends React.Component {
       timeControlOpen: PropTypes.bool.isRequired,
       sidebarSelected: PropTypes.number.isRequired,
       selected: PropTypes.objectOf(PropTypes.bool).isRequired,
-      playing: PropTypes.bool.isRequired,
+      inPlaybackMode: PropTypes.bool.isRequired,
       fileLoader: PropTypes.shape({
         open: PropTypes.bool.isRequired,
         loadingFile: PropTypes.bool.isRequired,
@@ -132,7 +132,7 @@ export default class Editor extends React.Component {
       timeControlOpen,
       selected,
       sidebarSelected,
-      playing,
+      inPlaybackMode,
       fileLoader: {
         open: fileLoaderOpen,
         loadingFile,
@@ -148,7 +148,7 @@ export default class Editor extends React.Component {
       timeControlOpen: timeControlOpen_,
       selected: selected_,
       sidebarSelected: sidebarSelected_,
-      playing: playing_,
+      inPlaybackMode: inPlaybackMode_,
       fileLoader: {
         open: fileLoaderOpen_,
         loadingFile: loadingFile_,
@@ -163,7 +163,7 @@ export default class Editor extends React.Component {
       || sidebarSelected !== sidebarSelected_
       || fileLoaderOpen !== fileLoaderOpen_
       || fileLoaderError !== fileLoaderError_
-      || playing !== playing_
+      || inPlaybackMode !== inPlaybackMode_
       || fileName !== fileName_
       || fileLoaderTracks !== fileLoaderTracks_
       || loadingFile !== loadingFile_
@@ -185,7 +185,7 @@ export default class Editor extends React.Component {
     let {
       dispatch,
       timeControlOpen,
-      playing
+      inPlaybackMode
     } = this.props
 
     let b = getButtons(dispatch);
@@ -193,7 +193,7 @@ export default class Editor extends React.Component {
     b.toggleTimeControl.transform = `rotate(${timeControlOpen ? 0 : 180}deg)`;
 
     ['undo', 'redo', 'select', 'pencil', 'brush', 'line', 'curve', 'multiLine', 'eraser'].forEach( tool => {
-      b[tool].disabled = playing;
+      b[tool].disabled = inPlaybackMode;
     });
 
     let bs = getButtonGroups(b);
