@@ -1,16 +1,25 @@
 'use strict';
 
-var _ = require('lodash');
-var React = require('react');
-var mui = require('material-ui');
-var Combokeys = require('combokeys');
-var ThemeManager = new mui.Styles.ThemeManager();
+import _ from 'lodash'
+import React, { PropTypes } from 'react'
+import mui from 'material-ui'
+let {
+  IconMenu,
+  Styles: {
+    ThemeManager: MuiThemeManager,
+  Colors: {
+    blue500,
+    red500,
+    green500
+    }
+  }
+} = mui
+import Combokeys from 'combokeys'
 
-var {Paper, IconMenu, Styles: { Colors: { blue500, red500, green500 }}} = mui;
-var MenuItem = require('material-ui/lib/menus/menu-item');
-var IconButton = require('./IconButton');
-var { getButtons, getButtonGroups, getMenus } = require('../buttons');
-var DrawingSurface = require('./DrawingSurface');
+import { getButtons, getButtonGroups, getMenus } from '../buttons'
+import MenuItem from 'material-ui/lib/menus/menu-item'
+import IconButton from './IconButton'
+import DrawingSurface from './DrawingSurface'
 import SideBar from './SideBar';
 import FileLoader from './FileLoader';
 import Timeline from './Timeline'
@@ -18,10 +27,11 @@ import FloatBar from './FloatBar'
 import BottomBar from './BottomBar'
 import TopBar from './TopBar'
 
-var { setHotkey } = require('../actions');
+import { setHotkey } from '../actions'
 
-require('../styles/Editor.less');
+import '../styles/Editor.less'
 
+var ThemeManager = new MuiThemeManager();
 function setTheme() {
   let palette = ThemeManager.getCurrentTheme().palette;
   palette.primary1Color = blue500;
@@ -51,22 +61,43 @@ const STYLES = {
 
 const DEFAULT_ICON_STYLE = { padding: '9px', width: 42, height: 42, margin: '3px' };
 
-var Editor = React.createClass({
+export default class Editor extends React.Component {
 
-  childContextTypes: {
-    muiTheme: React.PropTypes.object
-  },
+  static get propTypes() {
+    return {
+      dispatch: PropTypes.func.isRequired,
+      toolbarsOpen: PropTypes.bool.isRequired,
+      sidebarOpen: PropTypes.bool.isRequired,
+      timeControlOpen: PropTypes.bool.isRequired,
+      sidebarSelected: PropTypes.number.isRequired,
+      selected: PropTypes.objectOf(PropTypes.bool).isRequired,
+      playing: PropTypes.bool.isRequired,
+      fileLoader: PropTypes.shape({
+        open: PropTypes.bool.isRequired,
+        loadingFile: PropTypes.bool.isRequired,
+        error: PropTypes.string,
+        fileName: PropTypes.string,
+        tracks: PropTypes.arrayOf(PropTypes.object)
+      })
+    }
+  }
+
+  static get childContextTypes() {
+    return {
+      muiTheme: React.PropTypes.object
+    }
+  }
 
   getChildContext() {
     return {
       muiTheme: ThemeManager.getCurrentTheme()
     };
-  },
+  }
 
   componentWillMount() {
     setTheme();
     this.ripples = Object.create(null);
-  },
+  }
 
   setRipple(name, start, end) {
     let ripple = this.ripples[name];
@@ -76,11 +107,9 @@ var Editor = React.createClass({
     ripple.push({start, end})
 
     this.ripples[name] = ripple;
-  },
+  }
 
   componentDidMount() {
-    this.interval = setInterval(this.onResize, 100);
-
     // add ripples to indicate hotkey has occured in hidden toolbars
     let buttons = getButtons();
     let bs = getButtonGroups(buttons);
@@ -93,7 +122,7 @@ var Editor = React.createClass({
 
     this.combokeys = new Combokeys(document);
     setDefaultHotkeys(this.props.dispatch, this.combokeys, this.ripples);
-  },
+  }
 
   shouldComponentUpdate(nextProps) {
     // this is getting ridiculous
@@ -101,9 +130,9 @@ var Editor = React.createClass({
       toolbarsOpen,
       sidebarOpen,
       timeControlOpen,
-      leftNavOpen,
       selected,
       sidebarSelected,
+      playing,
       fileLoader: {
         open: fileLoaderOpen,
         loadingFile,
@@ -117,9 +146,9 @@ var Editor = React.createClass({
       toolbarsOpen: toolbarsOpen_,
       sidebarOpen: sidebarOpen_,
       timeControlOpen: timeControlOpen_,
-      leftNavOpen: leftNavOpen_,
       selected: selected_,
       sidebarSelected: sidebarSelected_,
+      playing: playing_,
       fileLoader: {
         open: fileLoaderOpen_,
         loadingFile: loadingFile_,
@@ -134,31 +163,37 @@ var Editor = React.createClass({
       || sidebarSelected !== sidebarSelected_
       || fileLoaderOpen !== fileLoaderOpen_
       || fileLoaderError !== fileLoaderError_
+      || playing !== playing_
       || fileName !== fileName_
       || fileLoaderTracks !== fileLoaderTracks_
       || loadingFile !== loadingFile_
       || timeControlOpen !== timeControlOpen_
-      || leftNavOpen !== leftNavOpen_
       || !_.isEqual(selected, selected_);
-  },
+  }
 
   componentWillUnmount() {
     this.combokeys.detach();
-  },
+  }
 
   getTimeline() {
     return {
       render: (key) => <Timeline key={key} />
     };
-  },
+  }
 
   getButtonGroups() {
-    let b = getButtons(this.props.dispatch);
+    let {
+      dispatch,
+      timeControlOpen,
+      playing
+    } = this.props
 
-    b.toggleTimeControl.transform = `rotate(${this.props.timeControlOpen ? 0 : 180}deg)`;
+    let b = getButtons(dispatch);
+
+    b.toggleTimeControl.transform = `rotate(${timeControlOpen ? 0 : 180}deg)`;
 
     ['undo', 'redo', 'select', 'pencil', 'brush', 'line', 'curve', 'multiLine', 'eraser'].forEach( tool => {
-      b[tool].disabled = this.props.playing;
+      b[tool].disabled = playing;
     });
 
     let bs = getButtonGroups(b);
@@ -173,20 +208,6 @@ var Editor = React.createClass({
     bs.float.right = bs.float.right.map(addStyle(STYLES.floatCircle));
     bs.float.middle = bs.float.middle.map(addStyle(STYLES.smallIcon));
 
-    // _.flatten(_.values(bs.float)).forEach(button => {
-    //   button.disabled = this.props.toolbarsOpen;
-    // });
-
-    // ['top', 'bottom', 'timeControl'].forEach( toolbar => {
-    //   _.flatten(_.values(bs[toolbar])).forEach(button => {
-    //     button.disabled = !this.props.toolbarsOpen;
-    //   });
-    // });
-
-    // _.flatten(_.values(bs.timeControl)).forEach(button => {
-    //   button.disabled = button.disabled || !this.props.timeControlOpen;
-    // });
-
     ['bottom', 'timeControl'].forEach( toolbar => {
       _.flatten(_.values(bs[toolbar])).forEach(button => {
         button.tooltipPosition = 'top-center';
@@ -196,7 +217,7 @@ var Editor = React.createClass({
     bs.timeControl.middle = [this.getTimeline()];
 
     return {buttonGroups: bs, menus: getMenus(b)};
-  },
+  }
 
   renderButton({ name, tooltip, icon, boundAction, style, render, disabled, ...props }, key) {
     if (render) {
@@ -215,7 +236,7 @@ var Editor = React.createClass({
         { icon }
       </IconButton>
     );
-  },
+  }
 
   renderMenuButton(button, key, menuItems, openDirection) {
     return (
@@ -236,7 +257,7 @@ var Editor = React.createClass({
         )}
       </IconMenu>
     );
-  },
+  }
 
   renderButtons() {
     let {buttonGroups: bs, menus} = this.getButtonGroups();
@@ -252,7 +273,7 @@ var Editor = React.createClass({
         })
       )
     );
-  },
+  }
 
   render() {
     let {
@@ -263,21 +284,26 @@ var Editor = React.createClass({
     } = this.renderButtons();
 
     let {
+      dispatch,
       toolbarsOpen,
-      timeControlOpen
-    } = this.props;
+      timeControlOpen,
+      sidebarOpen,
+      sidebarSelected,
+      fileLoader
+    } = this.props
+
     return (
       <div className='LR-Editor' >
-        <DrawingSurface dispatch={this.props.dispatch} />
+        <DrawingSurface dispatch={dispatch} />
         <FloatBar closed={toolbarsOpen}>
           { float }
         </FloatBar>
         <SideBar {...{toolbarsOpen, timeControlOpen}}
-          dispatch={this.props.dispatch}
-          open={this.props.sidebarOpen}
-          selected={this.props.sidebarSelected}
-          fileName={this.props.fileLoader.fileName}
-          tracks={this.props.fileLoader.tracks}
+          dispatch={dispatch}
+          open={sidebarOpen}
+          selected={sidebarSelected}
+          fileName={fileLoader.fileName}
+          tracks={fileLoader.tracks}
         />
         <TopBar closed={!toolbarsOpen}>
           { top }
@@ -291,11 +317,8 @@ var Editor = React.createClass({
           { bottom }
           { timeControl }
         </BottomBar>
-        <FileLoader {...this.props.fileLoader} dispatch={this.props.dispatch} />
+        <FileLoader {...fileLoader} dispatch={dispatch} />
       </div>
     );
   }
-});
-
-module.exports = Editor;
-
+}
