@@ -2,6 +2,7 @@
 
 import _ from 'lodash'
 import React, { PropTypes } from 'react'
+import PureComponent from 'react-pure-render/component';
 import mui from 'material-ui'
 let {
   IconMenu,
@@ -61,7 +62,7 @@ const STYLES = {
 
 const DEFAULT_ICON_STYLE = { padding: '9px', width: 42, height: 42, margin: '3px' };
 
-export default class Editor extends React.Component {
+export default class Editor extends PureComponent {
 
   static get propTypes() {
     return {
@@ -84,7 +85,7 @@ export default class Editor extends React.Component {
 
   static get childContextTypes() {
     return {
-      muiTheme: React.PropTypes.object
+      muiTheme: PropTypes.object
     }
   }
 
@@ -122,53 +123,6 @@ export default class Editor extends React.Component {
 
     this.combokeys = new Combokeys(document);
     setDefaultHotkeys(this.props.dispatch, this.combokeys, this.ripples);
-  }
-
-  shouldComponentUpdate(nextProps) {
-    // this is getting ridiculous
-    let {
-      toolbarsOpen,
-      sidebarOpen,
-      timeControlOpen,
-      selected,
-      sidebarSelected,
-      inPlaybackMode,
-      fileLoader: {
-        open: fileLoaderOpen,
-        loadingFile,
-        error: fileLoaderError,
-        fileName,
-        tracks: fileLoaderTracks
-      }
-    } = this.props;
-
-    let {
-      toolbarsOpen: toolbarsOpen_,
-      sidebarOpen: sidebarOpen_,
-      timeControlOpen: timeControlOpen_,
-      selected: selected_,
-      sidebarSelected: sidebarSelected_,
-      inPlaybackMode: inPlaybackMode_,
-      fileLoader: {
-        open: fileLoaderOpen_,
-        loadingFile: loadingFile_,
-        error: fileLoaderError_,
-        fileName: fileName_,
-        tracks: fileLoaderTracks_
-      }
-    } = nextProps;
-
-    return toolbarsOpen !== toolbarsOpen_
-      || sidebarOpen !== sidebarOpen_
-      || sidebarSelected !== sidebarSelected_
-      || fileLoaderOpen !== fileLoaderOpen_
-      || fileLoaderError !== fileLoaderError_
-      || inPlaybackMode !== inPlaybackMode_
-      || fileName !== fileName_
-      || fileLoaderTracks !== fileLoaderTracks_
-      || loadingFile !== loadingFile_
-      || timeControlOpen !== timeControlOpen_
-      || !_.isEqual(selected, selected_);
   }
 
   componentWillUnmount() {

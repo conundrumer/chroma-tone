@@ -33,6 +33,7 @@
     "react": "^0.13.3",
     "react-dropzone": "^1.2.4",
     "react-inlinesvg": "conundrumer/react-inlinesvg#build",
+    "react-pure-render": "^1.0.2",
     "react-redux": "^0.6.0",
     "react-stats": "0.0.5",
     "react-tap-event-plugin": "^0.1.7",
