@@ -1,3 +1,4 @@
+import { createSelector } from 'reselect';
 
 function selectCam({w, h, x, y, z}, inPlaybackMode, track, index) {
   if (inPlaybackMode) {
@@ -26,33 +27,52 @@ function selectRider({index, flag}, track) {
   }
 }
 
-function selectSelected({toggled, selectedTool, playback: {state: playbackState}}) {
-  return {
+const inPlaybackModeSelector = ({playback: {state}}) => state !== 'stop' && state !== 'pause'
+
+const selectedSelector = createSelector(
+  [
+    state => state.toggled,
+    state => state.selectedTool,
+    state => state.playback.state
+  ],
+  (toggled, selectedTool, playbackState) => ({
     ...toggled,
     [selectedTool]: true,
     [playbackState]: playbackState !== 'stop'
-  }
-}
+  })
+)
 
-function selectEditor({toolbars}, inPlaybackMode, selected) {
-  return {...toolbars, inPlaybackMode, selected}
-}
+const editorSelector = createSelector(
+  [
+    state => state.toolbars,
+    inPlaybackModeSelector,
+    selectedSelector
+  ],
+  (toolbars, inPlaybackMode, selected) => ({...toolbars, inPlaybackMode, selected})
+)
 
-function selectFileLoader({fileLoader: {open, loadingFile, error, fileName, tracks}}) {
-  return {open, loadingFile, error, fileName, tracks}
-}
+const fileLoaderSelector = createSelector(
+  [
+    state => state.fileLoader.open,
+    state => state.fileLoader.loadingFile,
+    state => state.fileLoader.error,
+    state => state.fileLoader.fileName,
+    state => state.fileLoader.tracks
+  ],
+  (open, loadingFile, error, fileName, tracks) => ({open, loadingFile, error, fileName, tracks})
+)
 
 export default function select(state) {
   let {
     viewport,
     playback,
-    trackData,
+    trackData
   } = state
   let inPlaybackMode = playback.state !== 'stop' && playback.state !== 'pause'
   let cam = selectCam(viewport, inPlaybackMode, trackData.track, playback.index)
   return {
-    editor: selectEditor(state, inPlaybackMode, selectSelected(state)),
-    fileLoader: selectFileLoader(state),
+    editor: editorSelector(state),
+    fileLoader: fileLoaderSelector(state),
     inPlaybackMode,
     playback,
     cam,
