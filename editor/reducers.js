@@ -2,6 +2,7 @@
 
 import {
   RESIZE,
+  SET_MOD_KEY,
   SHOW_TOOLBARS,
   HIDE_TOOLBARS,
   SHOW_SIDEBAR,
@@ -51,6 +52,9 @@ const INIT = {
     sidebarSelected: -1,
     colorSelected: 0
   },
+  modKeys: {
+    shift: false
+  },
   selectedTool: 'debugTool',
   toggled: Object.create(null),
   hotkeys: Object.create(null),
@@ -91,6 +95,17 @@ export function viewport(state = INIT.viewport, action) {
         x: INIT.viewport.x,
         y: INIT.viewport.y,
         z: INIT.viewport.z
+      }
+    default:
+      return state;
+  }
+}
+
+export function modKeys(state = INIT.modKeys, action) {
+  switch (action.type) {
+    case SET_MOD_KEY:
+      return {...state,
+        [action.key]: action.pressed
       }
     default:
       return state;

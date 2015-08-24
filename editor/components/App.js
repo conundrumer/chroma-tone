@@ -5,7 +5,7 @@ var { connect } = require('react-redux');
 
 var { Display } = require('renderer');
 
-var { setWindowSize } = require('../actions');
+var { setWindowSize, setModKey } = require('../actions');
 var Editor = require('./Editor');
 
 import select from '../selectors'
@@ -17,6 +17,9 @@ var App = React.createClass({
 
   componentWillMount() {
     this.combokeys = new Combokeys(document);
+    // TODO: make a system for modifier keys
+    this.combokeys.bind('shift', () => this.props.dispatch(setModKey('shift', true)), 'keydown')
+    this.combokeys.bind('shift', () => this.props.dispatch(setModKey('shift', false)), 'keyup')
   },
 
   componentDidMount() {

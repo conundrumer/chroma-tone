@@ -67,8 +67,6 @@ export function zoom(stream, dispatch, getState) {
 const MIN_LINE_LENGTH = 6;
 var tempID = 0;
 export function line(stream, dispatch, getState) {
-  let lineType = getState().toolbars.colorSelected
-
   var p1, prevLine = null;
   let id = tempID++; // make addLine responsible for getting actual ID!
   stream.first().subscribe( pos => {
@@ -80,12 +78,14 @@ export function line(stream, dispatch, getState) {
     stream: stream.map((pos) => getAbsPos(pos, getState))
       .filter(p2 => p1.distance(p2) >= MIN_LINE_LENGTH),
     onNext: (p2) => {
+      let {toolbars: {colorSelected: lineType}, modKeys: {shift}} = getState()
       let lineData = {
         x1: p1.x,
         y1: p1.y,
         x2: p2.x,
         y2: p2.y,
         id: id,
+        flipped: shift,
         type: lineType
       }
       if (prevLine) {
@@ -103,8 +103,6 @@ export function line(stream, dispatch, getState) {
   }
 }
 export function pencil(stream, dispatch, getState) {
-  let lineType = getState().toolbars.colorSelected
-
   var p0, addedLines = [];
   stream.first().subscribe( pos => {
     // TODO: make function to convert to absolute coordinates
@@ -122,11 +120,13 @@ export function pencil(stream, dispatch, getState) {
       .filter(prevLine => prevLine !== null)
     ,
     onNext: ([p1, p2]) => {
+      let {toolbars: {colorSelected: lineType}, modKeys: {shift}} = getState()
       let lineData = {
         x1: p1.x,
         y1: p1.y,
         x2: p2.x,
         y2: p2.y,
+        flipped: shift,
         id: tempID++,
         type: lineType
       }

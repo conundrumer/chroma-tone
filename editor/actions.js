@@ -14,6 +14,7 @@ const DEBUG = false;
  */
 
 export const RESIZE = 'RESIZE';
+export const SET_MOD_KEY = 'SET_MOD_KEY';
 export const SHOW_TOOLBARS = 'SHOW_TOOLBARS';
 export const HIDE_TOOLBARS = 'HIDE_TOOLBARS';
 export const SHOW_SIDEBAR = 'SHOW_SIDEBAR';
@@ -55,6 +56,14 @@ export function setWindowSize({ width, height }) {
     type: RESIZE,
     windowSize: { width, height }
   };
+}
+
+export function setModKey(key, pressed) {
+  return {
+    type: SET_MOD_KEY,
+    key: key,
+    pressed: pressed
+  }
 }
 
 // toolbars

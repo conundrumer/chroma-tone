@@ -61,6 +61,7 @@ function makeStreamOfDrawStreams(container, unmountStream) {
   );
   endStream = endStream.merge(mouseMoveEndStream);
 
+  // TODO: merge stream with mod key pressed stream
   let makeDrawStreamFromStartEvent = (startEvent) => {
     let partOfStream = ({id}) => startEvent.id === id;
     return moveStream.filter(partOfStream)
