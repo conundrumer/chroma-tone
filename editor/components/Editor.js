@@ -14,8 +14,6 @@ let {
     }
   }
 } = mui
-import Combokeys from 'combokeys'
-
 import { getButtons, getButtonGroups, getMenus } from '../buttons'
 import MenuItem from 'material-ui/lib/menus/menu-item'
 import IconButton from './IconButton'
@@ -69,6 +67,7 @@ export default class Editor extends React.Component {
 
   static get propTypes() {
     return {
+      combokeys: PropTypes.object.isRequired,
       editor: PropTypes.object,
       dispatch: PropTypes.func.isRequired,
       toolbarsOpen: PropTypes.bool.isRequired,
@@ -137,13 +136,7 @@ export default class Editor extends React.Component {
         this.ripples[b.name].push(this.ripples.showToolbars[0]);
       }
     });
-
-    this.combokeys = new Combokeys(document);
-    setDefaultHotkeys(this.props.dispatch, this.combokeys, this.ripples);
-  }
-
-  componentWillUnmount() {
-    this.combokeys.detach();
+    setDefaultHotkeys(this.props.dispatch, this.props.combokeys, this.ripples);
   }
 
   getTimeline() {

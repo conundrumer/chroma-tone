@@ -9,10 +9,15 @@ var { setWindowSize } = require('../actions');
 var Editor = require('./Editor');
 
 import select from '../selectors'
+import Combokeys from 'combokeys'
 
 var BLOCK_CONTEXT_MENU = true;
 
 var App = React.createClass({
+
+  componentWillMount() {
+    this.combokeys = new Combokeys(document);
+  },
 
   componentDidMount() {
     this.interval = setInterval(this.onResize, 100);
@@ -20,6 +25,7 @@ var App = React.createClass({
 
   componentWillUnmount() {
     clearInterval(this.interval);
+    this.combokeys.detach();
   },
 
   onResize() {
@@ -74,7 +80,7 @@ var App = React.createClass({
           width={w}
           height={h}
         />
-        <Editor {...editor} {...{editor, fileLoader, timeline}} dispatch={dispatch} />
+        <Editor {...editor} {...{editor, fileLoader, timeline}} combokeys={this.combokeys} dispatch={dispatch} />
       </div>
     );
   }
