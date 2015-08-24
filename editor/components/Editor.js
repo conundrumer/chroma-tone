@@ -47,7 +47,7 @@ function setTheme() {
       selectedTextColor: red500
     },
     floatingActionButton: {
-      miniSize: 25
+      miniSize: 20
     }
   })
 }
@@ -75,6 +75,7 @@ export default class Editor extends React.Component {
       sidebarOpen: PropTypes.bool.isRequired,
       timeControlOpen: PropTypes.bool.isRequired,
       colorPickerOpen: PropTypes.bool.isRequired,
+      colorSelected: PropTypes.number.isRequired,
       sidebarSelected: PropTypes.number.isRequired,
       selected: PropTypes.objectOf(PropTypes.bool).isRequired,
       inPlaybackMode: PropTypes.bool.isRequired,
@@ -260,7 +261,8 @@ export default class Editor extends React.Component {
       sidebarOpen,
       sidebarSelected,
       fileLoader,
-      colorPickerOpen
+      colorPickerOpen,
+      colorSelected
     } = this.props
 
     return (
@@ -288,7 +290,7 @@ export default class Editor extends React.Component {
           { bottom }
           { timeControl }
         </BottomBar>
-        <ColorPicker open={colorPickerOpen} dispatch={dispatch} />
+        <ColorPicker open={colorPickerOpen} selected={colorSelected} toolbarsOpen={toolbarsOpen} dispatch={dispatch} />
         <FileLoader {...fileLoader} dispatch={dispatch} />
       </div>
     );
