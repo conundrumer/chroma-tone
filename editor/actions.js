@@ -43,6 +43,7 @@ export const HIDE_FILE_LOADER = 'HIDE_FILE_LOADER';
 export const LOAD_FILE = 'LOAD_FILE';
 export const LOAD_FILE_SUCCESS = 'LOAD_FILE_SUCCESS';
 export const LOAD_FILE_FAIL = 'LOAD_FILE_FAIL';
+export const SELECT_COLOR = 'SELECT_COLOR'
 
 /**
  * action creators
@@ -57,6 +58,12 @@ export function setWindowSize({ width, height }) {
 }
 
 // toolbars
+export function selectColor(color) {
+  return {
+    type: SELECT_COLOR,
+    color: color
+  }
+}
 export function showToolbars() {
   return {
     type: SHOW_TOOLBARS

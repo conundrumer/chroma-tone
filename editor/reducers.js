@@ -31,6 +31,7 @@ import {
   IMPORT_TRACK,
   CANCEL_IMPORT,
   SET_FLAG,
+  SELECT_COLOR,
 } from './actions';
 
 import { newTrack } from './actions';
@@ -47,7 +48,8 @@ const INIT = {
     toolbarsOpen: false,
     timeControlOpen: false,
     sidebarOpen: false,
-    sidebarSelected: -1
+    sidebarSelected: -1,
+    colorSelected: 0
   },
   selectedTool: 'debugTool',
   toggled: Object.create(null),
@@ -97,6 +99,10 @@ export function viewport(state = INIT.viewport, action) {
 // toolbars
 export function toolbars(state = INIT.toolbars, action) {
   switch (action.type) {
+    case SELECT_COLOR:
+      return {...state,
+        colorSelected: action.color
+      }
     case SHOW_TOOLBARS:
       return {...state,
         toolbarsOpen: true

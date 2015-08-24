@@ -26,6 +26,7 @@ import Timeline from './Timeline'
 import FloatBar from './FloatBar'
 import BottomBar from './BottomBar'
 import TopBar from './TopBar'
+import ColorPicker from './ColorPicker'
 
 import { setHotkey } from '../actions'
 
@@ -44,6 +45,9 @@ function setTheme() {
     },
     menuItem: {
       selectedTextColor: red500
+    },
+    floatingActionButton: {
+      miniSize: 25
     }
   })
 }
@@ -70,6 +74,7 @@ export default class Editor extends React.Component {
       toolbarsOpen: PropTypes.bool.isRequired,
       sidebarOpen: PropTypes.bool.isRequired,
       timeControlOpen: PropTypes.bool.isRequired,
+      colorPickerOpen: PropTypes.bool.isRequired,
       sidebarSelected: PropTypes.number.isRequired,
       selected: PropTypes.objectOf(PropTypes.bool).isRequired,
       inPlaybackMode: PropTypes.bool.isRequired,
@@ -254,7 +259,8 @@ export default class Editor extends React.Component {
       timeControlOpen,
       sidebarOpen,
       sidebarSelected,
-      fileLoader
+      fileLoader,
+      colorPickerOpen
     } = this.props
 
     return (
@@ -282,6 +288,7 @@ export default class Editor extends React.Component {
           { bottom }
           { timeControl }
         </BottomBar>
+        <ColorPicker open={colorPickerOpen} dispatch={dispatch} />
         <FileLoader {...fileLoader} dispatch={dispatch} />
       </div>
     );

@@ -28,6 +28,18 @@ function selectRider({index, flag}, track) {
 }
 
 const inPlaybackModeSelector = ({playback: {state}}) => state !== 'stop' && state !== 'pause'
+const colorPickerOpenSelector = state => {
+  switch (state.selectedTool) {
+    case 'pencil':
+    case 'line':
+    case 'curve':
+    case 'brush':
+    case 'multiLine':
+      return true
+    default:
+      return false
+  }
+}
 
 const selectedSelector = createSelector(
   [
@@ -46,9 +58,15 @@ const editorSelector = createSelector(
   [
     state => state.toolbars,
     inPlaybackModeSelector,
-    selectedSelector
+    selectedSelector,
+    colorPickerOpenSelector
   ],
-  (toolbars, inPlaybackMode, selected) => ({...toolbars, inPlaybackMode, selected})
+  (toolbars, inPlaybackMode, selected, colorPickerOpen) => ({
+    ...toolbars,
+    inPlaybackMode,
+    selected,
+    colorPickerOpen: colorPickerOpen && !inPlaybackMode
+  })
 )
 
 const fileLoaderSelector = createSelector(
