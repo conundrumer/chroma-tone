@@ -66,8 +66,9 @@ export function zoom(stream, dispatch, getState) {
 // TODO: enforce minimum line length
 const MIN_LINE_LENGTH = 6;
 var tempID = 0;
-var tempLineType = 0;
 export function line(stream, dispatch, getState) {
+  let lineType = getState().toolbars.colorSelected
+
   var p1, prevLine = null;
   let id = tempID++; // make addLine responsible for getting actual ID!
   stream.first().subscribe( pos => {
@@ -85,7 +86,7 @@ export function line(stream, dispatch, getState) {
         x2: p2.x,
         y2: p2.y,
         id: id,
-        type: tempLineType
+        type: lineType
       }
       if (prevLine) {
         dispatch(replaceLine(prevLine, lineData))
@@ -102,6 +103,8 @@ export function line(stream, dispatch, getState) {
   }
 }
 export function pencil(stream, dispatch, getState) {
+  let lineType = getState().toolbars.colorSelected
+
   var p0, addedLines = [];
   stream.first().subscribe( pos => {
     // TODO: make function to convert to absolute coordinates
@@ -125,7 +128,7 @@ export function pencil(stream, dispatch, getState) {
         x2: p2.x,
         y2: p2.y,
         id: tempID++,
-        type: tempLineType
+        type: lineType
       }
       dispatch(addLine(lineData))
       addedLines.push(lineData);
