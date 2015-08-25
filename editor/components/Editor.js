@@ -2,18 +2,7 @@
 
 import _ from 'lodash'
 import React, { PropTypes } from 'react'
-import mui from 'material-ui'
-let {
-  IconMenu,
-  Styles: {
-    ThemeManager: MuiThemeManager,
-  Colors: {
-    blue500,
-    red500,
-    green500
-    }
-  }
-} = mui
+import { IconMenu } from 'material-ui'
 import { getButtons, getButtonGroups, getMenus } from '../buttons'
 import MenuItem from 'material-ui/lib/menus/menu-item'
 import IconButton from './IconButton'
@@ -30,25 +19,6 @@ import { setHotkey } from '../actions'
 
 import '../styles/Editor.less'
 
-var ThemeManager = new MuiThemeManager();
-function setTheme() {
-  let palette = ThemeManager.getCurrentTheme().palette;
-  palette.primary1Color = blue500;
-  palette.primary2Color = red500;
-  palette.primary3Color = green500;
-  ThemeManager.setPalette(palette);
-  ThemeManager.setComponentThemes({
-    raisedButton: {
-      primaryColor: red500
-    },
-    menuItem: {
-      selectedTextColor: red500
-    },
-    floatingActionButton: {
-      miniSize: 20
-    }
-  })
-}
 
 function setDefaultHotkeys(dispatch, combokeys, ripples) {
   _.forEach(getButtons(), ({hotkey}, name) => {
@@ -99,20 +69,7 @@ export default class Editor extends React.Component {
     return this.props.editor !== nextProps.editor || this.props.fileLoader !== nextProps.fileLoader;
   }
 
-  static get childContextTypes() {
-    return {
-      muiTheme: PropTypes.object
-    }
-  }
-
-  getChildContext() {
-    return {
-      muiTheme: ThemeManager.getCurrentTheme()
-    };
-  }
-
   componentWillMount() {
-    setTheme();
     this.ripples = Object.create(null);
   }
 

@@ -3,6 +3,7 @@
 var React = require('react');
 
 var Rider = require('./Rider');
+import Flag from './Flag'
 // var Grid = require('./Grid'); // TODO: make separate debug display
 // var Lines = require('./SvgLineDisplay');
 var Lines = require('./CanvasLineDisplay');
@@ -20,6 +21,7 @@ var Display = React.createClass({
   propTypes: {
     frame: PropTypes.number.isRequired,
     flagIndex: PropTypes.number.isRequired,
+    maxIndex: PropTypes.number.isRequired,
     lines: PropTypes.array.isRequired,
     rider: PropTypes.object.isRequired,
     flagRider: PropTypes.object.isRequired,
@@ -39,7 +41,10 @@ var Display = React.createClass({
       floor: PropTypes.bool,
       accArrow: PropTypes.bool,
       snapDot: PropTypes.bool
-    })
+    }),
+    startIcon: PropTypes.element,
+    flagIcon: PropTypes.element,
+    endIcon: PropTypes.element
   },
 
   getViewBox() {
@@ -69,6 +74,8 @@ var Display = React.createClass({
       <div ref='container' style={this.getStyle()} >
         <Lines {...this.props} {...viewOptions} lines={this.props.lines} viewBox={viewBox} width={this.props.width} height={this.props.height} />
         <svg style={{position: 'absolute'}} viewBox={viewBox}>
+          <Flag icon={this.props.startIcon} pos={{x, y: y + 5}} zoom={this.props.cam.z} />
+          <Flag icon={this.props.flagIcon} pos={this.props.flagRider.points[1].pos} zoom={this.props.cam.z} />
           <Rider i={-1} rider={this.props.flagRider} frame={this.props.flagIndex} seed={seed} flag={true} />
           <Rider i={0} rider={this.props.rider} frame={this.props.frame} seed={seed} />
         </svg>
