@@ -64,7 +64,7 @@ export function zoom(stream, dispatch, getState) {
 
 // TODO: put ID management in reducer
 // TODO: enforce minimum line length
-const MIN_LINE_LENGTH = 6;
+const MIN_LINE_LENGTH = 3;
 var tempID = 0;
 export function line(stream, dispatch, getState) {
   var p1, prevLine = null;
