@@ -3,6 +3,8 @@
 var React = require('react/addons');
 var {SvgIcon} = require('material-ui');
 var Eject = require('icons/eject');
+var Label = require('icons/label');
+var LabelOutline = require('icons/label-outline');
 
 var PureRenderMixin = React.addons.PureRenderMixin;
 
@@ -180,4 +182,29 @@ var StartFlag = React.createClass({
   }
 });
 
-module.exports = {Line, Curve, MultiLine, Viewfinder, CursorMove, OnionSkin, SlowMotion, FlagRaw, StartFlagRaw, Flag, StartFlag};
+var TimelineCursor = React.createClass({
+  displayName: 'TimelineCursor',
+
+  mixins: [PureRenderMixin],
+
+  render() {
+    let {color, ...props} = this.props;
+    return (
+      <Label {...this.props} style={{transform: 'rotate(-90deg)'}} />
+    );
+  }
+})
+var TimelineCursorOutline = React.createClass({
+  displayName: 'TimelineCursorOutline',
+
+  mixins: [PureRenderMixin],
+
+  render() {
+    let {color, ...props} = this.props;
+    return (
+      <LabelOutline {...this.props} style={{transform: 'rotate(-90deg)'}} />
+    );
+  }
+})
+
+module.exports = {Line, Curve, MultiLine, Viewfinder, CursorMove, OnionSkin, SlowMotion, FlagRaw, StartFlagRaw, Flag, StartFlag, TimelineCursor, TimelineCursorOutline};

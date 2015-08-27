@@ -1,7 +1,11 @@
 import React, { PropTypes } from 'react'
 import PureComponent from 'react-pure-render/component';
-import { Slider } from 'material-ui'
-import { setFrameIndex } from '../actions'
+import Slider from 'react-slider'
+import { setFrameIndex, setFrameMaxIndex } from '../actions'
+import {Flag, StartFlag, TimelineCursor} from './SvgIcons'
+import FlagCheckered from 'icons/flag-checkered'
+
+import '../styles/Timeline.less'
 
 export default class Timeline extends PureComponent {
 
@@ -28,8 +32,16 @@ export default class Timeline extends PureComponent {
     this.setState({index, flagIndex, maxIndex})
   }
 
-  onChange(e, value) {
-    this.props.dispatch(setFrameIndex(value))
+  onChange([index, maxIndex]) {
+    if (this.state.index !== index) {
+      this.props.dispatch(setFrameIndex(index))
+    }
+  }
+
+  onAfterChange([index, maxIndex]) {
+    if (this.state.maxIndex !== maxIndex) {
+      this.props.dispatch(setFrameMaxIndex(maxIndex))
+    }
   }
 
   render() {
@@ -41,7 +53,17 @@ export default class Timeline extends PureComponent {
 
     return (
       <div className='timeline'>
-        <Slider name='timeline' style={{width: '100%'}} min={0} max={maxIndex + 0.5} value={index} step={1} onChange={(e, v) => this.onChange(e, v)}/>
+        <Slider className='flag-slider' handleClassName='flag' min={0} max={maxIndex} value={[0, flagIndex]} disabled>
+          <StartFlag color='grey' />
+          <Flag color='grey' />
+        </Slider>
+        <Slider value={[index, maxIndex]} min={0} max={maxIndex}
+          onChange={vs => this.onChange(vs)}
+          onAfterChange={vs => this.onAfterChange(vs)}
+        >
+          <div><TimelineCursor/></div>
+          <div><FlagCheckered color='grey'/></div>
+        </Slider>
       </div>
     );
   }
