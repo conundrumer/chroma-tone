@@ -76,7 +76,6 @@ var Display = React.createClass({
         <svg style={{position: 'absolute'}} viewBox={viewBox}>
           <Flag icon={this.props.startIcon} pos={{x, y: y + 5}} zoom={this.props.cam.z} />
           <Flag icon={this.props.flagIcon} pos={this.props.flagRider.points[1].pos} zoom={this.props.cam.z} />
-          <Rider i={-1} rider={this.props.flagRider} frame={this.props.flagIndex} seed={seed} flag={true} />
           <Rider i={0} rider={this.props.rider} frame={this.props.frame} seed={seed} />
         </svg>
       </div>
