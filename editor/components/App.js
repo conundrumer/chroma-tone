@@ -22,8 +22,7 @@ var Editor = require('./Editor');
 
 import select from '../selectors'
 import Combokeys from 'combokeys'
-import StartFlag from './StartFlag'
-import Flag from './Flag'
+import { StartFlagRaw as StartFlag, FlagRaw as Flag } from './SvgIcons'
 
 var BLOCK_CONTEXT_MENU = true;
 
@@ -131,8 +130,8 @@ var App = React.createClass({
           lines={lines}
           width={w}
           height={h}
-          startIcon={<StartFlag />}
-          flagIcon={<Flag />}
+          startIcon={<StartFlag color='#ccc' />}
+          flagIcon={<Flag color='#ccc' />}
           endIcon={null}
         />
         <Editor {...editor} {...{editor, fileLoader, timeline}} combokeys={this.combokeys} dispatch={dispatch} />
