@@ -1,33 +1,74 @@
 import { createSelector } from 'reselect';
 
-function selectCam({w, h, x, y, z}, inPlaybackMode, track, index) {
-  if (inPlaybackMode) {
-    let offset = 25; // TODO: make this responsive to toolbars
-    let maxRadius = Math.max(z * (Math.min(w, h) / 2) - offset)
-    ;({x, y} = track.getRiderCam(index, maxRadius))
+const createSelectorFromProps = (reducer, props) =>
+  createSelector(
+    props.map(prop =>
+      state => state[reducer][prop]
+    ),
+    (...args) => {
+      let out = {}
+      props.forEach((prop, i) =>
+        out[prop] = args[i]
+      )
+      return out
+    }
+  )
+
+const inPlaybackModeSelector = ({playback: {state}}) => state !== 'stop' && state !== 'pause'
+
+// track gets mutated but startPosition and lineStore are immutable
+const trackSelector = createSelectorFromProps('trackData', ['track', 'startPosition', 'lineStore'])
+const viewportSelector = createSelectorFromProps('viewport', ['w', 'h', 'x', 'y', 'z'])
+const fileLoaderSelector = createSelectorFromProps('fileLoader', ['open', 'loadingFile', 'error', 'fileName', 'tracks'])
+const playbackSelector = createSelectorFromProps('playback', ['index', 'flag', 'maxIndex'])
+
+const camSelector = createSelector(
+  [
+    viewportSelector,
+    state => inPlaybackModeSelector(state) ? state.playback.index : -1,
+    trackSelector
+  ],
+  ({w, h, x, y, z}, index, {track}) => {
+    if (index > -1) {
+      let offset = 25; // TODO: make this responsive to toolbars
+      let maxRadius = Math.max(z * (Math.min(w, h) / 2) - offset)
+      ;({x, y} = track.getRiderCam(index, maxRadius))
+    }
+    return {x, y, z}
   }
-  return {x, y, z}
-}
+)
 
-function selectLines({w, h}, {x, y, z}, track) {
-  let [x1, y1, width, height] = [
-    x - w / 2 * z,
-    y - h / 2 * z,
-    w * z,
-    h * z
-  ]
-  return track.getLinesInBox(x1, y1, x1 + width, y1 + height)
-}
+const lineSelector = createSelector(
+  [
+    state => state.viewport.w,
+    state => state.viewport.h,
+    camSelector,
+    trackSelector
+  ],
+  (w, h, {x, y, z}, {track}) => {
+    let [x1, y1, width, height] = [
+      x - w / 2 * z,
+      y - h / 2 * z,
+      w * z,
+      h * z
+    ]
+    return track.getLinesInBox(x1, y1, x1 + width, y1 + height)
+  }
+)
 
-function selectRider({index, flag}, track) {
-  return {
+const riderSelector = createSelector(
+  [
+    state => state.playback.index,
+    state => state.playback.flag,
+    trackSelector
+  ],
+  (index, flag, {track}) => ({
     startPosition: track.getStartPosition(),
     state: track.getRiderStateAtFrame(index),
     flagState: track.getRiderStateAtFrame(flag)
-  }
-}
+  })
+)
 
-const inPlaybackModeSelector = ({playback: {state}}) => state !== 'stop' && state !== 'pause'
 const colorPickerOpenSelector = state => {
   switch (state.selectedTool) {
     case 'pencil':
@@ -69,17 +110,6 @@ const editorSelector = createSelector(
   })
 )
 
-const fileLoaderSelector = createSelector(
-  [
-    state => state.fileLoader.open,
-    state => state.fileLoader.loadingFile,
-    state => state.fileLoader.error,
-    state => state.fileLoader.fileName,
-    state => state.fileLoader.tracks
-  ],
-  (open, loadingFile, error, fileName, tracks) => ({open, loadingFile, error, fileName, tracks})
-)
-
 const timelineSelector = createSelector(
   [
     state => state.playback.index,
@@ -88,24 +118,17 @@ const timelineSelector = createSelector(
   ],
   (index, flagIndex, maxIndex) => ({index, flagIndex, maxIndex})
 )
-
+// TODO: make displaySelector
 export default function select(state) {
-  let {
-    viewport,
-    playback,
-    trackData
-  } = state
-  let inPlaybackMode = playback.state !== 'stop' && playback.state !== 'pause'
-  let cam = selectCam(viewport, inPlaybackMode, trackData.track, playback.index)
   return {
     editor: editorSelector(state),
     fileLoader: fileLoaderSelector(state),
     timeline: timelineSelector(state),
-    inPlaybackMode,
-    playback,
-    cam,
-    viewport,
-    lines: selectLines(viewport, cam, trackData.track),
-    rider: selectRider(playback, trackData.track)
+    inPlaybackMode: inPlaybackModeSelector(state),
+    playback: playbackSelector(state),
+    cam: camSelector(state),
+    viewport: viewportSelector(state),
+    lines: lineSelector(state),
+    rider: riderSelector(state)
   };
 }
