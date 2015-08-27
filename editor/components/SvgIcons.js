@@ -155,7 +155,9 @@ var Flag = React.createClass({
     let {color, ...props} = this.props;
     return (
       <SvgIcon {...this.props}>
-        <FlagRaw color={color} />
+        <g transform='translate(1 24)'>
+          <FlagRaw color={color} />
+        </g>
       </SvgIcon>
     );
   }
@@ -170,7 +172,9 @@ var StartFlag = React.createClass({
     let {color, ...props} = this.props;
     return (
       <SvgIcon {...this.props}>
-        <StartFlagRaw color={color} />
+        <g transform='translate(1 24)'>
+          <StartFlagRaw color={color} />
+        </g>
       </SvgIcon>
     );
   }
