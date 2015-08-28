@@ -19,8 +19,8 @@ const inPlaybackModeSelector = ({playback: {state}}) => state !== 'stop' && stat
 // track gets mutated but startPosition and lineStore are immutable
 const trackSelector = createSelectorFromProps('trackData', ['track', 'startPosition', 'lineStore'])
 const viewportSelector = createSelectorFromProps('viewport', ['w', 'h', 'x', 'y', 'z'])
+const widthHeightSelector = createSelectorFromProps('viewport', ['w', 'h'])
 const fileLoaderSelector = createSelectorFromProps('fileLoader', ['open', 'loadingFile', 'error', 'fileName', 'tracks'])
-const playbackSelector = createSelectorFromProps('playback', ['index', 'flag', 'maxIndex'])
 
 const camSelector = createSelector(
   [
@@ -118,17 +118,56 @@ const timelineSelector = createSelector(
   ],
   (index, flagIndex, maxIndex) => ({index, flagIndex, maxIndex})
 )
-// TODO: make displaySelector
-export default function select(state) {
-  return {
-    editor: editorSelector(state),
-    fileLoader: fileLoaderSelector(state),
-    timeline: timelineSelector(state),
-    inPlaybackMode: inPlaybackModeSelector(state),
-    playback: playbackSelector(state),
-    cam: camSelector(state),
-    viewport: viewportSelector(state),
-    lines: lineSelector(state),
-    rider: riderSelector(state)
-  };
-}
+// TODO: make sidebar selector
+// TODO: move rendering button logic to here
+const viewOptionsSelector = createSelector(
+  [
+    inPlaybackModeSelector
+  ],
+  (inPlaybackMode) => ({
+    color: !inPlaybackMode,
+    floor: true,
+    accArrow: true
+  })
+)
+
+const displaySelector = createSelector(
+  [
+    timelineSelector,
+    riderSelector,
+    camSelector,
+    lineSelector,
+    widthHeightSelector,
+    viewOptionsSelector
+  ],
+  ({index, flagIndex, maxIndex}, {startPosition, state, flagState}, cam, lines, {w, h}, viewOptions) => ({
+    frame: index,
+    flagIndex,
+    maxIndex,
+    startPosition,
+    rider: state,
+    flagRider: flagState,
+    cam,
+    lines,
+    width: w,
+    height: h,
+    viewOptions
+  })
+)
+
+export default createSelector(
+  [
+    editorSelector,
+    fileLoaderSelector,
+    timelineSelector,
+    displaySelector,
+    widthHeightSelector
+  ],
+  (editor, fileLoader, timeline, display, widthHeight) => ({
+    editor,
+    fileLoader,
+    timeline,
+    display,
+    widthHeight
+  })
+)

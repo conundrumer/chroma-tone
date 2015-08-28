@@ -78,7 +78,7 @@ var App = React.createClass({
   },
 
   onResize() {
-    let {w: prevWidth, h: prevHeight} = this.props.viewport;
+    let {w: prevWidth, h: prevHeight} = this.props.widthHeight;
     // let {width, height} = this.container.getBoundingClientRect();
     let {
       innerWidth: width,
@@ -93,23 +93,10 @@ var App = React.createClass({
   render() {
     let {
       dispatch,
-      viewport: {w, h},
-      cam,
-      playback: {
-        index,
-        maxIndex,
-        flag,
-      },
-      inPlaybackMode,
-      rider: {
-        startPosition,
-        state,
-        flagState
-      },
       fileLoader,
-      lines,
       timeline,
-      editor
+      editor,
+      display
     } = this.props
 
     return (
@@ -119,17 +106,8 @@ var App = React.createClass({
         onContextMenu={e => BLOCK_CONTEXT_MENU ? e.preventDefault() : null}
       >
         <Display
-          frame={index}
-          flagIndex={flag}
-          maxIndex={maxIndex}
-          startPosition={startPosition}
-          viewOptions={{ color: !inPlaybackMode, floor: true, accArrow: true }}
-          rider={state}
-          flagRider={flagState}
-          cam={cam}
-          lines={lines}
-          width={w}
-          height={h}
+          {...display}
+          {...{display}}
           startIcon={<StartFlag color='#ccc' />}
           flagIcon={<Flag color='#ccc' />}
           endIcon={null}
