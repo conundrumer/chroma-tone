@@ -21,18 +21,32 @@ const trackSelector = createSelectorFromProps('trackData', ['track', 'startPosit
 const viewportSelector = createSelectorFromProps('viewport', ['w', 'h', 'x', 'y', 'z'])
 const widthHeightSelector = createSelectorFromProps('viewport', ['w', 'h'])
 const fileLoaderSelector = createSelectorFromProps('fileLoader', ['open', 'loadingFile', 'error', 'fileName', 'tracks'])
+const toolbarSelector = createSelectorFromProps('toolbars', ['toolbarsOpen', 'timeControlOpen', 'sidebarOpen', 'sidebarSelected', 'colorSelected'])
+const openToolbarSelector = createSelectorFromProps('toolbars', ['toolbarsOpen', 'timeControlOpen', 'sidebarOpen'])
 
-export const camSelector = createSelector(
+export const playbackCamSelector = createSelector(
   [
+    openToolbarSelector,
     viewportSelector,
-    state => inPlaybackModeSelector(state) ? state.playback.index : -1,
+    state => state.playback.index,
     trackSelector
   ],
-  ({w, h, x, y, z}, index, {track}) => {
-    if (index > -1) {
-      let offset = 25; // TODO: make this responsive to toolbars
-      let maxRadius = Math.max(z * (Math.min(w, h) / 2) - offset)
-      ;({x, y} = track.getRiderCam(index, maxRadius))
+  ({toolbarsOpen, timeControlOpen, sidebarOpen}, {w, h, z}, index, {track}) => {
+    let offset = 25; // TODO: make this responsive to toolbars
+    let maxRadius = Math.max(z * (Math.min(w, h) / 2) - offset)
+    let {x, y} = track.getRiderCam(index, maxRadius)
+    return {x, y, z}
+  }
+)
+
+const camSelector = createSelector(
+  [
+    viewportSelector,
+    state => inPlaybackModeSelector(state) ? playbackCamSelector(state) : null
+  ],
+  ({x, y, z}, playbackCam) => {
+    if (playbackCam) {
+      return playbackCam
     }
     return {x, y, z}
   }
@@ -97,7 +111,7 @@ const selectedSelector = createSelector(
 
 const editorSelector = createSelector(
   [
-    state => state.toolbars,
+    toolbarSelector,
     inPlaybackModeSelector,
     selectedSelector,
     colorPickerOpenSelector

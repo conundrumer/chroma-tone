@@ -201,7 +201,7 @@ export function setFrameRate(rate) {
   };
 }
 /* thunk for logic in dispatching more actions (should move to reducer) */
-import { camSelector } from './selectors'
+import { playbackCamSelector } from './selectors'
 export function setPlaybackState(state) {
   return (dispatch, getState) => {
     setIndexAndRate(state, dispatch, getState);
@@ -209,7 +209,7 @@ export function setPlaybackState(state) {
     if (state === 'pause') {
       dispatch({
         type: SET_CAM,
-        cam: camSelector(getState())
+        cam: playbackCamSelector(getState())
       })
     }
     dispatch({
