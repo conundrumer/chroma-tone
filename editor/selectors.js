@@ -22,7 +22,7 @@ const viewportSelector = createSelectorFromProps('viewport', ['w', 'h', 'x', 'y'
 const widthHeightSelector = createSelectorFromProps('viewport', ['w', 'h'])
 const fileLoaderSelector = createSelectorFromProps('fileLoader', ['open', 'loadingFile', 'error', 'fileName', 'tracks'])
 
-const camSelector = createSelector(
+export const camSelector = createSelector(
   [
     viewportSelector,
     state => inPlaybackModeSelector(state) ? state.playback.index : -1,
