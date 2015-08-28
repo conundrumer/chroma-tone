@@ -3,6 +3,8 @@ import { FloatingActionButton } from 'material-ui'
 import { selectColor } from '../actions'
 import PureComponent from 'react-pure-render/component'
 
+import '../styles/ColorPicker.less'
+
 // TODO: refactor ColorPicker
 export default class ColorPicker extends PureComponent {
 
@@ -47,13 +49,7 @@ export default class ColorPicker extends PureComponent {
     let buttonStyle = this.getStyle().buttonStyle
 
     return (
-      <div style={{
-        width: '100%',
-        position: 'absolute',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}>
+      <div className='ColorPicker'>
         <div>
           <FloatingActionButton style={{...buttonStyle, transform: `scale(${!open ? 0 : selected === 0 ? 1.4 : 1})`}} backgroundColor={primary1Color} mini onTouchTap={() => dispatch(selectColor(0))}>
             {spacer}
