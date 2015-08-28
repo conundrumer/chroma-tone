@@ -139,7 +139,7 @@ export function pencil(stream, dispatch, getState) {
   }
 }
 
-const ERASER_RADIUS = 5;
+const ERASER_RADIUS = 2;
 export function eraser(stream, dispatch, getState) {
   var removedLines = [];
   return {
