@@ -19,6 +19,7 @@ var PropTypes = React.PropTypes;
 var Display = React.createClass({
 
   propTypes: {
+    display: PropTypes.object,
     frame: PropTypes.number.isRequired,
     flagIndex: PropTypes.number.isRequired,
     maxIndex: PropTypes.number.isRequired,
@@ -45,6 +46,10 @@ var Display = React.createClass({
     startIcon: PropTypes.element,
     flagIcon: PropTypes.element,
     endIcon: PropTypes.element
+  },
+
+  shouldComponentUpdate(nextProps) {
+    return !this.props.display || this.props.display !== nextProps.display;
   },
 
   getViewBox() {
