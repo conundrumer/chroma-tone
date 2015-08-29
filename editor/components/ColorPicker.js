@@ -36,12 +36,6 @@ export default class ColorPicker extends PureComponent {
       dispatch
     } = this.props
 
-    let {
-      primary1Color,
-      primary2Color,
-      primary3Color
-    } = this.context.muiTheme.palette;
-
     let size = this.context.muiTheme.component.floatingActionButton.miniSize;
 
     let spacer = <div style={{width: size, height: size, borderRadius: '50%'}} />
@@ -51,15 +45,19 @@ export default class ColorPicker extends PureComponent {
     return (
       <div className='ColorPicker'>
         <div>
-          <FloatingActionButton style={{...buttonStyle, transform: `scale(${!open ? 0 : selected === 0 ? 1.4 : 1})`}} backgroundColor={primary1Color} mini onTouchTap={() => dispatch(selectColor(0))}>
-            {spacer}
-          </FloatingActionButton>
-          <FloatingActionButton style={{...buttonStyle, transform: `scale(${!open ? 0 : selected === 1 ? 1.4 : 1})`}} backgroundColor={primary2Color} mini onTouchTap={() => dispatch(selectColor(1))}>
-            {spacer}
-          </FloatingActionButton>
-          <FloatingActionButton style={{...buttonStyle, transform: `scale(${!open ? 0 : selected === 2 ? 1.4 : 1})`}} backgroundColor={primary3Color} mini onTouchTap={() => dispatch(selectColor(2))}>
-            {spacer}
-          </FloatingActionButton>
+          {[0, 1, 2].map(i =>
+            <FloatingActionButton
+              key={i}
+              style={{...buttonStyle,
+                transform: `scale(${!open ? 0 : selected === i ? 1.4 : 1})`
+              }}
+              backgroundColor={this.context.muiTheme.palette[`primary${i+1}Color`]}
+              mini
+              onTouchTap={() => dispatch(selectColor(i))}
+            >
+              {spacer}
+            </FloatingActionButton>
+          )}
         </div>
       </div>
     )
