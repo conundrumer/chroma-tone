@@ -20,6 +20,29 @@ class Line {
     this.flipped = false;
   }
 
+  getData() {
+    let data = {
+      id: this.id,
+      type: this.type,
+      x1: this.x1,
+      y1: this.y1,
+      x2: this.x2,
+      y2: this.y2
+    }
+    if (this.isSolid) {
+      data.extended = this.extended
+      data.flipped = this.flipped
+      // TODO: figure out snapping
+      if (this.leftLine) {
+        data.leftLine = this.leftLine
+      }
+      if (this.rightLine) {
+        data.rightLine = this.rightLine
+      }
+    }
+    return data
+  }
+
   // virtual methods
   get type() {
     return undefined;

@@ -25,6 +25,10 @@ export default class Track extends Store {
     lineData.forEach( data => this.addLine(data) );
   }
 
+  getData() {
+    return this.getLines().map(line => line.getData())
+  }
+
   setStartPosition(pos) {
     this.startX = pos.x;
     this.startY = pos.y;
@@ -42,6 +46,8 @@ export default class Track extends Store {
   }
 
   // TODO: refactor this to be less mutative, less oop more fn
+  // TODO: figure out how to make this async for nonlaggy recalc
+  // TODO: make corresponding graphic states for pending recalc
   getRiderStateAtFrame(frameNum) {
     if (frameNum < this.frameCache.length) {
       return this.frameCache[frameNum].rider;
