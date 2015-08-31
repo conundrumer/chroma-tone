@@ -17,6 +17,27 @@ function blockEvent(e) {
 function makeStreamFromChangedTouches(e) {
   return Rx.Observable.from(e.changedTouches);
 }
+// support only left/middle/right buttons
+function makeStreamFromButtons(e) {
+  const [LEFT, MIDDLE, RIGHT] = [0, 1, 2]
+  const buttons = {
+    [LEFT]: 1,
+    [RIGHT]: 2,
+    [MIDDLE]: 4
+  }
+  let isPressed = id => e.type === 'mousemove' ?
+    !!(buttons[id] & e.buttons) :
+    id === e.button
+
+  return Rx.Observable.from([LEFT, RIGHT, MIDDLE]
+    .filter(id => isPressed(id))
+    .map(id => {
+      let copy = copyEvent(e)
+      copy.identifier = id
+      return copy
+    })
+  )
+}
 function makeExceptionStream() {
   return Rx.Observable.throw(new DrawCancelledException());
 }
@@ -48,7 +69,9 @@ function makeStreamOfDrawStreams(container, unmountStream) {
       // I would simply flatten e.changedTouches instead of making it a stream
       // but i do'nt know how
       .flatMap(makeStreamFromChangedTouches)
-      .merge(makeStreamFromEvent(...mouseArgs))
+      .merge(makeStreamFromEvent(...mouseArgs)
+        .flatMap(makeStreamFromButtons)
+      )
       .map(copyEvent)
   );
 
