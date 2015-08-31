@@ -77,7 +77,7 @@ var App = React.createClass({
 
   onSelectTrack(e) {
     let trackData = this.state.tracks[e.target.value];
-    let startPos = { x: trackData.startPosition[0], y: trackData.startPosition[1] };
+    let startPos = trackData.startPosition;
     let version = trackData.version;
     let VersionedTrack = Track;
     if (version === '6.1') {

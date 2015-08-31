@@ -4,7 +4,7 @@ sol saved lines schema:
   {
     label: string,
     version: string,
-    startPosition: [x: float, y: float],
+    startPosition: {x: float, y: float},
     lines: [
       {
         x1: float,
@@ -138,7 +138,10 @@ function solReader(data) {
     return {
       label: track.label,
       version: track.version,
-      startPosition: track.startLine,
+      startPosition: {
+        x: track.startLine[0],
+        y: track.startLine[1]
+      },
       lines: track.data.map(line => {
         let lineObj = {};
         LINE_ATTRIBUTES.forEach((attribute, i) => {

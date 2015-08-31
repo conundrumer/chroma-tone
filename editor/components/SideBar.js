@@ -64,7 +64,7 @@ export default class SideBar extends PureComponent {
     let { tracks, dispatch } = this.props;
     dispatch(selectSidebarItem(i));
     dispatch(loadTrack(tracks[i]));
-    let [x, y] = tracks[i].startPosition;
+    let {x, y} = tracks[i].startPosition;
     // todo: do the bounding box thing
     dispatch(setCam({x, y, z: 1}))
   }

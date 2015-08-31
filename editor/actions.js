@@ -333,8 +333,7 @@ export function newTrack(isV61 = false) {
 
 export function loadTrack(trackData) {
   let {label, version, startPosition, lines} = trackData
-  let startPos = typeof startPosition.x === 'number' ? startPosition : { x: startPosition[0], y: startPosition[1] }
-  let track = new ((version === '6.1') ? OldTrack : Track)(lines, startPos)
+  let track = new ((version === '6.1') ? OldTrack : Track)(lines, startPosition)
   return {
     type: LOAD_TRACK,
     track: track,
