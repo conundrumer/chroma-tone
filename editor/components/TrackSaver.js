@@ -36,10 +36,10 @@ export default class TrackSaver extends PureComponent {
           right: 0
         }}
         href={this.props.trackDataURI}
-        download={this.props.trackData.label + '.json'}
+        download={this.props.trackData && this.props.trackData.label + '.json'}
         />
       </RaisedButton>,
-      <RaisedButton style={{margin: 10}} primary={true} key={1} label='Save To Pastebin*' onTouchTap={() => {}} />,
+      <RaisedButton disabled={true} style={{margin: 10}} primary={true} key={1} label='Save To Pastebin*' onTouchTap={() => {}} />,
       <FlatButton secondary={true} key={2} label='Done' onTouchTap={() => this.props.dispatch(hideTrackSaver())} />
     ]
   }
