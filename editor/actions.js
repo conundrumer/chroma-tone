@@ -243,17 +243,25 @@ export function setFlag() {
   }
 }
 /* thunk for async actions + getting state*/
-export function draw(drawStream) {
+export function draw(drawStream, options = {}) {
   return (dispatch, getState) => {
 
-    let currentTool = getState().selectedTool;
+    let tool;
+    if (options.isMiddle) {
+      tool = 'pan' // TODO: make panModZoom tool
+    } else if (options.isRight) {
+      // not handling right clicks yet
+      return;
+    } else {
+      tool = getState().selectedTool;
+    }
 
     let {
       stream,
       onNext,
       onCancel,
       onEnd
-    } = tools[currentTool](drawStream, dispatch, getState);
+    } = tools[tool](drawStream, dispatch, getState);
 
     stream.subscribe(onNext, (err) => {
       if (err instanceof DrawCancelledException) {

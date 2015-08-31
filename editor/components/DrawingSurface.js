@@ -6,9 +6,10 @@ import Vector from 'core/Vector';
 import { draw } from '../actions';
 import DrawCancelledException from '../DrawCancelledException';
 
+// TODO: refactor this stuff
 function copyEvent(e) {
-  let {identifier, buttons, pageX, pageY} = e;
-  return { id: identifier, buttons, pageX, pageY, preventDefault: () => e.preventDefault() };
+  let {identifier, buttons, pageX, pageY, isMouse} = e;
+  return { id: identifier, buttons, pageX, pageY, isMouse, preventDefault: () => e.preventDefault() };
 }
 function blockEvent(e) {
   e.preventDefault();
@@ -33,6 +34,7 @@ function makeStreamFromButtons(e) {
     .map(id => {
       let copy = copyEvent(e)
       copy.identifier = id
+      copy.isMouse = true
       return copy
     })
   )
@@ -93,7 +95,11 @@ function makeStreamOfDrawStreams(container, unmountStream) {
       )
       .takeUntil(endStream.filter(partOfStream));
     stream.skip(1).subscribe(blockEvent)
-    return stream
+    return {
+      stream,
+      isMiddle: startEvent.isMouse && startEvent.id == MIDDLE,
+      isRight: startEvent.isMouse && startEvent.id == RIGHT,
+    }
   };
 
   return startStream.map(makeDrawStreamFromStartEvent);
@@ -112,8 +118,8 @@ export default class DrawingSurface extends React.Component {
 
     let streamOfDrawStreams = makeStreamOfDrawStreams(this.container, unmountStream);
 
-    streamOfDrawStreams.subscribe(drawStream =>
-      this.props.dispatch(draw(drawStream.map(e => this.getPos(e))))
+    streamOfDrawStreams.subscribe(({stream, ...options}) =>
+      this.props.dispatch(draw(stream.map(e => this.getPos(e)), options))
     );
   }
 
