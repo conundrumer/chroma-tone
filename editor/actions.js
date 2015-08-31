@@ -5,7 +5,7 @@ import bindHotkey from './bindHotkey';
 import DrawCancelledException from './DrawCancelledException';
 import { setIndexAndRate, startPlayback } from './playback'
 import { Track, OldTrack } from 'core'
-import { solReader } from 'io'
+import { solReader, jsonReader } from 'io'
 import 'buffer'
 
 const DEBUG = false;
@@ -358,23 +358,52 @@ export function loadFile([file]) {
       type: LOAD_FILE
     })
     let reader = new FileReader();
-
-    reader.onload = (upload) => {
-      try {
-        let tracks = solReader(new Buffer(new Uint8Array(upload.target.result)));
-        dispatch({
-          type: LOAD_FILE_SUCCESS,
-          fileName: file.name,
-          tracks: tracks
-        })
-      } catch (e) {
+    let fileExtension = file.name.split('.').pop();
+    // TODO: clean this up
+    switch (fileExtension) {
+      case 'sol':
+        reader.onload = (upload) => {
+          try {
+            let tracks = solReader(new Buffer(new Uint8Array(upload.target.result)));
+            dispatch({
+              type: LOAD_FILE_SUCCESS,
+              fileName: file.name,
+              tracks: tracks
+            })
+          } catch (e) {
+            dispatch({
+              type: LOAD_FILE_FAIL,
+              error: e.message
+            })
+          }
+        }
+        reader.readAsArrayBuffer(file)
+        break
+      case 'json':
+        reader.onload = (upload) => {
+          try {
+            let tracks = jsonReader(upload.target.result);
+            dispatch({
+              type: LOAD_FILE_SUCCESS,
+              fileName: file.name,
+              tracks: tracks
+            })
+          } catch (e) {
+            dispatch({
+              type: LOAD_FILE_FAIL,
+              error: e.message
+            })
+          }
+        }
+        reader.readAsText(file)
+        break
+      default:
         dispatch({
           type: LOAD_FILE_FAIL,
-          error: e.message
+          error: 'Unknown file type'
         })
-      }
     }
-    reader.readAsArrayBuffer(file);
+
   }
 }
 
