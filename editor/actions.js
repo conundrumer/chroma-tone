@@ -47,6 +47,7 @@ export const LOAD_FILE_FAIL = 'LOAD_FILE_FAIL';
 export const SELECT_COLOR = 'SELECT_COLOR'
 export const SHOW_TRACK_SAVER = 'SHOW_TRACK_SAVER'
 export const HIDE_TRACK_SAVER = 'HIDE_TRACK_SAVER'
+export const SET_TRACK_NAME = 'SET_TRACK_NAME'
 
 /**
  * action creators
@@ -141,6 +142,12 @@ export function showTrackSaver() {
 export function hideTrackSaver() {
   return {
     type: HIDE_TRACK_SAVER
+  }
+}
+export function setTrackName(name) {
+  return {
+    type: SET_TRACK_NAME,
+    name: name
   }
 }
 

@@ -34,7 +34,8 @@ import {
   SET_FLAG,
   SELECT_COLOR,
   SHOW_TRACK_SAVER,
-  HIDE_TRACK_SAVER
+  HIDE_TRACK_SAVER,
+  SET_TRACK_NAME
 } from './actions';
 
 import { newTrack } from './actions';
@@ -305,6 +306,10 @@ export function trackData(state = INIT.trackData, action) {
         startPosition,
         version,
         label
+      }
+    case SET_TRACK_NAME:
+      return {...state,
+        label: action.name
       }
     case ADD_LINE:
       return {...state,

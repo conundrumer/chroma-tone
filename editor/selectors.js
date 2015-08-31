@@ -187,11 +187,15 @@ const trackSaverSelector = createSelector(
     } : null
     let trackSaver = {
       open,
-      trackData
+      trackData,
+      label,
+      fileName: (label || 'untitled') + '.json'
     }
     if (trackData) {
-      trackSaver.trackDataJSON = JSON.stringify(trackData, null, 1).replace(/^ +/gm, '')
-      trackSaver.trackDataURI = URL.createObjectURL(new Blob([trackSaver.trackDataJSON], {type: 'application/json'}))
+      let trackDataJSON = JSON.stringify(trackData, null, 1).replace(/^ +/gm, '')
+      trackSaver.trackDataURI = URL.createObjectURL(new Blob([trackDataJSON], {type: 'application/json'}))
+      trackSaver.trackDataJSON = trackDataJSON.length > 500000 ? // 500 kb
+        (label + ': too long to preview raw data :O') : trackDataJSON
     }
     return trackSaver
   }

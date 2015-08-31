@@ -1,7 +1,8 @@
+import _ from 'lodash'
 import React, { PropTypes } from 'react'
 import PureComponent from 'react-pure-render/component';
-import { Dialog, CircularProgress, FlatButton, RaisedButton } from 'material-ui'
-import { hideTrackSaver } from '../actions'
+import { Dialog, FlatButton, RaisedButton, TextField } from 'material-ui'
+import { hideTrackSaver, setTrackName } from '../actions'
 
 import 'pui-css-code/code.css'
 import '../styles/TrackSaver.less'
@@ -10,11 +11,21 @@ export default class TrackSaver extends PureComponent {
 
   static get propTypes() {
     return {
+      dispatch: PropTypes.func.isRequired,
       open: PropTypes.bool.isRequired,
       trackData: PropTypes.object,
       trackDataJSON: PropTypes.string,
-      trackDataURI: PropTypes.string
+      trackDataURI: PropTypes.string,
+      label: PropTypes.string,
+      fileName: PropTypes.string
     }
+  }
+
+  constructor() {
+    super()
+    this.onNameChange = _.debounce((name) => {
+      this.props.dispatch(setTrackName(name))
+    }, 1000)
   }
 
   componentWillReceiveProps(nextProps) {
@@ -36,7 +47,7 @@ export default class TrackSaver extends PureComponent {
           right: 0
         }}
         href={this.props.trackDataURI}
-        download={this.props.trackData && this.props.trackData.label + '.json'}
+        download={this.props.fileName}
         />
       </RaisedButton>,
       <RaisedButton disabled={true} style={{margin: 10}} primary={true} key={1} label='Save To Pastebin*' onTouchTap={() => {}} />,
@@ -63,6 +74,11 @@ export default class TrackSaver extends PureComponent {
         contentStyle={{height: '100%'}}
         bodyStyle={{height: '1000px'}}
       >
+        <TextField
+          floatingLabelText='Track Name'
+          defaultValue={this.props.label}
+          onChange={e => this.onNameChange(e.target.value)}
+        />
         <div className='track-saver-code-block' onTouchTap={() => this.onClickJson()}>
           <pre className='pre-scrollable'>
             <code ref={c => this.codeBlock = React.findDOMNode(c)}>{this.props.trackDataJSON}</code>
