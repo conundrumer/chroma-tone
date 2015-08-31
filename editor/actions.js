@@ -45,6 +45,8 @@ export const LOAD_FILE = 'LOAD_FILE';
 export const LOAD_FILE_SUCCESS = 'LOAD_FILE_SUCCESS';
 export const LOAD_FILE_FAIL = 'LOAD_FILE_FAIL';
 export const SELECT_COLOR = 'SELECT_COLOR'
+export const SHOW_TRACK_SAVER = 'SHOW_TRACK_SAVER'
+export const HIDE_TRACK_SAVER = 'HIDE_TRACK_SAVER'
 
 /**
  * action creators
@@ -129,6 +131,16 @@ export function importTrack() {
 export function cancelImport() {
   return {
     type: CANCEL_IMPORT
+  }
+}
+export function showTrackSaver() {
+  return {
+    type: SHOW_TRACK_SAVER
+  }
+}
+export function hideTrackSaver() {
+  return {
+    type: HIDE_TRACK_SAVER
   }
 }
 
@@ -313,7 +325,7 @@ export function newTrack(isV61 = false) {
     type: NEW_TRACK,
     track: track,
     lineStore: track.lineStore,
-    startPosition: track.startPosition,
+    startPosition: track.getStartPosition(),
     label: (new Date()).toString(),
     version: isV61 ? '6.1' : '6.2'
   };

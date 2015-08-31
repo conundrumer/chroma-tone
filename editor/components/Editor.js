@@ -14,11 +14,11 @@ import FloatBar from './FloatBar'
 import BottomBar from './BottomBar'
 import TopBar from './TopBar'
 import ColorPicker from './ColorPicker'
+import TrackSaver from './TrackSaver'
 
 import { setHotkey } from '../actions'
 
 import '../styles/Editor.less'
-
 
 function setDefaultHotkeys(dispatch, combokeys, ripples) {
   _.forEach(getButtons(), ({hotkey}, name) => {
@@ -55,7 +55,8 @@ export default class Editor extends React.Component {
         fileName: PropTypes.string,
         tracks: PropTypes.arrayOf(PropTypes.object)
       }),
-      timeline: PropTypes.object.isRequired
+      timeline: PropTypes.object.isRequired,
+      trackSaver: PropTypes.object.isRequired
     }
   }
 
@@ -66,7 +67,9 @@ export default class Editor extends React.Component {
   }
 
   shouldComponentUpdate(nextProps) {
-    return this.props.editor !== nextProps.editor || this.props.fileLoader !== nextProps.fileLoader;
+    return this.props.editor !== nextProps.editor ||
+      this.props.fileLoader !== nextProps.fileLoader ||
+      this.props.trackSaver !== nextProps.trackSaver
   }
 
   componentWillMount() {
@@ -212,7 +215,8 @@ export default class Editor extends React.Component {
       sidebarSelected,
       fileLoader,
       colorPickerOpen,
-      colorSelected
+      colorSelected,
+      trackSaver
     } = this.props
 
     return (
@@ -242,6 +246,7 @@ export default class Editor extends React.Component {
         </BottomBar>
         <ColorPicker open={colorPickerOpen} selected={colorSelected} toolbarsOpen={toolbarsOpen} dispatch={dispatch} />
         <FileLoader {...fileLoader} dispatch={dispatch} />
+        <TrackSaver {...trackSaver} dispatch={dispatch} />
       </div>
     );
   }

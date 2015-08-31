@@ -169,19 +169,40 @@ const displaySelector = createSelector(
   })
 )
 
+const trackSaverSelector = createSelector(
+  [
+    trackSelector,
+    state => state.trackSaver.open,
+    state => state.trackData.startPosition,
+    state => state.trackData.label,
+    state => state.trackData.version
+  ],
+  ({track}, open, startPosition, label, version) => ({
+    open,
+    trackData: open ? {
+      startPosition,
+      label,
+      version,
+      lines: track.getData()
+    } : null
+  })
+)
+
 export default createSelector(
   [
     editorSelector,
     fileLoaderSelector,
     timelineSelector,
     displaySelector,
-    widthHeightSelector
+    widthHeightSelector,
+    trackSaverSelector
   ],
-  (editor, fileLoader, timeline, display, widthHeight) => ({
+  (editor, fileLoader, timeline, display, widthHeight, trackSaver) => ({
     editor,
     fileLoader,
     timeline,
     display,
-    widthHeight
+    widthHeight,
+    trackSaver
   })
 )

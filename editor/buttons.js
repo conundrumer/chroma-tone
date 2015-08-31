@@ -17,6 +17,7 @@ import {
   newTrack,
   showFileLoader,
   setFlag,
+  showTrackSaver
 } from './actions';
 import Icons from './components/SvgIcons';
 
@@ -60,7 +61,7 @@ export function getButtons(dispatch) {
     file:              { action: () => () => {}      , hotkey: null          , icon: require('icons/content-save')   },
     save:              { action: null                , hotkey: null          , icon: require('icons/download')       },
     load:              { action: null                , hotkey: null          , icon: require('icons/upload')         },
-    saveToFile:        { action: null                , hotkey: null          , icon: require('icons/folder-download')},
+    saveAs:            { action: showTrackSaver()    , hotkey: null          , icon: require('icons/folder-download')},
     loadFromFile:      { action: showFileLoader()    , hotkey: null          , icon: require('icons/folder-upload')  },
     saveToServer:      { action: null                , hotkey: null          , icon: require('icons/cloud-upload')   },
     savedToServer:     { action: null                , hotkey: null          , icon: require('icons/cloud-check')    },
@@ -99,7 +100,7 @@ export function getMenus(b) {
         b.editInfo,
         b.save,
         b.load,
-        b.saveToFile,
+        b.saveAs,
         b.loadFromFile,
         b.new
       ]

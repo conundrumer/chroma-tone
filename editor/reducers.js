@@ -33,6 +33,8 @@ import {
   CANCEL_IMPORT,
   SET_FLAG,
   SELECT_COLOR,
+  SHOW_TRACK_SAVER,
+  HIDE_TRACK_SAVER
 } from './actions';
 
 import { newTrack } from './actions';
@@ -46,8 +48,8 @@ const INIT = {
     z: 1
   },
   toolbars: {
-    toolbarsOpen: false,
-    timeControlOpen: false,
+    toolbarsOpen: true,
+    timeControlOpen: true,
     sidebarOpen: false,
     sidebarSelected: -1,
     colorSelected: 0
@@ -72,6 +74,9 @@ const INIT = {
     error: null,
     fileName: null,
     tracks: null
+  },
+  trackSaver: {
+    open: false
   },
   trackData: trackData(null, newTrack())
 };
@@ -194,6 +199,20 @@ export function fileLoader(state = INIT.fileLoader, action) {
       return state;
   }
 }
+export function trackSaver(state = INIT.trackSaver, action) {
+  switch (action.type) {
+    case SHOW_TRACK_SAVER:
+      return {...state,
+        open: true
+      }
+    case HIDE_TRACK_SAVER:
+      return {...state,
+        open: false
+      }
+    default:
+      return state
+  }
+}
 
 export function toggled(state = INIT.toggled, action) {
   switch (action.type) {
@@ -278,7 +297,7 @@ export function trackData(state = INIT.trackData, action) {
   switch (action.type) {
     case NEW_TRACK:
     case LOAD_TRACK:
-      let { lineStore, startPosition, version, label } = action.track;
+      let { track: {lineStore}, startPosition, version, label } = action
       return {
         saved: false,
         track: action.track,
