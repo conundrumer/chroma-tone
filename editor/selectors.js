@@ -1,5 +1,6 @@
 import _ from 'lodash'
 import { createSelector } from 'reselect';
+import { jsonWriter } from 'io'
 
 const createSelectorFromProps = (reducer, props) =>
   createSelector(
@@ -192,7 +193,7 @@ const trackSaverSelector = createSelector(
       fileName: (label || 'untitled') + '.json'
     }
     if (trackData) {
-      let trackDataJSON = JSON.stringify(trackData, null, 1).replace(/^ +/gm, '')
+      let trackDataJSON = jsonWriter(trackData)
       trackSaver.trackDataURI = URL.createObjectURL(new Blob([trackDataJSON], {type: 'application/json'}))
       trackSaver.trackDataJSON = trackDataJSON.length > 500000 ? // 500 kb
         (label + ': too long to preview raw data :O') : trackDataJSON
