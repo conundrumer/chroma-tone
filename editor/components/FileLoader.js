@@ -5,11 +5,9 @@ import { Dialog, CircularProgress } from 'material-ui'
 import Dropzone from 'react-dropzone'
 import { hideFileLoader, loadFile } from '../actions'
 
-export default class FileLoader extends PureComponent {
+import '../styles/FileLoader.less'
 
-  // shouldComponentUpdate(nextProps) {
-  //   return false;
-  // }
+export default class FileLoader extends PureComponent {
 
   componentWillReceiveProps(nextProps) {
     if (this.props.open && !nextProps.open) {
@@ -29,9 +27,6 @@ export default class FileLoader extends PureComponent {
         modal={true}
         actions={[{ text: 'Cancel' }]}
         onDismiss={() => this.props.dispatch(hideFileLoader())}
-        style={{height: '100%'}}
-        contentStyle={{height: '100%'}}
-        bodyStyle={{height: '1000px'}}
       >
         <Dropzone
           className='file-loader-dropzone'

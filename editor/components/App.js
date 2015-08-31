@@ -19,6 +19,8 @@ var { Display } = require('renderer');
 
 var { setWindowSize, setModKey } = require('../actions');
 var Editor = require('./Editor');
+import FileLoader from './FileLoader';
+import TrackSaver from './TrackSaver'
 
 import select from '../selectors'
 import Combokeys from 'combokeys'
@@ -114,6 +116,8 @@ var App = React.createClass({
           endIcon={null}
         />
         <Editor {...editor} {...{editor, fileLoader, trackSaver, timeline}} combokeys={this.combokeys} dispatch={dispatch} />
+        <FileLoader {...fileLoader} dispatch={dispatch} />
+        <TrackSaver {...trackSaver} dispatch={dispatch} />
       </div>
     );
   }

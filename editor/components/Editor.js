@@ -8,13 +8,11 @@ import MenuItem from 'material-ui/lib/menus/menu-item'
 import IconButton from './IconButton'
 import DrawingSurface from './DrawingSurface'
 import SideBar from './SideBar';
-import FileLoader from './FileLoader';
 import Timeline from './Timeline'
 import FloatBar from './FloatBar'
 import BottomBar from './BottomBar'
 import TopBar from './TopBar'
 import ColorPicker from './ColorPicker'
-import TrackSaver from './TrackSaver'
 
 import { setHotkey } from '../actions'
 
@@ -55,8 +53,7 @@ export default class Editor extends React.Component {
         fileName: PropTypes.string,
         tracks: PropTypes.arrayOf(PropTypes.object)
       }),
-      timeline: PropTypes.object.isRequired,
-      trackSaver: PropTypes.object.isRequired
+      timeline: PropTypes.object.isRequired
     }
   }
 
@@ -68,8 +65,7 @@ export default class Editor extends React.Component {
 
   shouldComponentUpdate(nextProps) {
     return this.props.editor !== nextProps.editor ||
-      this.props.fileLoader !== nextProps.fileLoader ||
-      this.props.trackSaver !== nextProps.trackSaver
+      this.props.fileLoader !== nextProps.fileLoader
   }
 
   componentWillMount() {
@@ -245,8 +241,6 @@ export default class Editor extends React.Component {
           { timeControl }
         </BottomBar>
         <ColorPicker open={colorPickerOpen} selected={colorSelected} toolbarsOpen={toolbarsOpen} dispatch={dispatch} />
-        <FileLoader {...fileLoader} dispatch={dispatch} />
-        <TrackSaver {...trackSaver} dispatch={dispatch} />
       </div>
     );
   }
