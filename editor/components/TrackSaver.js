@@ -12,7 +12,8 @@ export default class TrackSaver extends PureComponent {
     return {
       open: PropTypes.bool.isRequired,
       trackData: PropTypes.object,
-      trackDataJSON: PropTypes.string
+      trackDataJSON: PropTypes.string,
+      trackDataURI: PropTypes.string
     }
   }
 
@@ -27,7 +28,17 @@ export default class TrackSaver extends PureComponent {
 
   getActions() {
     return [
-      <RaisedButton style={{margin: 10}} primary={true} key={0} label='Save To File' onTouchTap={() => {}} />,
+      <RaisedButton style={{margin: 10}} primary={true} key={0} label='Save To File'>
+        <a style={{
+          position: 'absolute',
+          width: '100%',
+          height: '100%',
+          right: 0
+        }}
+        href={this.props.trackDataURI}
+        download={this.props.trackData.label + '.json'}
+        />
+      </RaisedButton>,
       <RaisedButton style={{margin: 10}} primary={true} key={1} label='Save To Pastebin*' onTouchTap={() => {}} />,
       <FlatButton secondary={true} key={2} label='Done' onTouchTap={() => this.props.dispatch(hideTrackSaver())} />
     ]

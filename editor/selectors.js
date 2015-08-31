@@ -185,11 +185,15 @@ const trackSaverSelector = createSelector(
       startPosition,
       lines: _.sortBy(track.getData(), 'id')
     } : null
-    return {
+    let trackSaver = {
       open,
-      trackData,
-      trackDataJSON: trackData && JSON.stringify(trackData, null, 1)
+      trackData
     }
+    if (trackData) {
+      trackSaver.trackDataJSON = JSON.stringify(trackData, null, 1).replace(/^ +/gm, '')
+      trackSaver.trackDataURI = URL.createObjectURL(new Blob([trackSaver.trackDataJSON], {type: 'application/json'}))
+    }
+    return trackSaver
   }
 )
 
