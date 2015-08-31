@@ -3,12 +3,15 @@ import PureComponent from 'react-pure-render/component';
 import { Dialog, CircularProgress, FlatButton, RaisedButton } from 'material-ui'
 import { hideTrackSaver } from '../actions'
 
+import 'pui-css-code/code.css'
+
 export default class TrackSaver extends PureComponent {
 
   static get propTypes() {
     return {
       open: PropTypes.bool.isRequired,
-      trackData: PropTypes.object
+      trackData: PropTypes.object,
+      trackDataJSON: PropTypes.string
     }
   }
 
@@ -42,7 +45,9 @@ export default class TrackSaver extends PureComponent {
         contentStyle={{height: '100%'}}
         bodyStyle={{height: '1000px'}}
       >
-        {JSON.stringify(this.props.trackData)}
+        <pre className='pre-scrollable'>
+          <code>{this.props.trackDataJSON}</code>
+        </pre>
       </Dialog>
     )
   }

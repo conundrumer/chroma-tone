@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import { createSelector } from 'reselect';
 
 const createSelectorFromProps = (reducer, props) =>
@@ -177,15 +178,19 @@ const trackSaverSelector = createSelector(
     state => state.trackData.label,
     state => state.trackData.version
   ],
-  ({track}, open, startPosition, label, version) => ({
-    open,
-    trackData: open ? {
+  ({track}, open, startPosition, label, version) => {
+    let trackData = open ? {
       startPosition,
       label,
       version,
-      lines: track.getData()
+      lines: _.sortBy(track.getData(), 'id')
     } : null
-  })
+    return {
+      open,
+      trackData,
+      trackDataJSON: trackData && JSON.stringify(trackData, null, 1)
+    }
+  }
 )
 
 export default createSelector(
