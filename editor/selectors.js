@@ -194,8 +194,9 @@ const trackSaverSelector = createSelector(
     }
     if (trackData) {
       let trackDataJSON = jsonWriter(trackData)
-      trackSaver.trackDataURI = URL.createObjectURL(new Blob([trackDataJSON], {type: 'application/json'}))
-      trackSaver.trackDataJSON = trackDataJSON.length > 500000 ? // 500 kb
+      let blob = new Blob([trackDataJSON], {type: 'application/json'})
+      trackSaver.trackDataURI = URL.createObjectURL(blob)
+      trackSaver.trackDataJSON = (blob.size > 500000) ? // 500 kb
         (label + ': too long to preview raw data :O') : trackDataJSON
     }
     return trackSaver

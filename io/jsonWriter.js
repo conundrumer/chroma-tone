@@ -1,3 +1,5 @@
+import { compressToBase64 as compress } from 'lz-string'
+
 function isSolid(type) {
   return type === 0 || type === 1;
 }
@@ -24,16 +26,18 @@ function toString(trackData, spaces = 1) {
 }
 
 export default function jsonWriter(trackData) {
-  let lines = trackData.lines
   let json = toString(trackData)
   if (json.length > 500000) { // 500 kb
+    let lines = trackData.lines
     let linesArray = makeLinesArray(lines)
     delete trackData.lines
     trackData.linesArray = linesArray
     json = toString(trackData)
-    console.log(json.length)
+    if (json.length > 500000) { // 500 kb
+      delete trackData.linesArray
+      trackData.linesArrayCompressed = compress(JSON.stringify(linesArray))
+      json = toString(trackData)
+    }
   }
-  // if (json.length > 500000) { // 500 kb
-  // }
   return json
 }
