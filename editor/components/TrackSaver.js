@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import React, { PropTypes } from 'react'
 import PureComponent from 'react-pure-render/component';
-import { Dialog, FlatButton, RaisedButton, TextField } from 'material-ui'
+import { Dialog, FlatButton, RaisedButton, TextField, CardTitle } from 'material-ui'
 import { hideTrackSaver, setTrackName } from '../actions'
 
 import 'pui-css-code/code.css'
@@ -70,15 +70,13 @@ export default class TrackSaver extends PureComponent {
         modal={true}
         actions={this.getActions()}
         autoScrollBodyContent={true}
-        style={{height: '100%'}}
-        contentStyle={{height: '100%'}}
-        bodyStyle={{height: '1000px'}}
       >
         <TextField
           floatingLabelText='Track Name'
           defaultValue={this.props.label}
           onChange={e => this.onNameChange(e.target.value)}
         />
+        <CardTitle style={{padding: '15px 0 0 0'}} subtitle='Track Data' />
         <div className='track-saver-code-block' onTouchTap={() => this.onClickJson()}>
           <pre className='pre-scrollable'>
             <code ref={c => this.codeBlock = React.findDOMNode(c)}>{this.props.trackDataJSON}</code>
