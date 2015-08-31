@@ -4,6 +4,7 @@ import { Dialog, CircularProgress, FlatButton, RaisedButton } from 'material-ui'
 import { hideTrackSaver } from '../actions'
 
 import 'pui-css-code/code.css'
+import '../styles/TrackSaver.less'
 
 export default class TrackSaver extends PureComponent {
 
@@ -32,6 +33,12 @@ export default class TrackSaver extends PureComponent {
     ]
   }
 
+  onClickJson() {
+    let range = document.createRange();
+    range.selectNode(this.codeBlock);
+    window.getSelection().addRange(range);
+  }
+
   render() {
     return (
       <Dialog
@@ -45,9 +52,11 @@ export default class TrackSaver extends PureComponent {
         contentStyle={{height: '100%'}}
         bodyStyle={{height: '1000px'}}
       >
-        <pre className='pre-scrollable'>
-          <code>{this.props.trackDataJSON}</code>
-        </pre>
+        <div className='track-saver-code-block' onTouchTap={() => this.onClickJson()}>
+          <pre className='pre-scrollable'>
+            <code ref={c => this.codeBlock = React.findDOMNode(c)}>{this.props.trackDataJSON}</code>
+          </pre>
+        </div>
       </Dialog>
     )
   }

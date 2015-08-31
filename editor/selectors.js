@@ -180,9 +180,9 @@ const trackSaverSelector = createSelector(
   ],
   ({track}, open, startPosition, label, version) => {
     let trackData = open ? {
-      startPosition,
       label,
       version,
+      startPosition,
       lines: _.sortBy(track.getData(), 'id')
     } : null
     return {
