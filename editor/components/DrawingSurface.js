@@ -6,7 +6,6 @@ import Vector from 'core/Vector';
 import { draw } from '../actions';
 import DrawCancelledException from '../DrawCancelledException';
 
-// https://developer.mozilla.org/en-US/docs/Web/API/Touch_events#Copying_a_touch_object
 function copyEvent(e) {
   let {identifier, buttons, pageX, pageY} = e;
   return { id: identifier, buttons, pageX, pageY, preventDefault: () => e.preventDefault() };
@@ -18,19 +17,19 @@ function makeStreamFromChangedTouches(e) {
   return Rx.Observable.from(e.changedTouches);
 }
 // support only left/middle/right buttons
+const [LEFT, MIDDLE, RIGHT] = [0, 1, 2]
+const buttons = [LEFT, MIDDLE, RIGHT]
+const buttonBits = {
+  [LEFT]: 1,
+  [RIGHT]: 2,
+  [MIDDLE]: 4
+}
 function makeStreamFromButtons(e) {
-  const [LEFT, MIDDLE, RIGHT] = [0, 1, 2]
-  const buttons = {
-    [LEFT]: 1,
-    [RIGHT]: 2,
-    [MIDDLE]: 4
-  }
-  let isPressed = id => e.type === 'mousemove' ?
-    !!(buttons[id] & e.buttons) :
-    id === e.button
-
-  return Rx.Observable.from([LEFT, RIGHT, MIDDLE]
-    .filter(id => isPressed(id))
+  return Rx.Observable.from(buttons
+    .filter(id => e.type === 'mousemove' ?
+      !!(buttonBits[id] & e.buttons) :
+      id === e.button
+    )
     .map(id => {
       let copy = copyEvent(e)
       copy.identifier = id
