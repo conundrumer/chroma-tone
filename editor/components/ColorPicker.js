@@ -24,7 +24,8 @@ export default class ColorPicker extends PureComponent {
       buttonStyle: {
         position: 'relative',
         top: (toolbarsOpen ? 56 : 50) - size / 2,
-        margin: '0px 6px'
+        margin: '0px 6px',
+        pointerEvents: 'auto'
       }
     }
   }

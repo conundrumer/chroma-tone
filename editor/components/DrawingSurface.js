@@ -7,8 +7,9 @@ import { draw } from '../actions';
 import DrawCancelledException from '../DrawCancelledException';
 
 // https://developer.mozilla.org/en-US/docs/Web/API/Touch_events#Copying_a_touch_object
-function copyEvent({identifier, buttons, pageX, pageY}) {
-  return { id: identifier, buttons, pageX, pageY };
+function copyEvent(e) {
+  let {identifier, buttons, pageX, pageY} = e;
+  return { id: identifier, buttons, pageX, pageY, preventDefault: () => e.preventDefault() };
 }
 function blockEvent(e) {
   e.preventDefault();
@@ -21,30 +22,27 @@ function makeExceptionStream() {
 }
 
 function makeStreamOfDrawStreams(container, unmountStream) {
-  let makeStreamFromEvent = (eventType, node, doBlockEvent) => {
+  let makeStreamFromEvent = (eventType, node) => {
     let stream = Rx.Observable.fromEvent(node, eventType)
       .takeUntil(unmountStream);
-    if (doBlockEvent) {
-      stream.subscribe(blockEvent);
-    }
     return stream;
   };
 
-  let touchCancelStream = makeStreamFromEvent('touchcancel', window, false)
+  let touchCancelStream = makeStreamFromEvent('touchcancel', window)
     .flatMap(makeStreamFromChangedTouches)
     .map(copyEvent);
 
   // merge touches and mouse streams
   // this owuld be slightly nicer if we had pointer events but not by much
   let [startStream, moveStream, endStream] = [{
-      mouseArgs: ['mousedown', container, false],
-      touchArgs: ['touchstart', container, true]
-    }, {
-      mouseArgs: ['mousemove', window, true],
-      touchArgs: ['touchmove', window, true]
-    }, {
-      mouseArgs: ['mouseup', window, true],
-      touchArgs: ['touchend', window, true]
+    mouseArgs: ['mousedown', container],
+    touchArgs: ['touchstart', container]
+  }, {
+    mouseArgs: ['mousemove', window],
+    touchArgs: ['touchmove', window]
+  }, {
+    mouseArgs: ['mouseup', window],
+    touchArgs: ['touchend', window]
   }].map(({ mouseArgs, touchArgs }) =>
     makeStreamFromEvent(...touchArgs)
       // I would simply flatten e.changedTouches instead of making it a stream
@@ -64,7 +62,7 @@ function makeStreamOfDrawStreams(container, unmountStream) {
   // TODO: merge stream with mod key pressed stream
   let makeDrawStreamFromStartEvent = (startEvent) => {
     let partOfStream = ({id}) => startEvent.id === id;
-    return moveStream.filter(partOfStream)
+    let stream = moveStream.filter(partOfStream)
       .startWith(startEvent)
       .merge(touchCancelStream
         .filter(partOfStream)
@@ -72,6 +70,8 @@ function makeStreamOfDrawStreams(container, unmountStream) {
         .flatMap(makeExceptionStream)
       )
       .takeUntil(endStream.filter(partOfStream));
+    stream.skip(1).subscribe(blockEvent)
+    return stream
   };
 
   return startStream.map(makeDrawStreamFromStartEvent);
