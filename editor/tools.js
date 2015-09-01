@@ -41,20 +41,24 @@ const ZOOM = {
   MAX: 2<<4,
   MIN: 1/(2<<4)
 };
+function getZoom(z, delta) {
+  let dz = Math.pow(ZOOM.STRENGTH, delta);
+  return Math.min(Math.max(z / dz, ZOOM.MIN), ZOOM.MAX);
+}
+function getPosFromZoom(pos, center, zoom, initZoom) {
+  return pos.clone().mulS(-1).add(center).mulS(zoom / initZoom).add(pos)
+}
 export function zoom(stream, dispatch, getState) {
   var firstPos, y0;
-  var { viewport: {w, h, x, y, z} } = getState();
+  var { viewport: {x, y, z} } = getState();
   stream.first().subscribe( pos => {
     y0 = pos.y;
     firstPos = getAbsPos(pos, getState);
   });
   return {
-    stream: stream.map((pos) => {
-      let dz = Math.pow(ZOOM.STRENGTH, y0 - pos.y);
-      return Math.min(Math.max(z / dz, ZOOM.MIN), ZOOM.MAX);
-    }),
+    stream: stream.map(pos => getZoom(z, y0 - pos.y)),
     onNext: (zoom) => {
-      let pos = firstPos.clone().mulS(-1).add({x, y}).mulS(zoom / z).add(firstPos);
+      let pos = getPosFromZoom(firstPos, {x, y}, zoom, z)
       dispatch(setCam({x: pos.x, y: pos.y, z: zoom}));
     },
     onCancel: () => dispatch(setCam({x, y, z}))
@@ -63,13 +67,19 @@ export function zoom(stream, dispatch, getState) {
 }
 
 export function deltaPanModZoom(pos, delta, dispatch, getState) {
-  // TODO: handle when mod key is pressed
-  var { x, y, z } = getState().viewport;
-  let newPos = delta.mulS(z).add({x, y})
+  var { viewport: {x, y, z}, modKeys: {mod} } = getState();
+  let newPos
+  let zoom = z
+  if (mod) { // zoom
+    zoom = getZoom(z, delta.y)
+    newPos = getPosFromZoom(getAbsPos(pos, getState), {x, y}, zoom, z)
+  } else { // pan
+    newPos = delta.mulS(z).add({x, y})
+  }
   dispatch(setCam({
     x: newPos.x,
     y: newPos.y,
-    z
+    z: zoom
   }))
 }
 
