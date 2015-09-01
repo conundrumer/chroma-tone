@@ -45,7 +45,6 @@ export function zoom(stream, dispatch, getState) {
   var { viewport: {w, h, x, y, z} } = getState();
   stream.first().subscribe( pos => {
     y0 = pos.y;
-    // TODO: make function to convert to absolute coordinates
     firstPos = getAbsPos(pos, getState);
   });
   return {
@@ -60,6 +59,17 @@ export function zoom(stream, dispatch, getState) {
     onCancel: () => dispatch(setCam({x, y, z}))
   };
 
+}
+
+export function deltaPanModZoom(pos, delta, dispatch, getState) {
+  // TODO: handle when mod key is pressed
+  var { x, y, z } = getState().viewport;
+  let newPos = delta.mulS(z).add({x, y})
+  dispatch(setCam({
+    x: newPos.x,
+    y: newPos.y,
+    z
+  }))
 }
 
 // TODO: put ID management in reducer

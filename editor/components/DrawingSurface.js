@@ -3,7 +3,7 @@ import React from 'react';
 import Rx from 'rx';
 import Vector from 'core/Vector';
 
-import { draw } from '../actions';
+import { draw, deltaPanModZoom } from '../actions';
 import DrawCancelledException from '../DrawCancelledException';
 
 // TODO: refactor this stuff
@@ -116,18 +116,38 @@ export default class DrawingSurface extends React.Component {
       this.unmountObserver = observer;
     });
 
+    let wheelStream = Rx.Observable.create( observer => {
+      this.wheelObserver = observer;
+    });
+
     let streamOfDrawStreams = makeStreamOfDrawStreams(this.container, unmountStream);
 
     streamOfDrawStreams.subscribe(({stream, ...options}) =>
       this.props.dispatch(draw(stream.map(e => this.getPos(e)), options))
     );
+
+    wheelStream.subscribe(e => {
+      if (e.deltaMode !== 0) {
+        // handle only pixel wheels
+        return
+      }
+      e.preventDefault()
+      let delta = new Vector(e.deltaX, e.deltaY)
+      let pos = this.getPos(e)
+      this.props.dispatch(deltaPanModZoom(pos, delta))
+    })
   }
 
   componentWillUnmount() {
     if (this.unmountObserver) {
       this.unmountObserver.onNext(true);
       this.unmountObserver.onComplete();
+      this.wheelObserver.onComplete();
     }
+  }
+
+  onWheel(e) {
+    this.wheelObserver.onNext(e)
   }
 
   getPos(e) {
@@ -137,7 +157,11 @@ export default class DrawingSurface extends React.Component {
 
   render() {
     return (
-      <div style={{ position: 'absolute', width: '100%', height: '100%'}} ref={(component) => { this.container = React.findDOMNode(component); }}>
+      <div
+        style={{ position: 'absolute', width: '100%', height: '100%'}}
+        ref={(component) => { this.container = React.findDOMNode(component); }}
+        onWheel={ e => this.onWheel(e) }
+      >
         { this.props.children }
       </div>
     );

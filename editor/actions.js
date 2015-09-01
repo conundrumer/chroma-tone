@@ -275,6 +275,12 @@ export function draw(drawStream, options = {}) {
   };
 }
 
+export function deltaPanModZoom(pos, delta) {
+  return (dispatch, getState) => {
+    tools.deltaPanModZoom(pos, delta, dispatch, getState)
+  }
+}
+
 /* thunk for side effects: mutating state.trackData.track */
 export function addLine(line) {
   return (dispatch, getState) => {
