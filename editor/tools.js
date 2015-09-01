@@ -36,6 +36,51 @@ function getAbsPos(relPos, getState) {
   return relPos.clone().subtract({x: w/2, y: h/2}).mulS(z).add({x, y});
 }
 
+const MAX_SNAP_DISTANCE = 11
+function getSnappedPos(relPos, getState) {
+  var { trackData: {lineStore}, viewport: {z} } = getState();
+
+  var absPos = getAbsPos(relPos, getState);
+
+  // adjust snap radious to current zoom level
+  var maxSnap = MAX_SNAP_DISTANCE * Math.max(z, ZOOM.MIN * 10)
+
+  var closestCoords = null;
+  var closestDistance = null;
+
+  lineStore.forEach(function(line) {
+    // calculate first point
+    if (((absPos.x - maxSnap) < line.p.x && line.p.x < (absPos.x + maxSnap))) {
+      if (((absPos.y - maxSnap) < line.p.y && line.p.x < (absPos.y + maxSnap))) {
+        var myDistance = absPos.distance(line.p)
+
+        if ((closestDistance == null) || (myDistance < closestDistance)) {
+          closestDistance = myDistance
+          closestCoords = line.p
+        }
+      }
+    }
+
+    // calculate last point
+    if (((absPos.x - maxSnap) < line.q.x &&  line.q.x < (absPos.x + maxSnap))) {
+      if (((absPos.y - maxSnap) < line.q.y && line.q.y < (absPos.y + maxSnap))) {
+        var myDistance = absPos.distance(line.q)
+
+        if ((closestDistance == null) || (myDistance < closestDistance)) {
+          closestDistance = myDistance
+          closestCoords = line.q
+        }
+      }
+    }
+  });
+
+  if (closestCoords != null) {
+    absPos = closestCoords;
+  }
+
+  return absPos;
+}
+
 const ZOOM = {
   STRENGTH: Math.pow(2, 1/(2<<5)),
   MAX: 2<<4,
@@ -105,9 +150,14 @@ var tempID = 0;
 export function line(stream, dispatch, getState) {
   var p1, prevLine = null;
   let id = tempID++; // make addLine responsible for getting actual ID!
+  let {modKeys: {alt}} = getState()
   stream.first().subscribe( pos => {
     // TODO: make function to convert to absolute coordinates
-    p1 = getAbsPos(pos, getState);
+    if (alt) {
+      p1 = getAbsPos(pos, getState)
+    } else {
+      p1 = getSnappedPos(pos, getState)
+    }
   });
   let {modKeys: {shift}} = getState()
 
