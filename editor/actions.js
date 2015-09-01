@@ -248,7 +248,8 @@ export function draw(drawStream, options = {}) {
 
     let tool;
     if (options.isMiddle) {
-      tool = 'pan' // TODO: make panModZoom tool
+      let {modKeys: {mod}} = getState()
+      tool = mod ? 'zoom' : 'pan'
     } else if (options.isRight) {
       // not handling right clicks yet
       return;
