@@ -17,7 +17,7 @@ let {
 
 var { Display } = require('renderer');
 
-var { setWindowSize, setModKey } = require('../actions');
+var { setWindowSize } = require('../actions');
 var Editor = require('./Editor');
 import FileLoader from './FileLoader';
 import TrackSaver from './TrackSaver'
@@ -65,9 +65,6 @@ var App = React.createClass({
   componentWillMount() {
     setTheme();
     this.combokeys = new Combokeys(document);
-    // TODO: make a system for modifier keys
-    this.combokeys.bind('shift', () => this.props.dispatch(setModKey('shift', true)), 'keydown')
-    this.combokeys.bind('shift', () => this.props.dispatch(setModKey('shift', false)), 'keyup')
   },
 
   componentDidMount() {

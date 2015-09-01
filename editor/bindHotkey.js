@@ -1,10 +1,37 @@
 'use strict';
 
+import _ from 'lodash'
 import { getButtons } from './buttons';
+import { setModKey } from './actions'
 
 const modifierRegex = /mod|alt/;
 
+function bindModKeys(combokeys, dispatch) {
+  let modKeys = ['shift', 'mod', 'alt']
+
+  modKeys.forEach(key => {
+    combokeys.bind(key, () => dispatch(setModKey(key, true)), 'keydown')
+    combokeys.bind(key, () => dispatch(setModKey(key, false)), 'keyup')
+  })
+
+  // go through every combination
+  let setComboModKeys = (keys, combo) => {
+    if (combo.length > 1) {
+      combokeys.bind(combo.join('+'), () => dispatch(setModKey(_.last(combo), true)), 'keypress')
+    }
+    if (keys.length > 0) {
+      keys.forEach(key => {
+        setComboModKeys(_.without(keys, key), combo.concat([key]))
+      })
+    }
+  }
+  setComboModKeys(modKeys, [])
+
+}
+
 export default function bindHotkey(combokeys, ripples, name, hotkey, dispatch) {
+  bindModKeys(combokeys, dispatch)
+
   let buttons = getButtons(dispatch);
   let boundAction = buttons[name] && buttons[name].boundAction || (() => {});
 

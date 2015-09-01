@@ -56,7 +56,9 @@ const INIT = {
     colorSelected: 0
   },
   modKeys: {
-    shift: false
+    shift: false,
+    mod: false,
+    alt: false
   },
   selectedTool: 'debugTool',
   toggled: Object.create(null),
