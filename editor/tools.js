@@ -1,5 +1,6 @@
 'use strict';
 
+import Vector from 'core/Vector'
 import { setCam, addLine, removeLine, replaceLine } from './actions';
 
 export function debugTool(stream, dispatch, getState) {
@@ -72,6 +73,31 @@ export function deltaPanModZoom(pos, delta, dispatch, getState) {
   }))
 }
 
+// TODO: round according to zoom factor
+const ANGLE_INC = 15
+function angleSnap(pnt, pos) {
+  let delta = pnt.clone().subtract(pos)
+  let angle = Math.atan2(delta.y, delta.x) / Math.PI * 180
+  angle = Math.round(angle / ANGLE_INC) * ANGLE_INC
+  let [x, y] = (() => {
+    switch (angle) {
+      case 360:
+      case 0:
+        return [1, 0]
+      case 90:
+        return [0, 1]
+      case 180:
+        return [-1, 0]
+      case 270:
+        return [0, -1]
+      default:
+        let rads = angle / 180 * Math.PI
+        return [Math.cos(rads), Math.sin(rads)]
+    }
+  })()
+  return (new Vector(x, y)).mulS(delta.dot({x, y})).add(pos)
+}
+
 // TODO: put ID management in reducer
 // TODO: enforce minimum line length
 const MIN_LINE_LENGTH = 3;
@@ -83,12 +109,16 @@ export function line(stream, dispatch, getState) {
     // TODO: make function to convert to absolute coordinates
     p1 = getAbsPos(pos, getState);
   });
+  let {modKeys: {shift}} = getState()
 
   return {
     stream: stream.map((pos) => getAbsPos(pos, getState))
       .filter(p2 => p1.distance(p2) >= MIN_LINE_LENGTH),
     onNext: (p2) => {
-      let {toolbars: {colorSelected: lineType}, modKeys: {shift}} = getState()
+      let {toolbars: {colorSelected: lineType}, modKeys: {mod}} = getState()
+      if (mod) {
+        p2 = angleSnap(p2, p1)
+      }
       let lineData = {
         x1: p1.x,
         y1: p1.y,
