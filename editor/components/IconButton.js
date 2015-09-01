@@ -68,6 +68,8 @@ var IconButton = React.createClass({
   render() {
     let {
       onTouchTap,
+      onPress,
+      onRelease,
       style,
       tooltip,
       disabled,
@@ -78,8 +80,23 @@ var IconButton = React.createClass({
     if (transform) {
       iconStyle = { transform: transform };
     }
+    let pressHandlers = {
+      onMouseDown: onPress,
+      onTouchStart: onPress,
+      onMouseUp: onRelease,
+      onMouseLeave: onRelease,
+      onTouchEnd: onRelease,
+      onTouchCancel: onRelease
+    }
     return (
-      <MuiIconButton {...{onTouchTap, style, tooltip, disabled, tooltipPosition}}
+      <MuiIconButton {...{
+        onTouchTap,
+        style,
+        tooltip,
+        disabled,
+        tooltipPosition
+      }}
+        {...pressHandlers}
         className='icon-button'
         ref='iconButton'
         iconStyle={iconStyle}

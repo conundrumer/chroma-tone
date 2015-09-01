@@ -139,7 +139,19 @@ export default class Editor extends React.Component {
     return {buttonGroups: bs, menus: getMenus(b)};
   }
 
-  renderButton({ name, tooltip, icon, boundAction, style, render, disabled, ...props }, key) {
+  renderButton(buttonProps, key) {
+    let {
+      name,
+      tooltip,
+      icon,
+      boundAction,
+      pressAction,
+      releaseAction,
+      style,
+      render,
+      disabled,
+      ...props
+    } = buttonProps
     if (render) {
       return render(key);
     }
@@ -147,8 +159,10 @@ export default class Editor extends React.Component {
       <IconButton {...props}
         key={key}
         onTouchTap={boundAction}
+        onPress={pressAction}
+        onRelease={releaseAction}
         style={style || DEFAULT_ICON_STYLE}
-        disabled={disabled || !boundAction}
+        disabled={disabled || !(boundAction || pressAction)}
         tooltip={this.props.selected.help ? tooltip : null}
         selected={this.props.selected[name]}
         setRipple={(start, end) => this.setRipple(name, start, end)}

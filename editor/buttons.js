@@ -14,6 +14,7 @@ import {
   incFrameIndex,
   decFrameIndex,
   setPlaybackState,
+  modPlaybackState,
   newTrack,
   showFileLoader,
   setFlag,
@@ -24,6 +25,14 @@ import Icons from './components/SvgIcons';
 let debugThunk = (name) => () => console.log(name);
 
 export function getButtons(dispatch) {
+  let reverseActions = [
+    modPlaybackState('reverse'),
+    modPlaybackState()
+  ]
+  let forwardActions = [
+    modPlaybackState('forward'),
+    modPlaybackState()
+  ]
   return _.forEach({
     select:            { action: null                , hotkey: '1'           , icon: require('icons/cursor-default') },
     pencil:            { action: setTool             , hotkey: 'q'           , icon: require('icons/pencil')         },
@@ -41,10 +50,10 @@ export function getButtons(dispatch) {
     play:              { action: setPlaybackState    , hotkey: 'y'           , icon: require('icons/play')           },
     pause:             { action: setPlaybackState    , hotkey: null          , icon: require('icons/pause')          },
     stop:              { action: setPlaybackState    , hotkey: 'u'           , icon: require('icons/stop')           },
-    reverse:           { action: null                , hotkey: null          , icon: require('icons/rewind')         },
-    forward:           { action: null                , hotkey: null          , icon: require('icons/fast-forward')   },
-    stepBack:          { action: decFrameIndex()     , hotkey: 'left'        , icon: require('icons/skip-previous')  },
-    stepForward:       { action: incFrameIndex()     , hotkey: 'right'       , icon: require('icons/skip-next')      },
+    reverse:           { action: reverseActions      , hotkey: 'left'        , icon: require('icons/rewind')         },
+    forward:           { action: forwardActions      , hotkey: 'right'       , icon: require('icons/fast-forward')   },
+    stepBack:          { action: decFrameIndex()     , hotkey: 'shift+left'  , icon: require('icons/skip-previous')  },
+    stepForward:       { action: incFrameIndex()     , hotkey: 'shift+right' , icon: require('icons/skip-next')      },
     flag:              { action: setFlag             , hotkey: 'i'           , icon: require('icons/flag-variant')   },
     slowmo:            { action: setPlaybackState    , hotkey: 'm'           , icon: Icons.SlowMotion                },
     onionSkin:         { action: null                , hotkey: null          , icon: Icons.OnionSkin                 },
@@ -76,7 +85,10 @@ export function getButtons(dispatch) {
     if (props.action instanceof Function) {
       props.action = props.action(key);
     }
-    if (props.action && dispatch) {
+    if (props.action instanceof Array && dispatch) {
+      props.pressAction = () => dispatch(props.action[0])
+      props.releaseAction = () => dispatch(props.action[1])
+    } else if (props.action && dispatch) {
       props.boundAction = () => dispatch(props.action);
     }
   });

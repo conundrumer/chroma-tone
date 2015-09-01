@@ -31,6 +31,7 @@ export const SET_FRAME_RATE = 'SET_FRAME_RATE';
 export const INC_FRAME_INDEX = 'INC_FRAME_INDEX';
 export const DEC_FRAME_INDEX = 'DEC_FRAME_INDEX';
 export const SET_PLAYBACK_STATE = 'SET_PLAYBACK_STATE';
+export const MOD_PLAYBACK_STATE = 'MOD_PLAYBACK_STATE';
 export const SET_FLAG = 'SET_FLAG';
 export const ADD_LINE = 'ADD_LINE';
 export const REMOVE_LINE = 'REMOVE_LINE';
@@ -236,6 +237,21 @@ export function setPlaybackState(state) {
       state: state
     });
   };
+}
+/* thunk for logic in dispatching more actions (should move to reducer) */
+export function modPlaybackState(mod = null) {
+  return (dispatch, getState) => {
+    let {playback: {state, modState: prevMod}} = getState()
+    if (mod) {
+      setIndexAndRate(mod, dispatch, getState)
+    } else if (prevMod) {
+      setIndexAndRate(state, dispatch, getState, true)
+    }
+    dispatch({
+      type: MOD_PLAYBACK_STATE,
+      mod: mod
+    });
+  }
 }
 export function setFlag() {
   return {

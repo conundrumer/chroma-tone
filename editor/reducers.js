@@ -21,6 +21,7 @@ import {
   INC_FRAME_INDEX,
   DEC_FRAME_INDEX,
   SET_PLAYBACK_STATE,
+  MOD_PLAYBACK_STATE,
   ADD_LINE,
   REMOVE_LINE,
   REPLACE_LINE,
@@ -65,6 +66,7 @@ const INIT = {
   hotkeys: Object.create(null),
   playback: {
     state: 'stop',
+    modState: null,
     index: 0,
     maxIndex: 0,
     rate: 0,
@@ -276,6 +278,10 @@ export function playback(state = INIT.playback, action) {
     case SET_PLAYBACK_STATE:
       return {...state,
         state: action.state
+      };
+    case MOD_PLAYBACK_STATE:
+      return {...state,
+        modState: action.mod
       };
     case SET_FLAG:
       if (state.flag === state.index) { // TODO: reset flag if pressed twice

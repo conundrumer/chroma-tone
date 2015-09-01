@@ -4,7 +4,7 @@ import { incFrameIndex, decFrameIndex, setFrameIndex, setFrameRate } from './act
 
 const FPS = 40;
 
-export function setIndexAndRate(state, dispatch, getState) {
+export function setIndexAndRate(state, dispatch, getState, unmoddingState) {
   let setRate = (r) => dispatch(setFrameRate(r));
   let setIndex = (i) => dispatch(setFrameIndex(i));
   let {state: prevState, flag} = getState().playback;
@@ -12,12 +12,14 @@ export function setIndexAndRate(state, dispatch, getState) {
   switch (state) {
     case 'play':
     case 'slowmo':
-      if (state === prevState) {
+      if (state === prevState && !unmoddingState) {
         setIndex(flag);
       }
       break;
     case 'stop':
-      setIndex(flag);
+      if (!unmoddingState) {
+        setIndex(flag);
+      }
       break;
   }
 
@@ -26,12 +28,37 @@ export function setIndexAndRate(state, dispatch, getState) {
       setRate(1);
       break;
     case 'slowmo':
-      setRate(1/8);
+      setRate(1 / 8);
       break;
     case 'pause':
     case 'stop':
       setRate(0);
       break;
+    case 'forward':
+      switch (prevState) {
+        case 'play':
+          setRate(4)
+          break
+        case 'slowmo':
+          setRate(1 / 2)
+          break
+        case 'pause':
+        case 'stop':
+          setRate(1)
+          break
+      }
+      break;
+    case 'reverse':
+      switch (prevState) {
+        case 'play':
+        case 'pause':
+        case 'stop':
+          setRate(-1)
+          break
+        case 'slowmo':
+          setRate(-1 * SLOWMO_RATE);
+          break
+      }
   }
 }
 
