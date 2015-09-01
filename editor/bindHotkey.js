@@ -33,7 +33,10 @@ export default function bindHotkey(combokeys, ripples, name, hotkey, dispatch) {
   bindModKeys(combokeys, dispatch)
 
   let buttons = getButtons(dispatch);
-  let boundAction = buttons[name] && buttons[name].boundAction || (() => {});
+  let boundAction, pressAction, releaseAction
+  if (buttons[name]) {
+    ({boundAction, pressAction, releaseAction} = buttons[name])
+  }
 
   let startRipple = () => {};
   let endRipple = () => {};
@@ -43,9 +46,12 @@ export default function bindHotkey(combokeys, ripples, name, hotkey, dispatch) {
   }
 
   if (modifierRegex.test(hotkey)) {
+    // TODO: hack in multiple keyup binding
     combokeys.bind(hotkey, (e) => {
       e.preventDefault();
-      boundAction();
+      if (boundAction) {
+        boundAction()
+      }
       startRipple();
       requestAnimationFrame(() =>
         requestAnimationFrame(endRipple)
@@ -54,13 +60,21 @@ export default function bindHotkey(combokeys, ripples, name, hotkey, dispatch) {
   } else {
     var rippled = false;
     combokeys.bind(hotkey, (e) => {
+      if (pressAction) {
+        pressAction()
+      }
       if (!rippled) {
         startRipple();
         rippled = true;
       }
     }, 'keydown');
     combokeys.bind(hotkey, (e) => {
-      boundAction();
+      if (boundAction) {
+        boundAction()
+      }
+      if (releaseAction) {
+        releaseAction()
+      }
       endRipple();
       rippled = false;
     }, 'keyup');
