@@ -38,7 +38,7 @@ function getAbsPos(relPos, getState) {
 
 const MAX_SNAP_DISTANCE = 8
 function getSnappedPos(absPos, getState, ignoreLine) {
-  var { trackData: {lineStore}, viewport: {z} } = getState();
+  var { trackData: {track}, viewport: {z} } = getState();
 
   // adjust snap radious to current zoom level
   var maxSnap = MAX_SNAP_DISTANCE * Math.max(z, ZOOM.MIN * 10)
@@ -46,7 +46,7 @@ function getSnappedPos(absPos, getState, ignoreLine) {
   var closestCoords = null;
   var closestDistance = null;
 
-  lineStore.forEach(function(line) {
+  track.getLinesInRadius(absPos.x, absPos.y, maxSnap).forEach(function(line) {
     // skip our ignoreline if given
     // because it represents the current line we're drawing
     if (!((ignoreLine != null) &&
