@@ -37,45 +37,30 @@ function getAbsPos(relPos, getState) {
 }
 
 const MAX_SNAP_DISTANCE = 8
-function getSnappedPos(absPos, getState, ignoreLineID = null) {
+function getSnappedPos(absPos, getState, ignoreLineID) {
   var { trackData: {track}, viewport: {z} } = getState();
 
-  // adjust snap radious to current zoom level
+  // adjust snap radius to current zoom level
   var maxSnap = MAX_SNAP_DISTANCE * Math.max(z, ZOOM.MIN * 10)
 
-  var closestCoords = null;
-  var closestDistance = null;
-
-  track.getLinesInRadius(absPos.x, absPos.y, maxSnap).forEach(function(line) {
-    // skip our ignoreline if given
-    // because it represents the current line we're drawing
-    if (ignoreLineID === null || line.id !== ignoreLineID) {
-
-      // calculate first point
-      var myDistance = absPos.distance(line.p)
-      if (myDistance <= maxSnap) {
-        if ((closestDistance == null) || (myDistance < closestDistance)) {
-          closestDistance = myDistance
-          closestCoords = line.p
-        }
-      }
-
-      // calculate last point
-      var myDistance = absPos.distance(line.q)
-      if (myDistance <= maxSnap) {
-        if ((closestDistance == null) || (myDistance < closestDistance)) {
-          closestDistance = myDistance
-          closestCoords = line.q
-        }
-      }
-    }
-  });
-
-  if (closestCoords != null) {
-    absPos = closestCoords;
-  }
-
-  return absPos;
+  return track.getLinesInRadius(absPos.x, absPos.y, maxSnap)
+    .filter(line =>
+      // skip our ignoreline if given
+      // because it represents the current line we're drawing
+      line.id !== ignoreLineID
+    )
+    .reduce((points, line) =>
+      // create array of points from array of lines
+      points.concat([line.p, line.q])
+    , [])
+    .reduce(([snapPos, closestDistance], point) => {
+      // reduce array of points to the point closest to absPos within maxSnap
+      let distance = absPos.distance(point)
+      return distance < closestDistance
+        ? [point, distance]
+        : [snapPos, closestDistance]
+    }, [absPos, maxSnap])[0]
+    .clone() // vectors are mutable, defensively copy them
 }
 
 const ZOOM = {
