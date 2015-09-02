@@ -37,7 +37,7 @@ function getAbsPos(relPos, getState) {
 }
 
 const MAX_SNAP_DISTANCE = 8
-function getSnappedPos(absPos, getState, ignoreLine) {
+function getSnappedPos(absPos, getState, ignoreLineID = null) {
   var { trackData: {track}, viewport: {z} } = getState();
 
   // adjust snap radious to current zoom level
@@ -49,9 +49,7 @@ function getSnappedPos(absPos, getState, ignoreLine) {
   track.getLinesInRadius(absPos.x, absPos.y, maxSnap).forEach(function(line) {
     // skip our ignoreline if given
     // because it represents the current line we're drawing
-    if (!((ignoreLine != null) &&
-          (ignoreLine.x1 === line.p.x) && (ignoreLine.y1 === line.p.y) &&
-          (ignoreLine.x2 === line.q.x) && (ignoreLine.y2 === line.q.y))) {
+    if (ignoreLineID === null || line.id !== ignoreLineID) {
 
       // calculate first point
       var myDistance = absPos.distance(line.p)
@@ -178,7 +176,7 @@ export function line(stream, dispatch, getState) {
       if (mod) {
         p2 = angleSnap(p2, p1)
       } else if (!alt) {
-        p2 = getSnappedPos(p2, getState, prevLine)
+        p2 = getSnappedPos(p2, getState, prevLine ? prevLine.id : null)
       }
       let lineData = {
         x1: p1.x,
