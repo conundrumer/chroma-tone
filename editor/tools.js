@@ -140,18 +140,21 @@ function angleSnap(pnt, pos) {
 const MIN_LINE_LENGTH = 3;
 var tempID = 0;
 export function line(stream, dispatch, getState) {
-  stream = stream.map((pos) => getAbsPos(pos, getState))
-
   let p1
   let prevLine = null
   let id = tempID++; // TODO: make addLine responsible for getting actual ID!
-  let {modKeys: {alt}} = getState()
+  // TODO: wrap functions around mod keys for clarity
+  stream = stream.map(pos => {
+    let absPos = getAbsPos(pos, getState)
+    let {modKeys: {mod, alt}} = getState()
+    if (!mod && !alt) {
+      return getSnappedPos(absPos, getState, prevLine ? prevLine.id : null)
+    }
+    return absPos
+  })
+
   stream.first().subscribe( pos => {
     p1 = pos
-
-    if (!alt) {
-      p1 = getSnappedPos(p1, getState)
-    }
   });
   let {modKeys: {shift}} = getState()
 
@@ -159,11 +162,9 @@ export function line(stream, dispatch, getState) {
     stream: stream
       .filter(p2 => p1.distance(p2) >= MIN_LINE_LENGTH),
     onNext: (p2) => {
-      let {toolbars: {colorSelected: lineType}, modKeys: {mod, alt}} = getState()
+      let {toolbars: {colorSelected: lineType}, modKeys: {mod}} = getState()
       if (mod) {
         p2 = angleSnap(p2, p1)
-      } else if (!alt) {
-        p2 = getSnappedPos(p2, getState, prevLine ? prevLine.id : null)
       }
       let lineData = {
         x1: p1.x,
