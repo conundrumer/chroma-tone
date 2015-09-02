@@ -36,6 +36,33 @@ function getAbsPos(relPos, getState) {
   return relPos.clone().subtract({x: w/2, y: h/2}).mulS(z).add({x, y});
 }
 
+const MAX_SNAP_DISTANCE = 8
+function getSnappedPos(absPos, getState, ignoreLineID) {
+  var { trackData: {track}, viewport: {z} } = getState();
+
+  // adjust snap radius to current zoom level
+  var maxSnap = MAX_SNAP_DISTANCE * Math.max(z, ZOOM.MIN * 10)
+
+  return track.getLinesInRadius(absPos.x, absPos.y, maxSnap)
+    .filter(line =>
+      // skip our ignoreline if given
+      // because it represents the current line we're drawing
+      line.id !== ignoreLineID
+    )
+    .reduce((points, line) =>
+      // create array of points from array of lines
+      points.concat([line.p, line.q])
+    , [])
+    .reduce(([snapPos, closestDistance], point) => {
+      // reduce array of points to the point closest to absPos within maxSnap
+      let distance = absPos.distance(point)
+      return distance < closestDistance
+        ? [point, distance]
+        : [snapPos, closestDistance]
+    }, [absPos, maxSnap])[0]
+    .clone() // vectors are mutable, defensively copy them
+}
+
 const ZOOM = {
   STRENGTH: Math.pow(2, 1/(2<<5)),
   MAX: 2<<4,
@@ -115,9 +142,14 @@ var tempID = 0;
 export function line(stream, dispatch, getState) {
   var p1, prevLine = null;
   let id = tempID++; // make addLine responsible for getting actual ID!
+  let {modKeys: {alt}} = getState()
   stream.first().subscribe( pos => {
     // TODO: make function to convert to absolute coordinates
-    p1 = getAbsPos(pos, getState);
+    p1 = getAbsPos(pos, getState)
+
+    if (!alt) {
+      p1 = getSnappedPos(p1, getState)
+    }
   });
   let {modKeys: {shift}} = getState()
 
@@ -125,9 +157,11 @@ export function line(stream, dispatch, getState) {
     stream: stream.map((pos) => getAbsPos(pos, getState))
       .filter(p2 => p1.distance(p2) >= MIN_LINE_LENGTH),
     onNext: (p2) => {
-      let {toolbars: {colorSelected: lineType}, modKeys: {mod}} = getState()
+      let {toolbars: {colorSelected: lineType}, modKeys: {mod, alt}} = getState()
       if (mod) {
         p2 = angleSnap(p2, p1)
+      } else if (!alt) {
+        p2 = getSnappedPos(p2, getState, prevLine ? prevLine.id : null)
       }
       let lineData = {
         x1: p1.x,
