@@ -36,6 +36,50 @@ function getAbsPos(relPos, getState) {
   return relPos.clone().subtract({x: w/2, y: h/2}).mulS(z).add({x, y});
 }
 
+const MAX_SNAP_DISTANCE = 8
+function getSnappedPos(absPos, getState, ignoreLine) {
+  var { trackData: {lineStore}, viewport: {z} } = getState();
+
+  // adjust snap radious to current zoom level
+  var maxSnap = MAX_SNAP_DISTANCE * Math.max(z, ZOOM.MIN * 10)
+
+  var closestCoords = null;
+  var closestDistance = null;
+
+  lineStore.forEach(function(line) {
+    // skip our ignoreline if given
+    // because it represents the current line we're drawing
+    if (!((ignoreLine != null) &&
+          (ignoreLine.x1 === line.p.x) && (ignoreLine.y1 === line.p.y) &&
+          (ignoreLine.x2 === line.q.x) && (ignoreLine.y2 === line.q.y))) {
+
+      // calculate first point
+      var myDistance = absPos.distance(line.p)
+      if (myDistance <= maxSnap) {
+        if ((closestDistance == null) || (myDistance < closestDistance)) {
+          closestDistance = myDistance
+          closestCoords = line.p
+        }
+      }
+
+      // calculate last point
+      var myDistance = absPos.distance(line.q)
+      if (myDistance <= maxSnap) {
+        if ((closestDistance == null) || (myDistance < closestDistance)) {
+          closestDistance = myDistance
+          closestCoords = line.q
+        }
+      }
+    }
+  });
+
+  if (closestCoords != null) {
+    absPos = closestCoords;
+  }
+
+  return absPos;
+}
+
 const ZOOM = {
   STRENGTH: Math.pow(2, 1/(2<<5)),
   MAX: 2<<4,
@@ -115,9 +159,14 @@ var tempID = 0;
 export function line(stream, dispatch, getState) {
   var p1, prevLine = null;
   let id = tempID++; // make addLine responsible for getting actual ID!
+  let {modKeys: {alt}} = getState()
   stream.first().subscribe( pos => {
     // TODO: make function to convert to absolute coordinates
-    p1 = getAbsPos(pos, getState);
+    p1 = getAbsPos(pos, getState)
+
+    if (!alt) {
+      p1 = getSnappedPos(p1, getState)
+    }
   });
   let {modKeys: {shift}} = getState()
 
@@ -125,9 +174,11 @@ export function line(stream, dispatch, getState) {
     stream: stream.map((pos) => getAbsPos(pos, getState))
       .filter(p2 => p1.distance(p2) >= MIN_LINE_LENGTH),
     onNext: (p2) => {
-      let {toolbars: {colorSelected: lineType}, modKeys: {mod}} = getState()
+      let {toolbars: {colorSelected: lineType}, modKeys: {mod, alt}} = getState()
       if (mod) {
         p2 = angleSnap(p2, p1)
+      } else if (!alt) {
+        p2 = getSnappedPos(p2, getState, prevLine)
       }
       let lineData = {
         x1: p1.x,
