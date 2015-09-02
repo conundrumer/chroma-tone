@@ -136,16 +136,18 @@ function angleSnap(pnt, pos) {
 }
 
 // TODO: put ID management in reducer
-// TODO: enforce minimum line length
+// TODO: make minimum line length depend on zoom
 const MIN_LINE_LENGTH = 3;
 var tempID = 0;
 export function line(stream, dispatch, getState) {
-  var p1, prevLine = null;
-  let id = tempID++; // make addLine responsible for getting actual ID!
+  stream = stream.map((pos) => getAbsPos(pos, getState))
+
+  let p1
+  let prevLine = null
+  let id = tempID++; // TODO: make addLine responsible for getting actual ID!
   let {modKeys: {alt}} = getState()
   stream.first().subscribe( pos => {
-    // TODO: make function to convert to absolute coordinates
-    p1 = getAbsPos(pos, getState)
+    p1 = pos
 
     if (!alt) {
       p1 = getSnappedPos(p1, getState)
@@ -154,7 +156,7 @@ export function line(stream, dispatch, getState) {
   let {modKeys: {shift}} = getState()
 
   return {
-    stream: stream.map((pos) => getAbsPos(pos, getState))
+    stream: stream
       .filter(p2 => p1.distance(p2) >= MIN_LINE_LENGTH),
     onNext: (p2) => {
       let {toolbars: {colorSelected: lineType}, modKeys: {mod, alt}} = getState()
@@ -187,13 +189,14 @@ export function line(stream, dispatch, getState) {
   }
 }
 export function pencil(stream, dispatch, getState) {
-  var p0, addedLines = [];
+  stream = stream.map((pos) => getAbsPos(pos, getState))
+  let p0
+  let addedLines = []
   stream.first().subscribe( pos => {
-    // TODO: make function to convert to absolute coordinates
-    p0 = getAbsPos(pos, getState);
+    p0 = pos
   });
   return {
-    stream: stream.map((pos) => getAbsPos(pos, getState))
+    stream: stream
       .scan(([prevLine, p1], p2) => {
         if (p1.distance(p2) >= MIN_LINE_LENGTH) {
           return [[p1, p2], p2]
@@ -201,8 +204,7 @@ export function pencil(stream, dispatch, getState) {
         return [null, p1]
       }, [null, p0])
       .map(([prevLine, p1]) => prevLine)
-      .filter(prevLine => prevLine !== null)
-    ,
+      .filter(prevLine => prevLine !== null),
     onNext: ([p1, p2]) => {
       let {toolbars: {colorSelected: lineType}, modKeys: {shift}} = getState()
       let lineData = {
