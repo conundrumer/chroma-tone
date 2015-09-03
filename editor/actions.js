@@ -298,62 +298,25 @@ export function deltaPanModZoom(pos, delta) {
   }
 }
 
-/* thunk for side effects: mutating state.trackData.track */
 export function addLine(line) {
-  return (dispatch, getState) => {
-    let { track } = getState().trackData
-    if (line instanceof Array) {
-      line.forEach(l => track.addLine(l));
-    } else {
-      track.addLine(line)
-    }
-    dispatch({
-      type: ADD_LINE,
-      line: line,
-      lineStore: track.lineStore
-    })
+  return {
+    type: ADD_LINE,
+    line: line
   }
 }
 
-/* thunk for side effects: mutating state.trackData.track */
 export function removeLine(line) {
-  return (dispatch, getState) => {
-    let { track } = getState().trackData
-    if (line instanceof Array) {
-      line.forEach(l => track.removeLine(l));
-    } else {
-      track.removeLine(line)
-    }
-    dispatch({
-      type: REMOVE_LINE,
-      line: line,
-      lineStore: track.lineStore
-    })
-
+  return {
+    type: REMOVE_LINE,
+    line: line
   }
 }
 
-/* thunk for side effects: mutating state.trackData.track */
 export function replaceLine(prevLine, line) {
-  return (dispatch, getState) => {
-    let { track } = getState().trackData
-    if (prevLine instanceof Array) {
-      prevLine.forEach(l => track.removeLine(l));
-    } else {
-      track.removeLine(prevLine)
-    }
-    if (line instanceof Array) {
-      line.forEach(l => track.addLine(l));
-    } else {
-      track.addLine(line)
-    }
-    dispatch({
-      type: REPLACE_LINE,
-      prevLine: prevLine,
-      line: line,
-      lineStore: track.lineStore
-    })
-
+  return {
+    type: REPLACE_LINE,
+    prevLine: prevLine,
+    line: line
   }
 }
 

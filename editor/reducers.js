@@ -303,6 +303,7 @@ export function playback(state = INIT.playback, action) {
 }
 
 export function trackData(state = INIT.trackData, action) {
+  let track, line, prevLine
   switch (action.type) {
     case NEW_TRACK:
     case LOAD_TRACK:
@@ -319,17 +320,47 @@ export function trackData(state = INIT.trackData, action) {
       return {...state,
         label: action.name
       }
+    // mutations of state.track follows
+    // this is considered bad practice
+    // but can't find any better way of handling caches
     case ADD_LINE:
+      track = state.track
+      line = action.line
+      if (line instanceof Array) {
+        line.forEach(l => track.addLine(l));
+      } else {
+        track.addLine(line)
+      }
       return {...state,
-        lineStore: action.lineStore
+        lineStore: track.lineStore
       }
     case REMOVE_LINE:
+      track = state.track
+      line = action.line
+      if (line instanceof Array) {
+        line.forEach(l => track.removeLine(l));
+      } else {
+        track.removeLine(line)
+      }
       return {...state,
-        lineStore: action.lineStore
+        lineStore: track.lineStore
       }
     case REPLACE_LINE:
+      track = state.track
+      line = action.line
+      prevLine = action.prevLine
+      if (prevLine instanceof Array) {
+        prevLine.forEach(l => track.removeLine(l));
+      } else {
+        track.removeLine(prevLine)
+      }
+      if (line instanceof Array) {
+        line.forEach(l => track.addLine(l));
+      } else {
+        track.addLine(line)
+      }
       return {...state,
-        lineStore: action.lineStore
+        lineStore: track.lineStore
       }
     default:
       return state;
