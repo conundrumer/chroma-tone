@@ -18,7 +18,9 @@ import {
   newTrack,
   showFileLoader,
   setFlag,
-  showTrackSaver
+  showTrackSaver,
+  undo,
+  redo
 } from './actions';
 import Icons from './components/SvgIcons';
 
@@ -41,8 +43,8 @@ export function getButtons(dispatch) {
     curve:             { action: null                , hotkey: '5'           , icon: Icons.Curve                     },
     multiLine:         { action: null                , hotkey: '6'           , icon: Icons.MultiLine                 },
     eraser:            { action: setTool             , hotkey: 'e'           , icon: require('icons/eraser')         },
-    undo:              { action: debugThunk          , hotkey: 'mod+z'       , icon: require('icons/undo-variant')   },
-    redo:              { action: debugThunk          , hotkey: 'mod+shift+z' , icon: require('icons/redo-variant')   },
+    undo:              { action: undo                , hotkey: 'mod+z'       , icon: require('icons/undo-variant')   },
+    redo:              { action: redo                , hotkey: 'mod+shift+z' , icon: require('icons/redo-variant')   },
     pan:               { action: setTool             , hotkey: 'r'           , icon: require('icons/cursor-move')    },
     zoom:              { action: setTool             , hotkey: 't'           , icon: require('icons/magnify')        },
     viewfinder:        { action: null                , hotkey: null          , icon: Icons.Viewfinder                },

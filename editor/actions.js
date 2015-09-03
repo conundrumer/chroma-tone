@@ -49,6 +49,9 @@ export const SELECT_COLOR = 'SELECT_COLOR'
 export const SHOW_TRACK_SAVER = 'SHOW_TRACK_SAVER'
 export const HIDE_TRACK_SAVER = 'HIDE_TRACK_SAVER'
 export const SET_TRACK_NAME = 'SET_TRACK_NAME'
+export const PUSH_ACTION = 'PUSH_ACTION'
+export const UNDO = 'UNDO'
+export const REDO = 'REDO'
 
 /**
  * action creators
@@ -405,5 +408,47 @@ export function selectSidebarItem(selected) {
   return {
     type: SELECT_SIDEBAR_ITEM,
     selected: selected
+  }
+}
+
+// history
+export function pushAction(action) {
+  return {
+    type: PUSH_ACTION,
+    action: action
+  }
+}
+function getInverseAction(action) {
+  switch (action.type) {
+    case ADD_LINE:
+      return removeLine(action.line)
+    case REMOVE_LINE:
+      return addLine(action.line)
+    case REPLACE_LINE:
+      return replaceLine(action.line, action.prevLine)
+  }
+}
+/* thunk for conditional action + getting state */
+export function undo() {
+  return (dispatch, getState) => {
+    let {history: {undoStack}} = getState()
+    if (undoStack.size > 0) {
+      dispatch(getInverseAction(undoStack.peek()))
+    }
+    dispatch({
+      type: UNDO
+    })
+  }
+}
+/* thunk for conditional action + getting state */
+export function redo() {
+  return (dispatch, getState) => {
+    let {history: {redoStack}} = getState()
+    if (redoStack.size > 0) {
+      dispatch(redoStack.peek())
+    }
+    dispatch({
+      type: REDO
+    })
   }
 }

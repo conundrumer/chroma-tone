@@ -1,5 +1,7 @@
 'use strict';
 
+import Immutable from 'immutable';
+
 import {
   RESIZE,
   SET_MOD_KEY,
@@ -36,7 +38,10 @@ import {
   SELECT_COLOR,
   SHOW_TRACK_SAVER,
   HIDE_TRACK_SAVER,
-  SET_TRACK_NAME
+  SET_TRACK_NAME,
+  PUSH_ACTION,
+  UNDO,
+  REDO
 } from './actions';
 
 import { newTrack } from './actions';
@@ -83,7 +88,11 @@ const INIT = {
   trackSaver: {
     open: false
   },
-  trackData: trackData(null, newTrack())
+  trackData: trackData(null, newTrack()),
+  history: {
+    undoStack: Immutable.Stack(),
+    redoStack: Immutable.Stack()
+  }
 };
 
 // display dimensions
@@ -364,5 +373,34 @@ export function trackData(state = INIT.trackData, action) {
       }
     default:
       return state;
+  }
+}
+
+export function history(state = INIT.history, action) {
+  switch (action.type) {
+    case PUSH_ACTION:
+      console.log('pushed action')
+      return {
+        undoStack: state.undoStack.push(action.action),
+        redoStack: INIT.history.redoStack
+      }
+    case UNDO:
+      if (state.undoStack.size === 0) {
+        return state
+      }
+      return {
+        redoStack: state.redoStack.push(state.undoStack.peek()),
+        undoStack: state.undoStack.pop()
+      }
+    case REDO:
+      if (state.redoStack.size === 0) {
+        return state
+      }
+      return {
+        undoStack: state.undoStack.push(state.redoStack.peek()),
+        redoStack: state.redoStack.pop()
+      }
+    default:
+      return state
   }
 }

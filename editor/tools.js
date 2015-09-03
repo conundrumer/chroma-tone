@@ -1,7 +1,7 @@
 'use strict';
 
 import Vector from 'core/Vector'
-import { setCam, addLine, removeLine, replaceLine } from './actions';
+import { setCam, addLine, removeLine, replaceLine, pushAction } from './actions';
 
 export function debugTool(stream, dispatch, getState) {
   stream.first().subscribe(pos => {
@@ -175,12 +175,17 @@ export function line(stream, dispatch, getState) {
         flipped: shift,
         type: lineType
       }
+      let action
       if (prevLine) {
-        dispatch(replaceLine(prevLine, lineData))
+        action = replaceLine(prevLine, lineData)
       } else {
-        dispatch(addLine(lineData))
+        action = addLine(lineData)
       }
+      dispatch(action)
       prevLine = lineData
+    },
+    onEnd: () => {
+      dispatch(pushAction(addLine(prevLine)))
     },
     onCancel: () => {
       if (prevLine) {
@@ -220,6 +225,9 @@ export function pencil(stream, dispatch, getState) {
       dispatch(addLine(lineData))
       addedLines.push(lineData);
     },
+    onEnd: () => {
+      dispatch(pushAction(addLine(addedLines)))
+    },
     onCancel: () => {
       dispatch(removeLine(addedLines))
     }
@@ -233,8 +241,11 @@ export function eraser(stream, dispatch, getState) {
     stream: stream.map((pos) => getAbsPos(pos, getState)),
     onNext: (pos) => {
       let linesToRemove = getState().trackData.track.getLinesInRadius(pos.x, pos.y, ERASER_RADIUS)
-      removedLines.push(linesToRemove);
+      removedLines = removedLines.concat(linesToRemove);
       dispatch(removeLine(linesToRemove));
+    },
+    onEnd: () => {
+      dispatch(pushAction(removeLine(removedLines)))
     },
     onCancel: () => {
       dispatch(addLine(removedLines))
