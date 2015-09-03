@@ -169,7 +169,7 @@ const displaySelector = createSelector(
     lineSelector,
     widthHeightSelector,
     viewOptionsSelector,
-    state => true
+    state => state.toggled.onionSkin || false
   ],
   ({index, flagIndex, maxIndex}, {startIndex, endIndex}, {startPosition, states, rider, flagRider}, cam, lines, {w, h}, viewOptions, onionSkin) => ({
     frame: index,

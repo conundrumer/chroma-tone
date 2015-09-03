@@ -28,7 +28,11 @@ var SvgSprite = React.createClass({
 var Rider = React.createClass({
 
   shouldComponentUpdate(nextProps) {
-    return this.props.index !== nextProps.index || this.props.flagIndex !== nextProps.flagIndex || this.props.seed !== nextProps.seed || this.props.rider !== nextProps.rider;
+    return this.props.index !== nextProps.index
+      || this.props.flagIndex !== nextProps.flagIndex
+      || this.props.seed !== nextProps.seed
+      || this.props.rider !== nextProps.rider
+      || this.props.onionSkin !== nextProps.onionSkin
   },
 
   getDefaultProps() {
@@ -64,8 +68,9 @@ var Rider = React.createClass({
                 />
               </g>
             )
-          : <RiderInstance key={index} namespace={namespace} {...{seed, index, rider}}/>
+          : null
         }
+        <RiderInstance key={index} namespace={namespace} {...{seed, index, rider}}/>
       </g>
     );
   }
