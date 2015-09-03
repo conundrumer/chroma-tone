@@ -41,7 +41,9 @@ import {
   SET_TRACK_NAME,
   PUSH_ACTION,
   UNDO,
-  REDO
+  REDO,
+  DRAW_STREAM_START,
+  DRAW_STREAM_END
 } from './actions';
 
 import { newTrack } from './actions';
@@ -92,8 +94,19 @@ const INIT = {
   history: {
     undoStack: Immutable.Stack(),
     redoStack: Immutable.Stack()
-  }
+  },
+  drawStreamActive: false // cancellable draw streams
 };
+export function drawStreamActive(state = INIT.drawStreamActive, action) {
+  switch (action.type) {
+    case DRAW_STREAM_START:
+      return true
+    case DRAW_STREAM_END:
+      return false
+    default:
+      return state
+  }
+}
 
 // display dimensions
 export function viewport(state = INIT.viewport, action) {

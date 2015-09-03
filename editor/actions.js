@@ -52,11 +52,22 @@ export const SET_TRACK_NAME = 'SET_TRACK_NAME'
 export const PUSH_ACTION = 'PUSH_ACTION'
 export const UNDO = 'UNDO'
 export const REDO = 'REDO'
+export const DRAW_STREAM_START = 'DRAW_STREAM_START'
+export const DRAW_STREAM_END = 'DRAW_STREAM_END'
 
 /**
  * action creators
  */
-
+export function drawStreamStart() {
+  return {
+    type: DRAW_STREAM_START
+  }
+}
+export function drawStreamEnd() {
+  return {
+    type: DRAW_STREAM_END
+  }
+}
 // display dimensions
 export function setWindowSize({ width, height }) {
   return {
