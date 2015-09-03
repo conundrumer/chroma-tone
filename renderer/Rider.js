@@ -28,7 +28,7 @@ var SvgSprite = React.createClass({
 var Rider = React.createClass({
 
   shouldComponentUpdate(nextProps) {
-    return this.props.frame !== nextProps.frame || this.props.seed !== nextProps.seed || this.props.rider !== nextProps.rider;
+    return this.props.index !== nextProps.index || this.props.flagIndex !== nextProps.flagIndex || this.props.seed !== nextProps.seed || this.props.rider !== nextProps.rider;
   },
 
   getDefaultProps() {
@@ -40,15 +40,32 @@ var Rider = React.createClass({
   render() {
     let {
       seed,
-      frame,
-      rider
+      index,
+      startIndex,
+      rider,
+      riders,
+      onionSkin
     } = this.props
     let namespace = `__RIDER_SPRITE_${this.props.i}__`;
+
+    let opacity = 1 / riders.length * 0.9 + 0.1
 
     return (
       <g id={namespace}>
         <SvgSprite namespace={namespace} i={this.props.i} src={this.props.riderSpriteSrc} flag={this.props.flag}/>
-        <RiderInstance key={this.props.frame} namespace={namespace} {...{seed, frame, rider}} opacity={0.5} />
+        {
+          onionSkin ?
+            riders.map((state, i) =>
+              <g key={startIndex + i} fillOpacity={opacity} strokeOpacity={opacity}>
+                <RiderInstance
+                  namespace={namespace}
+                  opacity={0.5}
+                  {...{seed, index: startIndex + i, rider: state}}
+                />
+              </g>
+            )
+          : <RiderInstance key={index} namespace={namespace} {...{seed, index, rider}}/>
+        }
       </g>
     );
   }

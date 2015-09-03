@@ -23,8 +23,12 @@ var Display = React.createClass({
     frame: PropTypes.number.isRequired,
     flagIndex: PropTypes.number.isRequired,
     maxIndex: PropTypes.number.isRequired,
+    startIndex: PropTypes.number.isRequired,
+    endIndex: PropTypes.number.isRequired,
     lines: PropTypes.array.isRequired,
-    rider: PropTypes.arrayOf(PropTypes.object).isRequired,
+    rider: PropTypes.object.isRequired,
+    flagRider: PropTypes.object.isRequired,
+    riders: PropTypes.arrayOf(PropTypes.object).isRequired,
     onionSkin: PropTypes.bool.isRequired,
     startPosition: PropTypes.shape({
       x: PropTypes.number.isRequired,
@@ -80,8 +84,17 @@ var Display = React.createClass({
         <Lines {...this.props} {...viewOptions} lines={this.props.lines} viewBox={viewBox} width={this.props.width} height={this.props.height} />
         <svg style={{position: 'absolute'}} viewBox={viewBox}>
           <Flag icon={this.props.startIcon} pos={{x, y: y + 5}} zoom={this.props.cam.z} />
-          <Flag icon={this.props.flagIcon} pos={this.props.rider[this.props.flagIndex].points[1].pos} zoom={this.props.cam.z} />
-          <Rider rider={this.props.rider[this.props.frame]} frame={this.props.frame} seed={seed} onionSkin={this.props.onionSkin}/>
+          <Flag icon={this.props.flagIcon} pos={this.props.flagRider.points[1].pos} zoom={this.props.cam.z} />
+          <Rider
+            rider={this.props.rider}
+            riders={this.props.riders}
+            index={this.props.frame}
+            flagIndex={this.props.flagIndex}
+            startIndex={this.props.startIndex}
+            endIndex={this.props.endIndex}
+            seed={seed}
+            onionSkin={this.props.onionSkin}
+          />
         </svg>
       </div>
     );
