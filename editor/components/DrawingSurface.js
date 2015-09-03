@@ -111,20 +111,33 @@ export default class DrawingSurface extends React.Component {
     return false;
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (this.props.drawStreamActive && !nextProps.drawStreamActive) {
+      this.cancelObserver.onError(new DrawCancelledException())
+    }
+  }
+
   componentDidMount() {
     let unmountStream = Rx.Observable.create( observer => {
       this.unmountObserver = observer;
     });
 
+    let cancelStream = Rx.Observable.create( observer => {
+      this.cancelObserver = observer;
+    });
+    cancelStream.subscribe(() => {}, () => {})
+
     let wheelStream = Rx.Observable.create( observer => {
       this.wheelObserver = observer;
     });
 
-    let streamOfDrawStreams = makeStreamOfDrawStreams(this.container, unmountStream);
+    let streamOfDrawStreams = makeStreamOfDrawStreams(this.container, unmountStream, cancelStream);
 
-    streamOfDrawStreams.subscribe(({stream, ...options}) =>
-      this.props.dispatch(draw(stream.map(e => this.getPos(e)), options))
-    );
+    streamOfDrawStreams.subscribe(({stream, ...options}) => {
+      stream = stream.map(e => this.getPos(e))
+      let cancellableStream = stream.merge(cancelStream).takeUntil(stream.last())
+      this.props.dispatch(draw(stream, cancellableStream, options))
+    });
 
     wheelStream.subscribe(e => {
       if (e.deltaMode !== 0) {
@@ -142,6 +155,7 @@ export default class DrawingSurface extends React.Component {
     if (this.unmountObserver) {
       this.unmountObserver.onNext(true);
       this.unmountObserver.onComplete();
+      this.cancelObserver.onComplete()
       this.wheelObserver.onComplete();
     }
   }

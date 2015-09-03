@@ -273,8 +273,9 @@ export function setFlag() {
   }
 }
 /* thunk for async actions + getting state*/
-export function draw(drawStream, options = {}) {
+export function draw(drawStream, cancellableDrawStream, options = {}) {
   return (dispatch, getState) => {
+    dispatch(drawStreamStart())
 
     let tool;
     if (options.isMiddle) {
@@ -286,15 +287,17 @@ export function draw(drawStream, options = {}) {
     } else {
       tool = getState().selectedTool;
     }
-
     let {
       stream,
       onNext,
       onCancel,
       onEnd
-    } = tools[tool](drawStream, dispatch, getState);
+    } = tools[tool](drawStream, dispatch, getState, cancellableDrawStream);
 
-    stream.subscribe(onNext, (err) => {
+    stream.finally(() =>
+      dispatch(drawStreamEnd())
+    )
+    .subscribe(onNext, (err) => {
       if (err instanceof DrawCancelledException) {
         if (onCancel) {
           onCancel();
@@ -442,6 +445,7 @@ function getInverseAction(action) {
 /* thunk for conditional action + getting state */
 export function undo() {
   return (dispatch, getState) => {
+    dispatch(drawStreamEnd())
     let {history: {undoStack}} = getState()
     if (undoStack.size > 0) {
       dispatch(getInverseAction(undoStack.peek()))
@@ -454,6 +458,7 @@ export function undo() {
 /* thunk for conditional action + getting state */
 export function redo() {
   return (dispatch, getState) => {
+    dispatch(drawStreamEnd())
     let {history: {redoStack}} = getState()
     if (redoStack.size > 0) {
       dispatch(redoStack.peek())

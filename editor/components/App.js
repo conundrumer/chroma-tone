@@ -96,7 +96,8 @@ var App = React.createClass({
       timeline,
       editor,
       trackSaver,
-      display
+      display,
+      drawingSurface
     } = this.props
 
     return (
@@ -112,7 +113,7 @@ var App = React.createClass({
           flagIcon={<Flag color='#ccc' />}
           endIcon={null}
         />
-        <Editor {...editor} {...{editor, fileLoader, trackSaver, timeline}} combokeys={this.combokeys} dispatch={dispatch} />
+        <Editor {...editor} {...{editor, fileLoader, trackSaver, timeline, drawingSurface}} combokeys={this.combokeys} dispatch={dispatch} />
         <FileLoader {...fileLoader} dispatch={dispatch} />
         <TrackSaver {...trackSaver} dispatch={dispatch} />
       </div>

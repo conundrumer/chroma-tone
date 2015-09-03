@@ -53,7 +53,8 @@ export default class Editor extends React.Component {
         fileName: PropTypes.string,
         tracks: PropTypes.arrayOf(PropTypes.object)
       }),
-      timeline: PropTypes.object.isRequired
+      timeline: PropTypes.object.isRequired,
+      drawingSurface: PropTypes.object.isRequired,
     }
   }
 
@@ -65,7 +66,8 @@ export default class Editor extends React.Component {
 
   shouldComponentUpdate(nextProps) {
     return this.props.editor !== nextProps.editor ||
-      this.props.fileLoader !== nextProps.fileLoader
+      this.props.fileLoader !== nextProps.fileLoader ||
+      this.props.drawingSurface !== nextProps.drawingSurface
   }
 
   componentWillMount() {
@@ -226,12 +228,13 @@ export default class Editor extends React.Component {
       fileLoader,
       colorPickerOpen,
       colorSelected,
-      trackSaver
+      trackSaver,
+      drawingSurface
     } = this.props
 
     return (
       <div className='LR-Editor' >
-        <DrawingSurface dispatch={dispatch} />
+        <DrawingSurface {...drawingSurface} dispatch={dispatch} />
         <FloatBar closed={toolbarsOpen}>
           { float }
         </FloatBar>

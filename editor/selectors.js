@@ -203,6 +203,13 @@ const trackSaverSelector = createSelector(
   }
 )
 
+const drawingSurfaceSelector = createSelector(
+  [
+    state => state.drawStreamActive
+  ],
+  (drawStreamActive) => ({drawStreamActive})
+)
+
 export default createSelector(
   [
     editorSelector,
@@ -210,14 +217,16 @@ export default createSelector(
     timelineSelector,
     displaySelector,
     widthHeightSelector,
-    trackSaverSelector
+    trackSaverSelector,
+    drawingSurfaceSelector
   ],
-  (editor, fileLoader, timeline, display, widthHeight, trackSaver) => ({
+  (editor, fileLoader, timeline, display, widthHeight, trackSaver, drawingSurface) => ({
     editor,
     fileLoader,
     timeline,
     display,
     widthHeight,
-    trackSaver
+    trackSaver,
+    drawingSurface
   })
 )

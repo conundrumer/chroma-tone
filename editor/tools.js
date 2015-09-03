@@ -235,10 +235,10 @@ export function pencil(stream, dispatch, getState) {
 }
 
 const ERASER_RADIUS = 2;
-export function eraser(stream, dispatch, getState) {
+export function eraser(stream, dispatch, getState, cancellableStream) {
   var removedLines = [];
   return {
-    stream: stream.map((pos) => getAbsPos(pos, getState)),
+    stream: cancellableStream.map((pos) => getAbsPos(pos, getState)),
     onNext: (pos) => {
       let linesToRemove = getState().trackData.track.getLinesInRadius(pos.x, pos.y, ERASER_RADIUS)
       removedLines = removedLines.concat(linesToRemove);
