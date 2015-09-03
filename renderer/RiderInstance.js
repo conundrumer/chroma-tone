@@ -1,6 +1,7 @@
 'use strict';
 
 var React = require('react');
+import { PureRenderMixin } from 'react'
 
 var { Constraints: { STRING_LHAND, STRING_RHAND }, Scarf: { p: scarfBase } } = require('../core/riders/RiderBody');
 
@@ -115,9 +116,7 @@ var TransformLink = React.createClass({
 // TODO: make Rider not rely on viewbox panning/scaling/outer svg
 var Rider = React.createClass({
 
-  shouldComponentUpdate(nextProps) {
-    return this.props.frame !== nextProps.frame || this.props.seed !== nextProps.seed || this.props.rider !== nextProps.rider;
-  },
+  mixins: [PureRenderMixin],
 
   getBlink() {
     return this.props.frame > 0 && ((this.props.seed + PHI * (this.props.frame / BLINK_LENGTH << 0)) % 1) < BLINK_DENSITY;
@@ -153,7 +152,7 @@ var Rider = React.createClass({
     let faceContentsID = namespace + 'face-contents' + (blink ? '-eyes-closed' : '');
 
     return (
-      <g>
+      <g fillOpacity={this.props.opacity} strokeOpacity={this.props.opacity}>
         {
           this.props.rider.scarfPoints.map( (point, i) =>
             // <ScarfSegment key={i} i={i} rider={this.props.rider} width={2} color={ (i % 2) === 0 ? '#d20202' : 'white'}/>

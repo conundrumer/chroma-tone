@@ -46,9 +46,9 @@ var Rider = React.createClass({
     let namespace = `__RIDER_SPRITE_${this.props.i}__`;
 
     return (
-      <g id={namespace} fillOpacity="0.5" strokeOpacity="0.5">
+      <g id={namespace}>
         <SvgSprite namespace={namespace} i={this.props.i} src={this.props.riderSpriteSrc} flag={this.props.flag}/>
-        <RiderInstance key={this.props.frame} namespace={namespace} {...{seed, frame, rider}} />
+        <RiderInstance key={this.props.frame} namespace={namespace} {...{seed, frame, rider}} opacity={0.5} />
       </g>
     );
   }
