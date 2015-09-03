@@ -179,6 +179,11 @@ export default class Track extends Store {
 
   addLine(l) {
     let line = makeLine(l);
+    if (this.getLineByID(line.id)) {
+      // can't add line that already exist
+      // need to remove it and then add it
+      return
+    }
     let cellKeys = this.store.addLine(line);
     if (line.isSolid) {
       this.updateFrameCache(cellKeys)
@@ -188,6 +193,10 @@ export default class Track extends Store {
   removeLine(line) {
     let id = line.id;
     line = this.getLineByID(id);
+    if (!line) {
+      // can't remove line that doesn't exist
+      return
+    }
     let cellKeys = this.store.removeLine(line);
     if (line.isSolid) {
       this.updateFrameCache(cellKeys, line)
