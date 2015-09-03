@@ -80,8 +80,8 @@ const riderSelector = createSelector(
   ],
   (index, flag, {track}) => ({
     startPosition: track.getStartPosition(),
-    state: track.getRiderStateAtFrame(index),
-    flagState: track.getRiderStateAtFrame(flag)
+    states: _.range(Math.min(index, flag), Math.max(index, flag) + 1)
+      .map(i => track.getRiderStateAtFrame(i))
   })
 )
 
@@ -154,20 +154,21 @@ const displaySelector = createSelector(
     camSelector,
     lineSelector,
     widthHeightSelector,
-    viewOptionsSelector
+    viewOptionsSelector,
+    state => true
   ],
-  ({index, flagIndex, maxIndex}, {startPosition, state, flagState}, cam, lines, {w, h}, viewOptions) => ({
+  ({index, flagIndex, maxIndex}, {startPosition, states}, cam, lines, {w, h}, viewOptions, onionSkin) => ({
     frame: index,
     flagIndex,
     maxIndex,
     startPosition,
-    rider: state,
-    flagRider: flagState,
+    rider: states,
     cam,
     lines,
     width: w,
     height: h,
-    viewOptions
+    viewOptions,
+    onionSkin
   })
 )
 

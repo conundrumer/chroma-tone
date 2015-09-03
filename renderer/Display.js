@@ -24,8 +24,8 @@ var Display = React.createClass({
     flagIndex: PropTypes.number.isRequired,
     maxIndex: PropTypes.number.isRequired,
     lines: PropTypes.array.isRequired,
-    rider: PropTypes.object.isRequired,
-    flagRider: PropTypes.object.isRequired,
+    rider: PropTypes.arrayOf(PropTypes.object).isRequired,
+    onionSkin: PropTypes.bool.isRequired,
     startPosition: PropTypes.shape({
       x: PropTypes.number.isRequired,
       y: PropTypes.number.isRequired
@@ -80,8 +80,8 @@ var Display = React.createClass({
         <Lines {...this.props} {...viewOptions} lines={this.props.lines} viewBox={viewBox} width={this.props.width} height={this.props.height} />
         <svg style={{position: 'absolute'}} viewBox={viewBox}>
           <Flag icon={this.props.startIcon} pos={{x, y: y + 5}} zoom={this.props.cam.z} />
-          <Flag icon={this.props.flagIcon} pos={this.props.flagRider.points[1].pos} zoom={this.props.cam.z} />
-          <Rider i={0} rider={this.props.rider} frame={this.props.frame} seed={seed} />
+          <Flag icon={this.props.flagIcon} pos={this.props.rider[this.props.flagIndex].points[1].pos} zoom={this.props.cam.z} />
+          <Rider rider={this.props.rider[this.props.frame]} frame={this.props.frame} seed={seed} onionSkin={this.props.onionSkin}/>
         </svg>
       </div>
     );
