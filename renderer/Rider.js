@@ -27,14 +27,6 @@ var SvgSprite = React.createClass({
 // TODO: make Rider not rely on viewbox panning/scaling/outer svg
 var Rider = React.createClass({
 
-  shouldComponentUpdate(nextProps) {
-    return this.props.index !== nextProps.index
-      || this.props.flagIndex !== nextProps.flagIndex
-      || this.props.seed !== nextProps.seed
-      || this.props.rider !== nextProps.rider
-      || this.props.onionSkin !== nextProps.onionSkin
-  },
-
   getDefaultProps() {
     return {
       riderSpriteSrc: '/svg/boshSprite.svg'
