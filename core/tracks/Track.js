@@ -174,7 +174,7 @@ export default class Track extends Store {
   }
 
   getLineByID(id) {
-    return this.store.lines.getLineByID(id);
+    return this.store.getLineByID(id);
   }
 
   addLine(l) {
