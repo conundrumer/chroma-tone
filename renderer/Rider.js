@@ -60,7 +60,7 @@ var Rider = React.createClass({
         {
           onionSkin ?
             riders.map((state, i) =>
-              <g key={startIndex + i} fillOpacity={opacity} strokeOpacity={opacity}>
+              <g key={startIndex + i} style={{opacity: opacity}}>
                 <RiderInstance
                   namespace={namespace}
                   opacity={0.5}
