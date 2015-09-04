@@ -94,7 +94,7 @@ function makeStreamOfDrawStreams(container, unmountStream) {
   // handle mouseup not firing
   let mouseMoveEndStream;
   [moveStream, mouseMoveEndStream] = moveStream.partition( e =>
-    e.id || e.buttons > 0
+    e.id !== null || e.buttons > 0
   );
   endStream = endStream.merge(mouseMoveEndStream);
 
