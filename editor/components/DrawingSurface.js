@@ -1,6 +1,7 @@
 'use strict';
 import React from 'react';
 import Rx from 'rx';
+import mouse from 'mouse-event'
 import Vector from 'core/Vector';
 
 import { draw, deltaPanModZoom } from '../actions';
@@ -71,6 +72,12 @@ function makeStreamOfDrawStreams(container, unmountStream) {
       // but i do'nt know how
       .flatMap(makeStreamFromChangedTouches)
       .merge(makeStreamFromEvent(...mouseArgs)
+        .map(e => {
+          if (e.buttons == null) {
+            e.buttons = mouse.buttons(e)
+          }
+          return e
+        })
         .flatMap(makeStreamFromButtons)
       )
       .map(copyEvent)
