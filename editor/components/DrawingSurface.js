@@ -10,7 +10,14 @@ import DrawCancelledException from '../DrawCancelledException';
 // TODO: refactor this stuff
 function copyEvent(e) {
   let {identifier, buttons, pageX, pageY, isMouse} = e;
-  return { id: identifier, buttons, pageX, pageY, isMouse, preventDefault: () => e.preventDefault() };
+  return {
+    id: identifier,
+    buttons,
+    pageX,
+    pageY,
+    isMouse,
+    preventDefault: () => e.preventDefault ? e.preventDefault() : null
+  }
 }
 function blockEvent(e) {
   e.preventDefault();
@@ -68,6 +75,7 @@ function makeStreamOfDrawStreams(container, unmountStream) {
     touchArgs: ['touchend', window]
   }].map(({ mouseArgs, touchArgs }) =>
     makeStreamFromEvent(...touchArgs)
+      .map(e => { e.preventDefault(); return e })
       // I would simply flatten e.changedTouches instead of making it a stream
       // but i do'nt know how
       .flatMap(makeStreamFromChangedTouches)
