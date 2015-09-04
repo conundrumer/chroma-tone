@@ -65,8 +65,10 @@ export default class GridStore extends Store {
           let linesInCell = this.getLinesFromCell(cx, cy);
           for (let i = linesInCell.length - 1; i >= 0; i--) {
             let line = linesInCell[i];
-            linesInBox[line.id] = true;
-            lines.push(line);
+            if (!(line.id in linesInBox)) {
+              linesInBox[line.id] = true;
+              lines.push(line);
+            }
           };
         }
       }
