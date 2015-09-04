@@ -47,7 +47,8 @@ export default class GridStore extends Store {
     return _.filter(this.getLinesInBox(x-r, y-r, x+r, y+r, false), line => line.inRadius(x, y, r));
   }
 
-  getLinesInBox(x1, y1, x2, y2, filterEdges = true) {
+  getLinesInBox(x1, y1, x2, y2, filterEdges) {
+    filterEdges = filterEdges || true
     if (x1 > x2) {
       [x1, x2] = [x2, x1];
     }
