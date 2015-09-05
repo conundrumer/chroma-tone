@@ -109,8 +109,8 @@ var App = React.createClass({
         <Display
           {...display}
           {...{display}}
-          startIcon={<StartFlag color='#ccc' />}
-          flagIcon={<Flag color='#ccc' />}
+          startIcon={<StartFlag color='rgba(0,0,0,0.4)' />}
+          flagIcon={<Flag color='rgba(0,0,0,0.4)' />}
           endIcon={null}
         />
         <Editor {...editor} {...{editor, fileLoader, trackSaver, timeline, drawingSurface}} combokeys={this.combokeys} dispatch={dispatch} />
