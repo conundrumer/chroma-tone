@@ -305,6 +305,7 @@ export function select(stream, dispatch, getState, cancellableStream) {
     stream: stream,
     onNext: (pos) => {
       if (modifyingLine != null) {
+        let {modKeys: {mod, alt}} = getState()
         let delta = pos.clone().subtract(firstPos)
         let {p, q} = modifyingLine
         if (dragType & DragTypes.P) {
@@ -312,6 +313,29 @@ export function select(stream, dispatch, getState, cancellableStream) {
         }
         if (dragType & DragTypes.Q) {
           q = q.clone().add(delta)
+        }
+        if (mod) {
+          if (dragType === DragTypes.P) {
+            p = angleSnap(p, q)
+          }
+          if (dragType === DragTypes.Q) {
+            q = angleSnap(q, p)
+          }
+        }
+        if (!alt && !mod) {
+          let snap
+          if (dragType === DragTypes.P) {
+            snap = getSnappedPos(p, getState, selectedLineID)
+            if (!snap.equals(q)) {
+              p = snap
+            }
+          }
+          if (dragType === DragTypes.Q) {
+            snap = getSnappedPos(q, getState, selectedLineID)
+            if (!snap.equals(p)) {
+              q = snap
+            }
+          }
         }
         if (p.equals(q)) {
           return
