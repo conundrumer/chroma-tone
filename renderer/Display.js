@@ -94,6 +94,7 @@ var Display = React.createClass({
           <Flag icon={this.props.startIcon} pos={{x, y: y + 5}} zoom={this.props.cam.z} />
           <Flag icon={this.props.flagIcon} pos={this.props.flagRider.points[1].pos} zoom={this.props.cam.z} />
           <Rider
+            i={0}
             rider={this.props.rider}
             riders={this.props.riders}
             index={this.props.frame}

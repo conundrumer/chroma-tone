@@ -151,8 +151,8 @@ var Rider = React.createClass({
     let facePath = getFacePath(t).join(' ');
 
     let namespace = this.props.namespace;
-    let faceOutlineID = namespace + 'face-outline';
-    let faceClipID = namespace + 'face-clip';
+    let faceOutlineID = namespace + 'face-outline_' + this.props.i
+    let faceClipID = namespace + 'face-clip_' + this.props.i
     let faceContentsID = namespace + 'face-contents' + (blink ? '-eyes-closed' : '');
 
     return (

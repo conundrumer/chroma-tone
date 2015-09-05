@@ -61,17 +61,18 @@ var Rider = React.createClass({
         {
           onionSkin ?
             riders.map((state, i) =>
+              startIndex + i === index ? null :
               <g key={startIndex + i} style={{opacity: getOpacity(i)}}>
                 <RiderInstance
                   namespace={namespace}
-                  opacity={0.5}
+                  i={startIndex + i}
                   {...{seed, index: startIndex + i, rider: state}}
                 />
               </g>
             )
           : null
         }
-        <RiderInstance key={index} namespace={namespace} {...{seed, index, rider}}/>
+        <RiderInstance i={index} key={index} namespace={namespace} {...{seed, index, rider}}/>
       </g>
     );
   }
