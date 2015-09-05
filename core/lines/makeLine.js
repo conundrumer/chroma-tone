@@ -5,7 +5,7 @@ var SolidLine = require('./SolidLine');
 var AccLine = require('./AccLine');
 var SceneryLine = require('./SceneryLine');
 
-function makeLine(l) {
+export default function makeLine(l) {
     let LineType;
 
   switch (l.type) {
@@ -32,5 +32,3 @@ function makeLine(l) {
 
   return line;
 }
-
-module.exports = makeLine;

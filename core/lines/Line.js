@@ -1,6 +1,7 @@
 'use strict';
 
 var Vector = require('../Vector');
+import makeLine from './makeLine'
 
 const
   // line extensions
@@ -41,6 +42,16 @@ class Line {
       }
     }
     return data
+  }
+
+  setPoints(p, q) {
+    return makeLine({...this,
+      x1: p.x,
+      y1: p.y,
+      x2: q.x,
+      y2: q.y,
+      type: this.type
+    })
   }
 
   // virtual methods
