@@ -24,6 +24,10 @@ var SvgSprite = React.createClass({
   }
 });
 
+const OPACITY_DECAY = 1.2
+const OPACITY_INIT = 0.5
+const OPACITY_MIN = 0.05
+
 // TODO: make Rider not rely on viewbox panning/scaling/outer svg
 var Rider = React.createClass({
 
@@ -44,7 +48,12 @@ var Rider = React.createClass({
     } = this.props
     let namespace = `__RIDER_SPRITE_${this.props.i}__`;
 
-    let opacity = 1 / riders.length * 0.9 + 0.1
+    let getOpacity = (i) => {
+      if (startIndex !== index) {
+        i = index - (i + startIndex)
+      }
+      return OPACITY_INIT * (1 - OPACITY_MIN) * Math.pow(OPACITY_DECAY, -i) + OPACITY_MIN
+    }
 
     return (
       <g id={namespace}>
@@ -52,7 +61,7 @@ var Rider = React.createClass({
         {
           onionSkin ?
             riders.map((state, i) =>
-              <g key={startIndex + i} style={{opacity: opacity}}>
+              <g key={startIndex + i} style={{opacity: getOpacity(i)}}>
                 <RiderInstance
                   namespace={namespace}
                   opacity={0.5}
