@@ -33,7 +33,7 @@ var Rider = React.createClass({
 
   getDefaultProps() {
     return {
-      riderSpriteSrc: '/svg/boshSprite.svg'
+      riderSpriteSrc: 'svg/boshSprite.svg'
     };
   },
 
