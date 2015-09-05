@@ -295,7 +295,7 @@ export function select(stream, dispatch, getState, cancellableStream) {
     firstPos = pos
     if (prevSelectedLineID != null) {
       let line = track.getLineByID(prevSelectedLineID)
-      if (line.inRadius(pos.x, pos.y, radius)) {
+      if (line && line.inRadius(pos.x, pos.y, radius)) {
         modifyingLine = line
         prevLine = line
         dragType = getDragType(pos, line, radius)
