@@ -117,13 +117,13 @@ var TransformLink = React.createClass({
 var Rider = React.createClass({
 
   shouldComponentUpdate(nextProps) {
-    return this.props.frame !== nextProps.frame
+    return this.props.index !== nextProps.index
       || this.props.seed !== nextProps.seed
       || this.props.rider !== nextProps.rider
   },
 
   getBlink() {
-    return this.props.frame > 0 && ((this.props.seed + PHI * (this.props.frame / BLINK_LENGTH << 0)) % 1) < BLINK_DENSITY;
+    return this.props.index > 0 && ((this.props.seed + PHI * (this.props.index / BLINK_LENGTH << 0)) % 1) < BLINK_DENSITY;
   },
 
   getHeadRotation() {
