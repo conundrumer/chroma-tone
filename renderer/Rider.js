@@ -72,7 +72,7 @@ var Rider = React.createClass({
             )
           : null
         }
-        <RiderInstance i={index} key={index} namespace={namespace} {...{seed, index, rider}}/>
+        <RiderInstance i={-1} key={index} namespace={namespace} {...{seed, index, rider}}/>
       </g>
     );
   }
