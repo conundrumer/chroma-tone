@@ -109,10 +109,6 @@ export function lineSelection(state = INIT.lineSelection, action) {
       return {
         lineID: action.lineID // TODO: multiple selection
       }
-    case UNSELECT_LINE:
-      return {
-        lineID: null
-      }
     default:
       return state
   }
