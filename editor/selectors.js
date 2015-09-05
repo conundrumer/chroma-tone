@@ -26,6 +26,10 @@ const fileLoaderSelector = createSelectorFromProps('fileLoader', ['open', 'loadi
 const toolbarSelector = createSelectorFromProps('toolbars', ['toolbarsOpen', 'timeControlOpen', 'sidebarOpen', 'sidebarSelected', 'colorSelected'])
 const openToolbarSelector = createSelectorFromProps('toolbars', ['toolbarsOpen', 'timeControlOpen', 'sidebarOpen'])
 
+// TODO: instead of making the radius smaller, change the viewport itself
+const TOOLBAR_HEIGHT = 56
+const PAPERBAR_HEIGHT = 48
+const OFFSET = 15
 export const playbackCamSelector = createSelector(
   [
     openToolbarSelector,
@@ -34,8 +38,8 @@ export const playbackCamSelector = createSelector(
     trackSelector
   ],
   ({toolbarsOpen, timeControlOpen, sidebarOpen}, {w, h, z}, index, {track}) => {
-    let offset = 25; // TODO: make this responsive to toolbars
-    let maxRadius = Math.max(z * (Math.min(w, h) / 2) - offset)
+    h = h - 2 * (toolbarsOpen ? TOOLBAR_HEIGHT * (timeControlOpen ? 2 : 1) : PAPERBAR_HEIGHT)
+    let maxRadius = Math.max(z * (Math.min(w, h) / 2) - OFFSET, 0)
     let {x, y} = track.getRiderCam(index, maxRadius)
     return {x, y, z}
   }
