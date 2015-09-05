@@ -412,7 +412,6 @@ export function trackData(state = INIT.trackData, action) {
 export function history(state = INIT.history, action) {
   switch (action.type) {
     case PUSH_ACTION:
-      console.log('pushed action')
       return {
         undoStack: state.undoStack.push(action.action),
         redoStack: INIT.history.redoStack

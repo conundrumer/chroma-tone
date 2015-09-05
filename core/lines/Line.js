@@ -54,6 +54,15 @@ class Line {
     })
   }
 
+  equals(line) {
+    return this.id === line.id &&
+      this.p.equals(line.p) &&
+      this.q.equals(line.q) &&
+      this.type === line.type &&
+      this.flipped === line.flipped &&
+      this.lim === line.lim
+  }
+
   // virtual methods
   get type() {
     return undefined;

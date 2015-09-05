@@ -185,7 +185,9 @@ export function line(stream, dispatch, getState) {
       prevLine = lineData
     },
     onEnd: () => {
-      dispatch(pushAction(addLine(prevLine)))
+      if (prevLine) {
+        dispatch(pushAction(addLine(prevLine)))
+      }
     },
     onCancel: () => {
       if (prevLine) {
@@ -226,7 +228,9 @@ export function pencil(stream, dispatch, getState) {
       addedLines.push(lineData);
     },
     onEnd: () => {
-      dispatch(pushAction(addLine(addedLines)))
+      if (addedLines.length > 0) {
+        dispatch(pushAction(addLine(addedLines)))
+      }
     },
     onCancel: () => {
       dispatch(removeLine(addedLines))
@@ -245,7 +249,9 @@ export function eraser(stream, dispatch, getState, cancellableStream) {
       dispatch(removeLine(linesToRemove));
     },
     onEnd: () => {
-      dispatch(pushAction(removeLine(removedLines)))
+      if (removedLines.length > 0) {
+        dispatch(pushAction(removeLine(removedLines)))
+      }
     },
     onCancel: () => {
       dispatch(addLine(removedLines))
@@ -303,7 +309,7 @@ export function select(stream, dispatch, getState, cancellableStream) {
     }
   })
   return {
-    stream: stream,
+    stream: stream.skip(1),
     onNext: (pos) => {
       if (modifyingLine != null) {
         let {modKeys: {mod, alt}} = getState()
@@ -347,9 +353,13 @@ export function select(stream, dispatch, getState, cancellableStream) {
       }
     },
     onEnd: () => {
-      dispatch(selectLine(selectedLineID))
       if (modifyingLine != null) {
+        if (modifyingLine.equals(prevLine)) {
+          return;
+        }
         dispatch(pushAction(replaceLine(modifyingLine, prevLine)))
+      } else {
+        dispatch(selectLine(selectedLineID))
       }
     },
     onCancel: () => {
