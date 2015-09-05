@@ -6,6 +6,7 @@
   "scripts": {
     "test": "./node_modules/.bin/mocha --recursive --compilers js:babel/register",
     "serve": "webpack-dev-server --content-base assets",
+    "serve-prod": "webpack-dev-server --content-base assets --config webpack.prod.config.js",
     "renderer-demo": "webpack-dev-server --content-base assets --config renderer/demo/webpack.config.js",
     "renderer-demo-fast": "webpack-dev-server --content-base assets --config renderer/demo/webpack.config.fast.js",
     "get-fonts": "curl -o fontfiles.zip 'https://google-webfonts-helper.herokuapp.com/api/fonts/roboto?download=zip&subsets=latin&variants=regular,300,500&formats=woff,woff2' && unzip fontfiles.zip -d assets/fonts && rm fontfiles.zip",
@@ -46,6 +47,7 @@
     "redux-logger": "^1.0.6",
     "redux-thunk": "^0.1.0",
     "reselect": "0.0.2",
+    "rollbar-browser": "^1.5.0",
     "rx": "^3.0.0",
     "vector2d": "conundrumer/vec2d"
   },
