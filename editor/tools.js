@@ -1,7 +1,7 @@
 'use strict';
 
 import Vector from 'core/Vector'
-import { setCam, addLine, removeLine, replaceLine, pushAction } from './actions';
+import { setCam, addLine, removeLine, replaceLine, pushAction, selectLine } from './actions';
 
 export function debugTool(stream, dispatch, getState) {
   stream.first().subscribe(pos => {
@@ -249,6 +249,26 @@ export function eraser(stream, dispatch, getState, cancellableStream) {
     },
     onCancel: () => {
       dispatch(addLine(removedLines))
+    }
+  }
+}
+
+const SELECTION_RADIUS = 10
+export function select(stream, dispatch, getState) {
+  let selectedLineID = null
+  stream.first().subscribe(pos => {
+    let {trackData: {track}, viewport: {z}} = getState()
+    pos = getAbsPos(pos, getState)
+    let selectedLine = track.getLinesInRadius(pos.x, pos.y, SELECTION_RADIUS * z, true)[0]
+    if (selectedLine) {
+      selectedLineID = selectedLine.id
+    }
+  })
+  return {
+    stream: stream,
+    onNext: () => {},
+    onEnd: () => {
+      dispatch(selectLine(selectedLineID))
     }
   }
 }

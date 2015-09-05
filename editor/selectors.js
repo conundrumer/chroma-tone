@@ -160,6 +160,26 @@ const viewOptionsSelector = createSelector(
   })
 )
 
+const lineSelectionSelector = createSelector(
+  [
+    trackSelector,
+    state => state.lineSelection.lineID,
+    state => state.selectedTool
+  ],
+  ({track}, lineID, tool) => {
+    if (tool !== 'select') {
+      return []
+    }
+    if (lineID != null) {
+      let line = track.getLineByID(lineID)
+      if (line != null) {
+        return [line]
+      }
+    }
+    return []
+  }
+)
+
 const displaySelector = createSelector(
   [
     timelineSelector,
@@ -169,9 +189,10 @@ const displaySelector = createSelector(
     lineSelector,
     widthHeightSelector,
     viewOptionsSelector,
-    state => state.toggled.onionSkin || false
+    state => state.toggled.onionSkin || false,
+    lineSelectionSelector,
   ],
-  ({index, flagIndex, maxIndex}, {startIndex, endIndex}, {startPosition, states, rider, flagRider}, cam, lines, {w, h}, viewOptions, onionSkin) => ({
+  ({index, flagIndex, maxIndex}, {startIndex, endIndex}, {startPosition, states, rider, flagRider}, cam, lines, {w, h}, viewOptions, onionSkin, lineSelection) => ({
     frame: index,
     flagIndex,
     maxIndex,
@@ -186,7 +207,8 @@ const displaySelector = createSelector(
     width: w,
     height: h,
     viewOptions,
-    onionSkin
+    onionSkin,
+    lineSelection
   })
 )
 

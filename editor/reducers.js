@@ -43,7 +43,9 @@ import {
   UNDO,
   REDO,
   DRAW_STREAM_START,
-  DRAW_STREAM_END
+  DRAW_STREAM_END,
+  SELECT_LINE,
+  UNSELECT_LINE
 } from './actions';
 
 import { newTrack } from './actions';
@@ -95,8 +97,27 @@ const INIT = {
     undoStack: Immutable.Stack(),
     redoStack: Immutable.Stack()
   },
-  drawStreamActive: false // cancellable draw streams
+  drawStreamActive: false, // cancellable draw streams
+  lineSelection: {
+    lineID: null
+  }
 };
+
+export function lineSelection(state = INIT.lineSelection, action) {
+  switch (action.type) {
+    case SELECT_LINE:
+      return {
+        lineID: action.lineID // TODO: multiple selection
+      }
+    case UNSELECT_LINE:
+      return {
+        lineID: null
+      }
+    default:
+      return state
+  }
+}
+
 export function drawStreamActive(state = INIT.drawStreamActive, action) {
   switch (action.type) {
     case DRAW_STREAM_START:

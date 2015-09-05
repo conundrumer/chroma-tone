@@ -54,6 +54,8 @@ export const UNDO = 'UNDO'
 export const REDO = 'REDO'
 export const DRAW_STREAM_START = 'DRAW_STREAM_START'
 export const DRAW_STREAM_END = 'DRAW_STREAM_END'
+export const SELECT_LINE = 'SELECT_LINE'
+export const UNSELECT_LINE = 'UNSELECT_LINE'
 
 /**
  * action creators
@@ -66,6 +68,17 @@ export function drawStreamStart() {
 export function drawStreamEnd() {
   return {
     type: DRAW_STREAM_END
+  }
+}
+export function selectLine(lineID) {
+  return {
+    type: SELECT_LINE,
+    lineID: lineID
+  }
+}
+export function unselectLine() {
+  return {
+    type: UNSELECT_LINE
   }
 }
 // display dimensions
