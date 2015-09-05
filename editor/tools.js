@@ -142,7 +142,7 @@ var tempID = 0;
 export function line(stream, dispatch, getState) {
   let p1
   let prevLine = null
-  let id = tempID++; // TODO: make addLine responsible for getting actual ID!
+  let id = getState().trackData.maxLineID + 1;
   // TODO: wrap functions around mod keys for clarity
   stream = stream.map(pos => {
     let absPos = getAbsPos(pos, getState)
@@ -221,7 +221,7 @@ export function pencil(stream, dispatch, getState) {
         x2: p2.x,
         y2: p2.y,
         flipped: shift,
-        id: tempID++,
+        id: getState().trackData.maxLineID + 1,
         type: lineType
       }
       dispatch(addLine(lineData))

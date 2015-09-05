@@ -344,13 +344,17 @@ export function playback(state = INIT.playback, action) {
   }
 }
 
+function getMaxLineID(lines) {
+  return lines.reduce((id, line) => Math.max(id, line.id), 0)
+}
 export function trackData(state = INIT.trackData, action) {
-  let track, line, prevLine
+  let track, line, prevLine, id
   switch (action.type) {
     case NEW_TRACK:
     case LOAD_TRACK:
       let { track: {lineStore}, startPosition, version, label } = action
       return {
+        maxLineID: getMaxLineID(action.track.getLines()),
         saved: false,
         track: action.track,
         lineStore,
@@ -370,10 +374,13 @@ export function trackData(state = INIT.trackData, action) {
       line = action.line
       if (line instanceof Array) {
         line.forEach(l => track.addLine(l));
+        id = getMaxLineID(line)
       } else {
         track.addLine(line)
+        id = line.id
       }
       return {...state,
+        maxLineID: Math.max(state.maxLineID, id),
         lineStore: track.lineStore
       }
     case REMOVE_LINE:
@@ -398,10 +405,13 @@ export function trackData(state = INIT.trackData, action) {
       }
       if (line instanceof Array) {
         line.forEach(l => track.addLine(l));
+        id = getMaxLineID(line)
       } else {
         track.addLine(line)
+        id = line.id
       }
       return {...state,
+        maxLineID: Math.max(state.maxLineID, id),
         lineStore: track.lineStore
       }
     default:
