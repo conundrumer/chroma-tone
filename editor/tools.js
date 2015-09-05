@@ -253,22 +253,78 @@ export function eraser(stream, dispatch, getState, cancellableStream) {
   }
 }
 
+const DragTypes = {
+  P: 0,
+  Q: 1,
+  LINE: 2
+}
 const SELECTION_RADIUS = 10
-export function select(stream, dispatch, getState) {
+function getDragType(pos, line) {
+  if (line.vec.clone().mulS(0.5).add(line.p).distance(pos) < (SELECTION_RADIUS / 2)) {
+    return DragTypes.LINE
+  }
+  let pDist = line.p.distance(pos)
+  let qDist = line.q.distance(pos)
+  if (pDist > SELECTION_RADIUS && qDist > SELECTION_RADIUS) {
+    return DragTypes.LINE
+  }
+  if (pDist < qDist) {
+    return DragTypes.P
+  } else {
+    return DragTypes.Q
+  }
+}
+
+export function select(stream, dispatch, getState, cancellableStream) {
+  let firstPos
   let selectedLineID = null
+  let prevLine = null
+  let modifyingLine = null
+  let dragType
+  let {trackData: {track}, viewport: {z}, lineSelection: {lineID: prevSelectedLineID}} = getState()
+  let radius = SELECTION_RADIUS * z
+  stream = cancellableStream.map((pos) => getAbsPos(pos, getState))
   stream.first().subscribe(pos => {
-    let {trackData: {track}, viewport: {z}} = getState()
-    pos = getAbsPos(pos, getState)
-    let selectedLine = track.getLinesInRadius(pos.x, pos.y, SELECTION_RADIUS * z, true)[0]
+    firstPos = pos
+    if (prevSelectedLineID != null) {
+      let line = track.getLineByID(prevSelectedLineID)
+      if (line.inRadius(pos.x, pos.y, radius)) {
+        modifyingLine = line
+        prevLine = line
+        dragType = getDragType(pos, line)
+        selectedLineID = prevSelectedLineID
+        return
+      }
+    }
+    let selectedLine = track.getLinesInRadius(pos.x, pos.y, radius)[0]
     if (selectedLine) {
       selectedLineID = selectedLine.id
     }
   })
   return {
     stream: stream,
-    onNext: () => {},
+    onNext: (pos) => {
+      if (modifyingLine != null) {
+        let delta = pos.clone().subtract(firstPos)
+        let draggedLine
+        let {p, q} = modifyingLine
+        switch (dragType) {
+          case DragTypes.P:
+          case DragTypes.Q:
+          case DragTypes.LINE:
+            draggedLine = modifyingLine.setPoints(p.clone().add(delta), q.clone().add(delta))
+        }
+        dispatch(replaceLine(prevLine, draggedLine))
+        prevLine = draggedLine
+      }
+    },
     onEnd: () => {
       dispatch(selectLine(selectedLineID))
+    },
+    onCancel: () => {
+      if (modifyingLine != null) {
+        dispatch(replaceLine(prevLine, modifyingLine))
+      }
     }
   }
 }
