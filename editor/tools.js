@@ -206,7 +206,7 @@ export function pencil(stream, dispatch, getState) {
   return {
     stream: stream
       .scan(([prevLine, p1], p2) => {
-        if (p1.distance(p2) >= MIN_LINE_LENGTH) {
+        if (p1.distance(p2) >= 3 * MIN_LINE_LENGTH) {
           return [[p1, p2], p2]
         }
         return [null, p1]
