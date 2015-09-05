@@ -323,15 +323,18 @@ export function playback(state = INIT.playback, action) {
         modState: action.mod
       };
     case SET_FLAG:
-      if (state.flag === state.index) { // TODO: reset flag if pressed twice
+      if (action.index != null) {
+        return {...state,
+          flag: action.index
+        }
+      } else if (state.flag === state.index) { // TODO: reset flag if pressed twice
         return {...state,
           flag: INIT.playback.flag,
           index: INIT.playback.index
         }
-      } else {
-        return {...state,
-          flag: state.index
-        }
+      }
+      return {...state,
+        flag: state.index
       }
     case NEW_TRACK:
     case LOAD_TRACK:

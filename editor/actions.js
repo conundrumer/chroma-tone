@@ -274,9 +274,10 @@ export function modPlaybackState(mod = null) {
     });
   }
 }
-export function setFlag() {
+export function setFlag(index) {
   return {
-    type: SET_FLAG
+    type: SET_FLAG,
+    index: index
   }
 }
 /* thunk for async actions + getting state*/

@@ -56,7 +56,7 @@ export function getButtons(dispatch) {
     forward:           { action: forwardActions      , hotkey: 'right'       , icon: require('icons/fast-forward')   },
     stepBack:          { action: decFrameIndex()     , hotkey: 'shift+left'  , icon: require('icons/skip-previous')  },
     stepForward:       { action: incFrameIndex()     , hotkey: 'shift+right' , icon: require('icons/skip-next')      },
-    flag:              { action: setFlag             , hotkey: 'i'           , icon: require('icons/flag-variant')   },
+    flag:              { action: setFlag()           , hotkey: 'i'           , icon: require('icons/flag-variant')   },
     slowmo:            { action: setPlaybackState    , hotkey: 'm'           , icon: Icons.SlowMotion                },
     onionSkin:         { action: toggleButton        , hotkey: null          , icon: Icons.OnionSkin                 },
     camera:            { action: null                , hotkey: null          , icon: require('icons/video')          },
