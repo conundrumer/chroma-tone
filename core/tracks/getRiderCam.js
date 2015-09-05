@@ -2,6 +2,10 @@
 
 var _ = require('lodash');
 
+Math.expm1 = Math.expm1 || function(x) {
+  return Math.exp(x) - 1;
+};
+
 // these factors are to make the camera converge after a certain period of time of low speed
 // to prevent hte camera from jerking from stalling and looseness of bound() combined with the jitter of
 // of past approximate camera positions
