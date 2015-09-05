@@ -146,8 +146,8 @@ export function line(stream, dispatch, getState) {
   // TODO: wrap functions around mod keys for clarity
   stream = stream.map(pos => {
     let absPos = getAbsPos(pos, getState)
-    let {modKeys: {mod, alt}} = getState()
-    if (!mod && !alt) {
+    let {modKeys: {alt}} = getState()
+    if (!alt) {
       return getSnappedPos(absPos, getState, prevLine ? prevLine.id : null)
     }
     return absPos
