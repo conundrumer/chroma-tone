@@ -137,7 +137,7 @@ function angleSnap(pnt, pos) {
 
 // TODO: put ID management in reducer
 // TODO: make minimum line length depend on zoom
-const MIN_LINE_LENGTH = 3;
+const MIN_LINE_LENGTH = 1;
 var tempID = 0;
 export function line(stream, dispatch, getState) {
   let p1
