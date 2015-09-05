@@ -56,7 +56,7 @@ export function setIndexAndRate(state, dispatch, getState, unmoddingState) {
           setRate(-1)
           break
         case 'slowmo':
-          setRate(-1 * SLOWMO_RATE);
+          setRate(-1 / 8);
           break
       }
   }
