@@ -76,6 +76,17 @@ export function selectLine(lineID) {
     lineID: lineID
   }
 }
+/* thunk for conditional action + get state*/
+export function deleteSelection() {
+  return (dispatch, getState) => {
+    let {lineSelection: {lineID}, trackData: {track}} = getState()
+    if (lineID != null) {
+      let line = track.getLineByID(lineID)
+      dispatch(removeLine(line))
+      dispatch(pushAction(removeLine(line)))
+    }
+  }
+}
 // display dimensions
 export function setWindowSize({ width, height }) {
   return {
