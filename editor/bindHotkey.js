@@ -2,7 +2,7 @@
 
 import _ from 'lodash'
 import { getButtons } from './buttons';
-import { setModKey } from './actions'
+import { setModKey, togglePlayPause } from './actions'
 
 const modifierRegex = /mod|alt/;
 
@@ -79,4 +79,8 @@ export default function bindHotkey(combokeys, ripples, name, hotkey, dispatch) {
       rippled = false;
     }, 'keyup');
   }
+
+  combokeys.bind('space', e => {
+    dispatch(togglePlayPause())
+  })
 }

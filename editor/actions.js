@@ -32,6 +32,7 @@ export const INC_FRAME_INDEX = 'INC_FRAME_INDEX';
 export const DEC_FRAME_INDEX = 'DEC_FRAME_INDEX';
 export const SET_PLAYBACK_STATE = 'SET_PLAYBACK_STATE';
 export const MOD_PLAYBACK_STATE = 'MOD_PLAYBACK_STATE';
+export const TOGGLE_PLAY_PAUSE = 'TOGGLE_PLAY_PAUSE';
 export const SET_FLAG = 'SET_FLAG';
 export const ADD_LINE = 'ADD_LINE';
 export const REMOVE_LINE = 'REMOVE_LINE';
@@ -240,6 +241,17 @@ export function setFrameRate(rate) {
       startPlayback(dispatch, getState);
     }
   };
+}
+/* thunk for getting state + conditional actions */
+export function togglePlayPause() {
+  return (dispatch, getState) => {
+    let {playback: {state}} = getState()
+    if (state === 'pause' || state === 'stop') {
+      dispatch(setPlaybackState('play'))
+    } else {
+      dispatch(setPlaybackState('pause'))
+    }
+  }
 }
 /* thunk for logic in dispatching more actions (should move to reducer) */
 import { playbackCamSelector } from './selectors'
