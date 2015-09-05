@@ -327,7 +327,7 @@ export function playback(state = INIT.playback, action) {
         return {...state,
           flag: action.index
         }
-      } else if (state.flag === state.index) { // TODO: reset flag if pressed twice
+      } else if (state.flag === state.index && state.state === 'stop') { // TODO: reset flag if pressed twice
         return {...state,
           flag: INIT.playback.flag,
           index: INIT.playback.index
