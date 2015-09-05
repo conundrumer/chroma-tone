@@ -36,7 +36,7 @@ export function getButtons(dispatch) {
     modPlaybackState()
   ]
   return _.forEach({
-    select:            { action: setTool             , hotkey: '1'           , icon: require('icons/cursor-default') },
+    select:            { action: setTool             , hotkey: 'a'           , icon: require('icons/cursor-default') },
     pencil:            { action: setTool             , hotkey: 'q'           , icon: require('icons/pencil')         },
     brush:             { action: null                , hotkey: '3'           , icon: require('icons/brush')          },
     line:              { action: setTool             , hotkey: 'w'           , icon: Icons.Line                      },
