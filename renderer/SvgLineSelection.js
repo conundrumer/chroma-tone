@@ -3,7 +3,7 @@ import React, {Component, PropTypes} from 'react'
 const P_COLOR = '#FFEB3B'
 const Q_COLOR = '#FF9800'
 const LINE_COLOR = '#9C27B0'
-const SELECTION_WIDTH = 10
+const SELECTION_RADIUS = 10
 
 export default class LineSelection extends Component {
 
@@ -25,7 +25,7 @@ export default class LineSelection extends Component {
       x: -dx,
       y: -dy
     }
-    let width = SELECTION_WIDTH
+    let width = SELECTION_RADIUS
 
     let offset = Math.sqrt(width * width - Math.pow(length * 0.5 / z, 2)) * z
     let middle = vec.clone().mulS(0.5).add(p)
@@ -47,7 +47,7 @@ export default class LineSelection extends Component {
   render() {
     let {x, y, z, w, h} = this.props.viewport
     let [dx, dy] = [x / z - w / 2, y / z - h / 2]
-    let width = SELECTION_WIDTH
+    let width = SELECTION_RADIUS
     return (
       <svg style={{position: 'absolute'}} viewBox={`0 0 ${w} ${h}`}>
         <g style={{opacity: 0.7}}>
@@ -62,7 +62,7 @@ export default class LineSelection extends Component {
               />
           )}
           {this.props.lines.map(({id, p, q, vec, length, norm}) =>
-            length * 0.5 / z < (SELECTION_WIDTH - 0.1) ?
+            length * 0.5 / z < (SELECTION_RADIUS - 0.1) ?
               this.getArcs(id, p, q, vec, length, norm, dx, dy, z)
             : [
               <circle key={-2 * id - 1}
@@ -80,7 +80,7 @@ export default class LineSelection extends Component {
             ]).reduce((cs, c) => cs.concat(c), [])
           }
           {this.props.lines.map(({id, p, vec, length}) =>
-            length * 0.5 / z < (SELECTION_WIDTH * 1.5) ?
+            length * 0.5 / z < (SELECTION_RADIUS * 1.5) ?
               <circle key={id}
                 fill={LINE_COLOR}
                 r={width / 2}
