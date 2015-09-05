@@ -18,8 +18,14 @@ var thunk = require('redux-thunk');
 var reducers = require('./reducers');
 var App = require('./components/App');
 
+let middlewares = [thunk]
+if (process.env.NODE_ENV !== 'production') {
+  let options = { collapsed: true }
+  middlewares.push(require('redux-logger')(options))
+}
+
 const reducer = combineReducers(reducers);
-const store = applyMiddleware(thunk)(createStore)(reducer);
+const store = applyMiddleware(...middlewares)(createStore)(reducer);
 
 let rootElement = document.getElementById('content');
 React.render(
