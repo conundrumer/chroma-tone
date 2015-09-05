@@ -59,8 +59,8 @@ const INIT = {
     z: 1
   },
   toolbars: {
-    toolbarsOpen: true,
-    timeControlOpen: true,
+    toolbarsOpen: false,
+    timeControlOpen: false,
     sidebarOpen: false,
     sidebarSelected: -1,
     colorSelected: 0
@@ -70,7 +70,7 @@ const INIT = {
     mod: false,
     alt: false
   },
-  selectedTool: 'debugTool',
+  selectedTool: 'pencil',
   toggled: Object.create(null),
   hotkeys: Object.create(null),
   playback: {

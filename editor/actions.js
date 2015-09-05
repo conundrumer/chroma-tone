@@ -303,8 +303,6 @@ export function setFlag(index) {
 /* thunk for async actions + getting state*/
 export function draw(drawStream, cancellableDrawStream, options = {}) {
   return (dispatch, getState) => {
-    dispatch(drawStreamStart())
-
     let tool;
     if (options.isMiddle) {
       let {modKeys: {mod}} = getState()
@@ -315,6 +313,9 @@ export function draw(drawStream, cancellableDrawStream, options = {}) {
     } else {
       tool = getState().selectedTool;
     }
+
+    if (!tool) return
+    dispatch(drawStreamStart())
     let {
       stream,
       onNext,
