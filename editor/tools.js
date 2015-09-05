@@ -275,6 +275,7 @@ function getDragType(pos, line, radius) {
   }
 }
 
+// TODO: separate into separate streams and clean up
 export function select(stream, dispatch, getState, cancellableStream) {
   let firstPos
   let selectedLineID = null
@@ -347,6 +348,9 @@ export function select(stream, dispatch, getState, cancellableStream) {
     },
     onEnd: () => {
       dispatch(selectLine(selectedLineID))
+      if (modifyingLine != null) {
+        dispatch(pushAction(replaceLine(modifyingLine, prevLine)))
+      }
     },
     onCancel: () => {
       if (modifyingLine != null) {
