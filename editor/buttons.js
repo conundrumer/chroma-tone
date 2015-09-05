@@ -58,7 +58,7 @@ export function getButtons(dispatch) {
     stepForward:       { action: incFrameIndex()     , hotkey: 'shift+right' , icon: require('icons/skip-next')      },
     flag:              { action: setFlag()           , hotkey: 'c'           , icon: require('icons/flag-variant')   },
     slowmo:            { action: setPlaybackState    , hotkey: 'v'           , icon: Icons.SlowMotion                },
-    onionSkin:         { action: toggleButton        , hotkey: null          , icon: Icons.OnionSkin                 },
+    onionSkin:         { action: toggleButton        , hotkey: 'o'           , icon: Icons.OnionSkin                 },
     camera:            { action: null                , hotkey: null          , icon: require('icons/video')          },
     music:             { action: null                , hotkey: null          , icon: require('icons/music-note')     },
     record:            { action: null                , hotkey: null          , icon: require('icons/movie')          },
