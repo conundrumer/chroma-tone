@@ -254,18 +254,18 @@ export function eraser(stream, dispatch, getState, cancellableStream) {
 }
 
 const DragTypes = {
-  P: 0,
-  Q: 1,
-  LINE: 2
+  P: 1,
+  Q: 2,
+  LINE: 3 // bit flags ok???
 }
 const SELECTION_RADIUS = 10
-function getDragType(pos, line) {
-  if (line.vec.clone().mulS(0.5).add(line.p).distance(pos) < (SELECTION_RADIUS / 2)) {
+function getDragType(pos, line, radius) {
+  if (line.vec.clone().mulS(0.5).add(line.p).distance(pos) < (radius / 2)) {
     return DragTypes.LINE
   }
   let pDist = line.p.distance(pos)
   let qDist = line.q.distance(pos)
-  if (pDist > SELECTION_RADIUS && qDist > SELECTION_RADIUS) {
+  if (pDist > radius && qDist > radius) {
     return DragTypes.LINE
   }
   if (pDist < qDist) {
@@ -291,7 +291,7 @@ export function select(stream, dispatch, getState, cancellableStream) {
       if (line.inRadius(pos.x, pos.y, radius)) {
         modifyingLine = line
         prevLine = line
-        dragType = getDragType(pos, line)
+        dragType = getDragType(pos, line, radius)
         selectedLineID = prevSelectedLineID
         return
       }
@@ -306,14 +306,17 @@ export function select(stream, dispatch, getState, cancellableStream) {
     onNext: (pos) => {
       if (modifyingLine != null) {
         let delta = pos.clone().subtract(firstPos)
-        let draggedLine
         let {p, q} = modifyingLine
-        switch (dragType) {
-          case DragTypes.P:
-          case DragTypes.Q:
-          case DragTypes.LINE:
-            draggedLine = modifyingLine.setPoints(p.clone().add(delta), q.clone().add(delta))
+        if (dragType & DragTypes.P) {
+          p = p.clone().add(delta)
         }
+        if (dragType & DragTypes.Q) {
+          q = q.clone().add(delta)
+        }
+        if (p.equals(q)) {
+          return
+        }
+        let draggedLine = modifyingLine.setPoints(p, q)
         dispatch(replaceLine(prevLine, draggedLine))
         prevLine = draggedLine
       }
