@@ -10,7 +10,9 @@
     "renderer-demo": "webpack-dev-server --content-base assets --config renderer/demo/webpack.config.js",
     "renderer-demo-fast": "webpack-dev-server --content-base assets --config renderer/demo/webpack.config.fast.js",
     "get-fonts": "curl -o fontfiles.zip 'https://google-webfonts-helper.herokuapp.com/api/fonts/roboto?download=zip&subsets=latin&variants=regular,300,500&formats=woff,woff2' && unzip fontfiles.zip -d assets/fonts && rm fontfiles.zip",
-    "make-config": "cp default-config.json config.json"
+    "make-config": "cp default-config.json config.json",
+    "make-deploy-script": "git clone git@github.com:X1011/git-directory-deploy.git && chmod +x git-directory-deploy/deploy.sh",
+    "build": "webpack && cp -r assets/* dist/"
   },
   "repository": {
     "type": "git",
