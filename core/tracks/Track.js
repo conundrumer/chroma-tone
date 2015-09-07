@@ -85,17 +85,7 @@ export default class Track extends Store {
   }
 
   getRiderCam(index, maxRadius) {
-    let {
-      index: prevIndex,
-      maxRadius: prevMaxRadius,
-      cam: prevCam
-    } = this.simpleCamCache;
-    if (index === prevIndex && maxRadius === prevMaxRadius) {
-      return prevCam;
-    }
-    let cam = getRiderCam(this, index, maxRadius)
-    this.simpleCamCache = {index, maxRadius, cam}
-    return cam;
+    return getRiderCam(this, index, maxRadius)
   }
 
   updateFrameCache(cellKeys, removedLine) { // eslint-disable-line no-unused-vars
@@ -150,13 +140,6 @@ export default class Track extends Store {
     // {[cellKey] => most recent frame number}
     this.initRiderCells.forEach(key => { this.cellsCache[key] = 0 })
     this.collidedLines = Object.create(null)
-
-    // TODO: cache this more intelligently i guess
-    this.simpleCamCache = {
-      index: 0,
-      maxRadius: 0,
-      cam: this.getStartPosition()
-    }
   }
 
   get lineStore() {
