@@ -56,24 +56,22 @@ export default class Track extends Store {
     this.rider.setState(_.last(this.frameCache).rider);
     for (let i = this.frameCache.length; i <= frameNum; i++) {
 
-      let collidedLines = this.rider.step(this.store);
+      let collidedLines = _.uniq(this.rider.step(this.store), line => line.id);
 
       let cellKeys = this.rider.getCellKeys(this.store);
       this.frameCache[i] = {
         rider: this.rider.getState(),
         cells: cellKeys,
-        collidedLines: collidedLines
+        collidedLines: _.uniq(collidedLines, line => line.id)
       }
       cellKeys.forEach(key => {
-        if (!(key in this.cellsCache)) {
-          // it must be the case that existing keys have lower indices
+        if (!(key in this.cellsCache) || this.cellsCache[key] > i) {
           this.cellsCache[key] = i
         }
       })
 
       collidedLines.forEach(({id}) => {
-        if (!(id in this.collidedLines)) {
-          // it must be the case that existing keys have lower indices
+        if (!(id in this.collidedLines) || this.collidedLines[id] > i) {
           this.collidedLines[id] = i
         }
       })
