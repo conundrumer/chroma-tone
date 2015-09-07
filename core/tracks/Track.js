@@ -178,7 +178,7 @@ export default class Track extends Store {
   addLine(l) {
     let line = makeLine(l);
     if (this.getLineByID(line.id)) {
-      // can't add line that already exist
+      console.warn('attempted to add existing line')
       // need to remove it and then add it
       return
     }
@@ -192,7 +192,7 @@ export default class Track extends Store {
     let id = line.id;
     line = this.getLineByID(id);
     if (!line) {
-      // can't remove line that doesn't exist
+      console.warn('attempted to remove non-existent line')
       return
     }
     let cellKeys = this.store.removeLine(line);
