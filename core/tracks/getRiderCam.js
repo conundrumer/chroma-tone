@@ -57,6 +57,9 @@ function getRiderCam(track, frameNum, maxRadius, {
       return prevPos;
     }
     let pos = getPosAt(track, f);
+    if (pos.equals(prevPos)) {
+      return pos
+    }
     // let pos = smooth(f).clone();
     let d = prevPos.subtract(pos);
     let dist = maxRadius * bound(d.length() / maxRadius, C);
