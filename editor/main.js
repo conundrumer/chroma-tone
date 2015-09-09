@@ -27,10 +27,10 @@ let render = (store, rootElement) => {
   );
 }
 
-let enhanceStore = applyMiddleware(thunk)
+import { trackCache } from './middlewares'
+
+let enhanceStore = applyMiddleware(thunk, trackCache())
 if (__DEVTOOLS__) {  // eslint-disable-line no-undef
-  // let options = { collapsed: true }
-  // middlewares.push(require('redux-logger')(options))
 
   let { devTools, persistState } = require('redux-devtools')
   let { DevTools, DebugPanel, LogMonitor } = require('redux-devtools/lib/react')
