@@ -170,7 +170,11 @@ export default class DrawingSurface extends React.Component {
     if (this.unmountObserver) {
       this.unmountObserver.onNext(true);
       this.unmountObserver.onComplete();
+    }
+    if (this.cancelObserver) {
       this.cancelObserver.onComplete()
+    }
+    if (this.wheelObserver) {
       this.wheelObserver.onComplete();
     }
   }
