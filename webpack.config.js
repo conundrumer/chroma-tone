@@ -8,19 +8,24 @@
 var webpack = require('webpack');
 var join = require('path').join;
 
+var host = 'localhost';
+var port = parseInt(process.env.PORT) + 1 || 3001;
+
 module.exports = {
 
   output: {
+    path: join(__dirname, '.'),
     filename: 'main.js',
-    publicPath: 'assets/'
+    publicPath: '/'
   },
 
   cache: true,
   debug: true,
   devtool: false,
   entry: [
-      'webpack/hot/only-dev-server',
-      './editor/main.js'
+    'webpack-dev-server/client?' + host + ':' + port,
+    'webpack/hot/only-dev-server',
+    './editor/main.js'
   ],
 
   stats: {
@@ -71,7 +76,10 @@ module.exports = {
 
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
-    new webpack.NoErrorsPlugin()
+    new webpack.NoErrorsPlugin(),
+    new webpack.DefinePlugin({
+      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV)
+    })
   ]
 
 };
