@@ -18,39 +18,47 @@ var thunk = require('redux-thunk');
 var reducers = require('./reducers');
 var App = require('./components/App');
 
-let middlewares = [thunk]
-if (process.env.NODE_ENV !== 'production') {
-  let options = { collapsed: true }
-  middlewares.push(require('redux-logger')(options))
+let render = (store, rootElement) => {
+  React.render(
+    <Provider store={store}>
+      {() => <App />}
+    </Provider>,
+    rootElement
+  );
+}
 
-  let {ADD_LINE, REMOVE_LINE, REPLACE_LINE} = require('./actions')
-  middlewares.push((store) => (next) => (action) => {
-    let {trackData: {track, lineStore}} = store.getState()
-    switch (action.type) {
-      case ADD_LINE:
-      case REMOVE_LINE:
-      case REPLACE_LINE:
-        console.log('before', track, lineStore)
-    }
-    let result = next(action)
-    ;({trackData: {track, lineStore}} = store.getState())
-    switch (action.type) {
-      case ADD_LINE:
-      case REMOVE_LINE:
-      case REPLACE_LINE:
-        console.log('after', track, lineStore)
-    }
-    return result
-  })
+let enhanceStore = applyMiddleware(thunk)
+if (__DEVTOOLS__) {  // eslint-disable-line no-undef
+  // let options = { collapsed: true }
+  // middlewares.push(require('redux-logger')(options))
+
+  let { devTools, persistState } = require('redux-devtools')
+  let { DevTools, DebugPanel, LogMonitor } = require('redux-devtools/lib/react')
+  let { compose } = require('redux')
+
+  enhanceStore = compose(
+    enhanceStore,
+    devTools(),
+    persistState(window.location.href.match(/[?&]debug_session=([^&]+)\b/))
+  )
+
+  render = (store, rootElement) => {
+    React.render(
+      <div>
+        <Provider store={store}>
+          {() => <App />}
+        </Provider>
+        <DebugPanel top right bottom>
+          <DevTools store={store} monitor={LogMonitor} />
+        </DebugPanel>
+      </div>,
+      rootElement
+    );
+  }
+
 }
 
 const reducer = combineReducers(reducers);
-const store = applyMiddleware(...middlewares)(createStore)(reducer);
+const createAppStore = enhanceStore(createStore)
 
-let rootElement = document.getElementById('content');
-React.render(
-  <Provider store={store}>
-    {() => <App />}
-  </Provider>,
-  rootElement
-);
+render(createAppStore(reducer), document.getElementById('content'))

@@ -78,6 +78,7 @@ module.exports = {
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NoErrorsPlugin(),
     new webpack.DefinePlugin({
+      __DEVTOOLS__: process.env.NODE_ENV !== 'production' && true,
       'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV)
     })
   ]
