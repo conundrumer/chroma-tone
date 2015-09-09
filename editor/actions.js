@@ -6,6 +6,7 @@ import DrawCancelledException from './DrawCancelledException';
 import { setIndexAndRate, startPlayback } from './playback'
 import { Track, OldTrack } from 'core'
 import { solReader, jsonReader } from 'io'
+import { getTrackFromCache } from './trackCacheMiddleware'
 import 'buffer'
 
 const DEBUG = false;
@@ -79,7 +80,8 @@ export function selectLine(lineID) {
 /* thunk for conditional action + get state*/
 export function deleteSelection() {
   return (dispatch, getState) => {
-    let {lineSelection: {lineID}, trackData: {track}} = getState()
+    let {lineSelection: {lineID}} = getState()
+    let track = getTrackFromCache(getState)
     if (lineID != null) {
       let line = track.getLineByID(lineID)
       dispatch(removeLine(line))

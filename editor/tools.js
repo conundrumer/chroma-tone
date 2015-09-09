@@ -2,6 +2,7 @@
 
 import Vector from 'core/Vector'
 import { setCam, addLine, removeLine, replaceLine, pushAction, selectLine } from './actions';
+import { getTrackFromCache } from './trackCacheMiddleware'
 
 export function debugTool(stream, dispatch, getState) {
   stream.first().subscribe(pos => {
@@ -38,7 +39,8 @@ function getAbsPos(relPos, getState) {
 
 const MAX_SNAP_DISTANCE = 8
 function getSnappedPos(absPos, getState, ignoreLineID) {
-  var { trackData: {track}, viewport: {z} } = getState();
+  var { viewport: {z} } = getState();
+  let track = getTrackFromCache(getState)
 
   // adjust snap radius to current zoom level
   var maxSnap = MAX_SNAP_DISTANCE * Math.max(z, ZOOM.MIN * 10)
@@ -244,7 +246,8 @@ export function eraser(stream, dispatch, getState, cancellableStream) {
   return {
     stream: cancellableStream.map((pos) => getAbsPos(pos, getState)),
     onNext: (pos) => {
-      let linesToRemove = getState().trackData.track.getLinesInRadius(pos.x, pos.y, ERASER_RADIUS)
+      let track = getTrackFromCache(getState)
+      let linesToRemove = track.getLinesInRadius(pos.x, pos.y, ERASER_RADIUS)
       removedLines = removedLines.concat(linesToRemove);
       dispatch(removeLine(linesToRemove));
     },
@@ -288,7 +291,8 @@ export function select(stream, dispatch, getState, cancellableStream) {
   let prevLine = null
   let modifyingLine = null
   let dragType
-  let {trackData: {track}, viewport: {z}, lineSelection: {lineID: prevSelectedLineID}} = getState()
+  let {viewport: {z}, lineSelection: {lineID: prevSelectedLineID}} = getState()
+  let track = getTrackFromCache(getState)
   let radius = SELECTION_RADIUS * z
   stream = cancellableStream.map((pos) => getAbsPos(pos, getState))
   stream.first().subscribe(pos => {

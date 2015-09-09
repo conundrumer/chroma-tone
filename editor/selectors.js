@@ -1,6 +1,7 @@
 import _ from 'lodash'
 import { createSelector } from 'reselect';
 import { jsonWriter } from 'io'
+import { getTrackFromCache } from './trackCacheMiddleware'
 
 const createSelectorFromProps = (reducer, props) =>
   createSelector(
@@ -19,7 +20,19 @@ const createSelectorFromProps = (reducer, props) =>
 const inPlaybackModeSelector = ({playback: {state}}) => state !== 'stop' && state !== 'pause'
 
 // track gets mutated but startPosition and lineStore are immutable
-const trackSelector = createSelectorFromProps('trackData', ['track', 'startPosition', 'lineStore'])
+// const trackSelector = createSelectorFromProps('trackData', ['track', 'startPosition', 'lineStore'])
+const trackSelector = createSelector(
+  [
+    state => state.trackData.startPosition,
+    state => state.trackData.lineStore
+  ],
+  // the track from cache is derived purely from startPosition and lineStore
+  (startPosition, lineStore) => ({
+    track: getTrackFromCache(null, lineStore, startPosition),
+    startPosition,
+    lineStore
+  })
+)
 const viewportSelector = createSelectorFromProps('viewport', ['w', 'h', 'x', 'y', 'z'])
 const widthHeightSelector = createSelectorFromProps('viewport', ['w', 'h'])
 const fileLoaderSelector = createSelectorFromProps('fileLoader', ['open', 'loadingFile', 'error', 'fileName', 'tracks'])
@@ -238,7 +251,7 @@ const trackSaverSelector = createSelector(
       fileName: (label || 'untitled') + '.json'
     }
     if (trackData) {
-      let trackDataJSON = jsonWriter(trackData)
+      let trackDataJSON = jsonWriter(trackData) // TODO: this is slow af
       let blob = new Blob([trackDataJSON], {type: 'application/json'})
       trackSaver.trackDataURI = URL.createObjectURL(blob)
       trackSaver.trackDataJSON = (blob.size > 500000) ? // 500 kb

@@ -27,7 +27,7 @@ let render = (store, rootElement) => {
   );
 }
 
-import { trackCache } from './middlewares'
+import { trackCache } from './trackCacheMiddleware'
 
 let enhanceStore = applyMiddleware(thunk, trackCache())
 if (__DEVTOOLS__) {  // eslint-disable-line no-undef

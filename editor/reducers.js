@@ -348,7 +348,6 @@ function getMaxLineID(lines) {
   return lines.reduce((id, line) => Math.max(id, line.id), 0)
 }
 export function trackData(state = INIT.trackData, action) {
-  let track, line, prevLine, id
   switch (action.type) {
     case NEW_TRACK:
     case LOAD_TRACK:
@@ -356,7 +355,7 @@ export function trackData(state = INIT.trackData, action) {
       return {
         maxLineID: getMaxLineID(action.track.getLines()),
         saved: false,
-        track: action.track,
+        // track: action.track,
         lineStore,
         startPosition,
         version,
@@ -366,64 +365,26 @@ export function trackData(state = INIT.trackData, action) {
       return {...state,
         label: action.name
       }
-    // mutations of state.track follows
-    // this is considered bad practice
-    // but can't find any better way of handling caches
     case ADD_LINE:
-      track = state.track
-      line = action.line
-      if (line instanceof Array) {
-        line.forEach(l => track.addLine(l));
-        id = getMaxLineID(line)
-      } else {
-        track.addLine(line)
-        id = line.id
-      }
-      return {...state,
-        maxLineID: Math.max(state.maxLineID, id),
-        lineStore: track.lineStore
-      }
     case REMOVE_LINE:
-      track = state.track
-      line = action.line
-      if (line instanceof Array) {
-        line.forEach(l => track.removeLine(l));
-      } else {
-        track.removeLine(line)
-      }
-      return {...state,
-        lineStore: track.lineStore
-      }
     case REPLACE_LINE:
-      track = state.track
-      line = action.line
-      prevLine = action.prevLine
-      if (prevLine instanceof Array) {
-        prevLine.forEach(l => track.removeLine(l));
-      } else {
-        track.removeLine(prevLine)
-      }
-      if (line instanceof Array) {
-        line.forEach(l => track.addLine(l));
-        id = getMaxLineID(line)
-      } else {
-        track.addLine(line)
-        id = line.id
-      }
       return {...state,
-        maxLineID: Math.max(state.maxLineID, id),
-        lineStore: track.lineStore
+        maxLineID: action.maxLineID,
+        lineStore: action.lineStore
       }
     default:
       return state;
   }
 }
 
+function getAction({action: {type, line, prevLine}}) {
+  return {type, line, prevLine}
+}
 export function history(state = INIT.history, action) {
   switch (action.type) {
     case PUSH_ACTION:
       return {
-        undoStack: state.undoStack.push(action.action),
+        undoStack: state.undoStack.push(getAction(action)),
         redoStack: INIT.history.redoStack
       }
     case UNDO:
