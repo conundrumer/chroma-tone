@@ -11,6 +11,25 @@ import {
 import { newTrack } from './actions';
 let track = newTrack().track
 
+function updateTrackIfNecessary(lineStore, startPosition) {
+  let updated = false
+  if (track.lineStore !== lineStore) {
+    console.warn('force updated track lines')
+    track.updateLines(lineStore)
+    updated = true
+  }
+  let {x, y} = track.getStartPosition()
+  if (x !== startPosition.x || y !== startPosition.y) {
+    console.warn('force updated track start position')
+    track.setStartPosition(startPosition)
+    updated = true
+  }
+  if (updated && !__DEVTOOLS__) {  // eslint-disable-line no-undef
+    // TODO: throw an error?
+    console.error('Track should not have been force updated in production')
+  }
+}
+
 function getMaxLineID(lines) {
   return lines.reduce((id, line) => Math.max(id, line.id), 0)
 }
@@ -60,10 +79,7 @@ export function trackCache() {
     }
     let result = next(action)
     let {trackData: {lineStore, startPosition}} = getState()
-    let {x, y} = track.getStartPosition()
-    if (track.lineStore !== lineStore || x !== startPosition.x || y !== startPosition.y) {
-      console.error('track cache out of date in middleware')
-    }
+    updateTrackIfNecessary(lineStore, startPosition)
     return result
   }
 }
@@ -74,12 +90,6 @@ export function getTrackFromCache(getState, lineStore, startPosition) {
   }
   // unfortunately the middleware is unaware when the store gets switch out
   // so need to update here
-  if (track.lineStore !== lineStore) {
-    console.warn('track cache out of date, do the diff thing and update it')
-  }
-  let {x, y} = track.getStartPosition()
-  if (x !== startPosition.x || y !== startPosition.y) {
-    track.setStartPosition(startPosition)
-  }
+  updateTrackIfNecessary(lineStore, startPosition)
   return track
 }
