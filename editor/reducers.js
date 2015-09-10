@@ -344,19 +344,27 @@ export function playback(state = INIT.playback, action) {
   }
 }
 
-function getMaxLineID(lines) {
-  return lines.reduce((id, line) => Math.max(id, line.id), 0)
+// TODO: change redux-devtools to have deserialized actions
+function turnIntoMapIfNecessary(lineStore) {
+  if (lineStore instanceof Immutable.Map) {
+    return lineStore
+  }
+  console.warn('action.lineStore was not a Map')
+  if (!__DEVTOOLS__) {  // eslint-disable-line no-undef
+    console.error('This should not happen in production') // throw an error?
+  }
+  return Immutable.Map(lineStore).mapKeys(key => parseInt(key, 10))
 }
 export function trackData(state = INIT.trackData, action) {
+  console.log('trackData', action)
   switch (action.type) {
     case NEW_TRACK:
     case LOAD_TRACK:
-      let { track: {lineStore}, startPosition, version, label } = action
+      let { startPosition, version, label, lineStore } = action
       return {
-        maxLineID: getMaxLineID(action.track.getLines()),
+        maxLineID: action.maxLineID || 0,
         saved: false,
-        // track: action.track,
-        lineStore,
+        lineStore: turnIntoMapIfNecessary(lineStore),
         startPosition,
         version,
         label
@@ -370,7 +378,7 @@ export function trackData(state = INIT.trackData, action) {
     case REPLACE_LINE:
       return {...state,
         maxLineID: action.maxLineID,
-        lineStore: action.lineStore
+        lineStore: turnIntoMapIfNecessary(action.lineStore)
       }
     default:
       return state;
