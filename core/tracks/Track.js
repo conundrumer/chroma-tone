@@ -196,4 +196,19 @@ export default class Track extends Store {
     return this.store.getLinesInBox(x1, y1, x2, y2);
   }
 
+  updateLines(newLineStore) {
+    let lineNotInStore = lineStore => line => {
+      if (lineStore.has(line.id)) {
+        let other = lineStore.get(line.id)
+        return !(other === line || other.equals(line))
+      }
+      return true
+    }
+    let linesToRemove = this.lineStore.filter(lineNotInStore(newLineStore))
+    let linesToAdd = newLineStore.filter(lineNotInStore(this.lineStore))
+    linesToRemove.forEach(line => this.removeLine(line))
+    linesToAdd.forEach(line => this.addLine(line))
+    this.lineStore = newLineStore
+  }
+
 }
