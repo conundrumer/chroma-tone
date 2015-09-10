@@ -356,7 +356,6 @@ function turnIntoMapIfNecessary(lineStore) {
   return Immutable.Map(lineStore).mapKeys(key => parseInt(key, 10))
 }
 export function trackData(state = INIT.trackData, action) {
-  console.log('trackData', action)
   switch (action.type) {
     case NEW_TRACK:
     case LOAD_TRACK:
