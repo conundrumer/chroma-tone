@@ -35,11 +35,25 @@ if (__DEVTOOLS__) {  // eslint-disable-line no-undef
   let { devTools, persistState } = require('redux-devtools')
   let { DevTools, DebugPanel, LogMonitor } = require('redux-devtools/lib/react')
   let { compose } = require('redux')
+  let Immutable = require('immutable')
+
+  let makeLineStore = lineStore => Immutable.Map(lineStore).mapKeys(key => parseInt(key, 10))
 
   enhanceStore = compose(
     enhanceStore,
     devTools(),
-    persistState(window.location.href.match(/[?&]debug_session=([^&]+)\b/))
+    persistState(
+      window.location.href.match(/[?&]debug_session=([^&]+)\b/),
+      state => state && ({...state,
+        trackData: {...state.trackData,
+          lineStore: makeLineStore(state.trackData.lineStore)
+        },
+        history: {
+          undoStack: Immutable.Stack(state.history.undoStack),
+          redoStack: Immutable.Stack(state.history.redoStack)
+        }
+      })
+    )
   )
 
   render = (store, rootElement) => {
