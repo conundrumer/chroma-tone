@@ -44,6 +44,10 @@ class Line {
     return data
   }
 
+  toJSON() {
+    return this.getData()
+  }
+
   setPoints(p, q) {
     return makeLine({...this,
       x1: p.x,
@@ -56,11 +60,13 @@ class Line {
 
   equals(line) {
     return this.id === line.id &&
-      this.p.equals(line.p) &&
-      this.q.equals(line.q) &&
+      this.x1 === line.x1 &&
+      this.y1 === line.y1 &&
+      this.x2 === line.x2 &&
+      this.y2 === line.y2 &&
       this.type === line.type &&
       this.flipped === line.flipped &&
-      this.lim === line.lim
+      this.extended === line.extended
   }
 
   // virtual methods
