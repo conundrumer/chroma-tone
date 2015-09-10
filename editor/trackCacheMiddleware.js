@@ -1,3 +1,4 @@
+import { Track, OldTrack } from 'core'
 import {
   NEW_TRACK,
   LOAD_TRACK,
@@ -8,18 +9,17 @@ import {
 // since selectors are currently singleton
 // so shall the track cache
 // TODO: don't make this the case
-import { newTrack } from './actions';
-let track = newTrack().track
+let track = new Track([])
 
 function updateTrackIfNecessary(lineStore, startPosition) {
   let updated = false
-  if (track.lineStore !== lineStore) {
+  if (lineStore && track.lineStore !== lineStore) {
     console.warn('force updated track lines')
     track.updateLines(lineStore)
     updated = true
   }
   let {x, y} = track.getStartPosition()
-  if (x !== startPosition.x || y !== startPosition.y) {
+  if (startPosition && (x !== startPosition.x || y !== startPosition.y)) {
     console.warn('force updated track start position')
     track.setStartPosition(startPosition)
     updated = true
@@ -30,6 +30,9 @@ function updateTrackIfNecessary(lineStore, startPosition) {
   }
 }
 
+function makeVersionedTrack(version, ...args) {
+  return new (version === '6.1' ? OldTrack : Track)(...args)
+}
 function getMaxLineID(lines) {
   return lines.reduce((id, line) => Math.max(id, line.id), 0)
 }
@@ -37,10 +40,14 @@ export function trackCache() {
   return ({getState}) => next => action => {
 
     switch (action.type) {
-      // TODO: handle creating new tracks here instead of actions.js>newTrack)()/loadTrack()
       case NEW_TRACK:
       case LOAD_TRACK:
-        track = action.track
+        track = makeVersionedTrack(action.version, action.lines || [], action.startPosition)
+        action = {...action,
+          startPosition: track.getStartPosition(),
+          lineStore: track.lineStore,
+          maxLineID: getMaxLineID(track.getLines())
+        }
         break
       case ADD_LINE:
       case REMOVE_LINE:
@@ -75,7 +82,6 @@ export function trackCache() {
           maxLineID,
           lineStore: track.lineStore
         }
-
     }
     let result = next(action)
     let {trackData: {lineStore, startPosition}} = getState()

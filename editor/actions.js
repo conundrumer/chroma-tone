@@ -4,7 +4,6 @@ import * as tools from './tools';
 import bindHotkey from './bindHotkey';
 import DrawCancelledException from './DrawCancelledException';
 import { setIndexAndRate, startPlayback } from './playback'
-import { Track, OldTrack } from 'core'
 import { solReader, jsonReader } from 'io'
 import { getTrackFromCache } from './trackCacheMiddleware'
 import 'buffer'
@@ -380,12 +379,8 @@ export function replaceLine(prevLine, line) {
 }
 
 export function newTrack(isV61 = false) {
-  let track = new (isV61 ? OldTrack : Track)([]);
   return {
     type: NEW_TRACK,
-    track: track,
-    lineStore: track.lineStore,
-    startPosition: track.getStartPosition(),
     label: (new Date()).toString(),
     version: isV61 ? '6.1' : '6.2'
   };
@@ -393,12 +388,10 @@ export function newTrack(isV61 = false) {
 
 export function loadTrack(trackData) {
   let {label, version, startPosition, lines} = trackData
-  let track = new ((version === '6.1') ? OldTrack : Track)(lines, startPosition)
   return {
     type: LOAD_TRACK,
-    track: track,
-    lineStore: track.lineStore,
-    startPosition: track.getStartPosition(),
+    lines: lines,
+    startPosition: startPosition,
     label: label,
     version: version
   }
