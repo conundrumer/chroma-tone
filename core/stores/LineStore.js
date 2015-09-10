@@ -17,6 +17,7 @@ export default class LineStore extends Store {
   constructor(useV61 = false) {
     super();
     this.lines = new MapStore();
+    this.linesAsJSON = new MapStore()
     this.lineArray = new ArrayStore()
     this.grid = new GridStore(LineStore.GRID_SIZE * 4, Cell);
     let solidGrid = new (useV61 ? GridV61 : GridV62)(LineStore.GRID_SIZE, OrderedCell);
@@ -29,6 +30,7 @@ export default class LineStore extends Store {
 
   addLine(line) {
     this.lines.addLine(line);
+    this.linesAsJSON.addLine(line.toJSON())
     this.lineArray.addLine(line)
     this.grid.addLine(line);
     return this.solidGrid.addLine(line);
@@ -36,6 +38,7 @@ export default class LineStore extends Store {
 
   removeLine(line) {
     this.lines.removeLine(line);
+    this.linesAsJSON.removeLine(line.toJSON())
     this.lineArray.removeLine(line)
     this.grid.removeLine(line);
     return this.solidGrid.removeLine(line);

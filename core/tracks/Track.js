@@ -143,7 +143,11 @@ export default class Track extends Store {
   }
 
   get lineStore() {
-    return this.store.lines.lineMap;
+    return this.store.linesAsJSON.lineMap;
+  }
+
+  set lineStore(newLineStore) {
+    this.store.linesAsJSON.lineMap = newLineStore
   }
 
   get numLines() {
