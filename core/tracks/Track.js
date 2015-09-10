@@ -165,7 +165,7 @@ export default class Track extends Store {
   addLine(l) {
     let line = makeLine(l);
     if (this.getLineByID(line.id)) {
-      console.warn('attempted to add existing line')
+      console.warn('attempted to add existing line', l.id)
       // need to remove it and then add it
       return
     }
@@ -175,11 +175,11 @@ export default class Track extends Store {
     }
   }
 
-  removeLine(line) {
-    let id = line.id;
-    line = this.getLineByID(id);
+  removeLine(l) {
+    let id = l.id;
+    let line = this.getLineByID(id);
     if (!line) {
-      console.warn('attempted to remove non-existent line')
+      console.warn('attempted to remove non-existent line', id)
       return
     }
     let cellKeys = this.store.removeLine(line);
@@ -200,12 +200,13 @@ export default class Track extends Store {
     let lineNotInStore = lineStore => line => {
       if (lineStore.has(line.id)) {
         let other = lineStore.get(line.id)
-        return !(other === line || other.equals(line))
+        return !(other === line || _.eq(other, line))
       }
       return true
     }
     let linesToRemove = this.lineStore.filter(lineNotInStore(newLineStore))
     let linesToAdd = newLineStore.filter(lineNotInStore(this.lineStore))
+    // console.log('remove/add', linesToRemove.toJS(), linesToAdd.toJS())
     linesToRemove.forEach(line => this.removeLine(line))
     linesToAdd.forEach(line => this.addLine(line))
     this.lineStore = newLineStore
