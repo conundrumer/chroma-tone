@@ -7,6 +7,7 @@ import { setIndexAndRate, startPlayback } from './playback'
 import { solReader, jsonReader } from 'io'
 import { getTrackFromCache } from './trackCacheMiddleware'
 import 'buffer'
+import _ from 'lodash'
 
 const DEBUG = false;
 /**
@@ -82,12 +83,17 @@ export function selectLine(lineID) {
 /* thunk for conditional action + get state*/
 export function deleteSelection() {
   return (dispatch, getState) => {
-    let {lineSelection: {lineID}} = getState()
-    let track = getTrackFromCache(getState)
+    let {lineSelection: {lineID}, simStatesData: {simStates}} = getState()
+    let simState = simStates[0]
     if (lineID != null) {
-      let line = track.getLineByID(lineID)
-      dispatch(removeLine(line))
-      dispatch(pushAction(removeLine(line)))
+      let line = _.filter(simState.balls.concat(simState.wires), {id: lineID})[0]
+      if (line.q) {
+        dispatch(removeLine(line))
+        dispatch(pushAction(removeLine(line)))
+      } else {
+        dispatch(removeBall(line.p, line.id))
+        dispatch(pushAction(removeBall(line.p, line.id)))
+      }
     }
   }
 }
