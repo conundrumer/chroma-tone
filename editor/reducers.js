@@ -1,7 +1,7 @@
 'use strict';
 
-import {Vec2, Ball, Wire, SimState, step} from 'core'
-const testSimState = SimState([Ball(0, Vec2(0, 1), Vec2(1, 0)), Ball(1, Vec2(15, 15), Vec2(3, 2))], [Wire(2, Vec2(10, 40), Vec2(40, 30)), Wire(3, Vec2(-10, 50), Vec2(60, 60))])
+import {Vec2, Ball, Wire, SimState} from 'core'
+const testSimState = SimState([Ball(-1, Vec2(0, 1), Vec2(1, 0)), Ball(-2, Vec2(15, 15), Vec2(3, 2))], [Wire(-3, Vec2(10, 40), Vec2(40, 30)), Wire(-4, Vec2(-10, 50), Vec2(60, 60))])
 
 import Immutable from 'immutable';
 
@@ -48,7 +48,7 @@ import {
   DRAW_STREAM_START,
   DRAW_STREAM_END,
   SELECT_LINE,
-  UNSELECT_LINE
+  ADD_BALL
 } from './actions';
 
 import { newTrack } from './actions';
@@ -95,7 +95,10 @@ const INIT = {
   trackSaver: {
     open: false
   },
-  simStates: [testSimState],
+  simStatesData: {
+    simStates: [testSimState],
+    nextID: 1
+  },
   history: {
     undoStack: Immutable.Stack(),
     redoStack: Immutable.Stack()
@@ -386,12 +389,31 @@ export function playback(state = INIT.playback, action) {
 //       return state;
 //   }
 // }
-export function simStates(state = INIT.simStates, action) {
+export function simStatesData(state = INIT.simStatesData, action) {
   switch (action.type) {
     case INC_FRAME_INDEX:
     case DEC_FRAME_INDEX:
     case SET_FRAME_INDEX:
-      return action.simStates
+      return {
+        nextID: state.nextID,
+        simStates: action.simStates
+      }
+    case ADD_LINE:
+      return {
+        nextID: state.nextID + 1,
+        simStates: state.simStates
+      }
+    case REPLACE_LINE:
+    case REMOVE_LINE:
+      return {
+        nextID: state.nextID,
+        simStates: state.simStates
+      }
+    case ADD_BALL:
+      return {
+        nextID: state.nextID + 1,
+        simStates: action.simStates
+      }
     default:
       return state;
   }

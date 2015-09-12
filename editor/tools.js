@@ -1,7 +1,7 @@
 'use strict';
 
 import {Vec2} from 'core'
-import { setCam, addLine, removeLine, replaceLine, pushAction, selectLine } from './actions';
+import { setCam, addLine, removeLine, replaceLine, pushAction, selectLine, addBall } from './actions';
 import { getTrackFromCache } from './trackCacheMiddleware'
 
 const Vector = Vec2;
@@ -41,30 +41,31 @@ function getAbsPos(relPos, getState) {
 
 const MAX_SNAP_DISTANCE = 8
 function getSnappedPos(absPos, getState, ignoreLineID) {
-  var { viewport: {z} } = getState();
-  let track = getTrackFromCache(getState)
+  return absPos
+  // var { viewport: {z} } = getState();
+  // let track = getTrackFromCache(getState)
 
-  // adjust snap radius to current zoom level
-  var maxSnap = MAX_SNAP_DISTANCE * Math.max(z, ZOOM.MIN * 10)
+  // // adjust snap radius to current zoom level
+  // var maxSnap = MAX_SNAP_DISTANCE * Math.max(z, ZOOM.MIN * 10)
 
-  return track.getLinesInRadius(absPos.x, absPos.y, maxSnap)
-    .filter(line =>
-      // skip our ignoreline if given
-      // because it represents the current line we're drawing
-      line.id !== ignoreLineID
-    )
-    .reduce((points, line) =>
-      // create array of points from array of lines
-      points.concat([line.p, line.q])
-    , [])
-    .reduce(([snapPos, closestDistance], point) => {
-      // reduce array of points to the point closest to absPos within maxSnap
-      let distance = absPos.distance(point)
-      return distance < closestDistance
-        ? [point, distance]
-        : [snapPos, closestDistance]
-    }, [absPos, maxSnap])[0]
-    .clone() // vectors are mutable, defensively copy them
+  // return track.getLinesInRadius(absPos.x, absPos.y, maxSnap)
+  //   .filter(line =>
+  //     // skip our ignoreline if given
+  //     // because it represents the current line we're drawing
+  //     line.id !== ignoreLineID
+  //   )
+  //   .reduce((points, line) =>
+  //     // create array of points from array of lines
+  //     points.concat([line.p, line.q])
+  //   , [])
+  //   .reduce(([snapPos, closestDistance], point) => {
+  //     // reduce array of points to the point closest to absPos within maxSnap
+  //     let distance = absPos.distance(point)
+  //     return distance < closestDistance
+  //       ? [point, distance]
+  //       : [snapPos, closestDistance]
+  //   }, [absPos, maxSnap])[0]
+  //   .clone() // vectors are mutable, defensively copy them
 }
 
 const ZOOM = {
@@ -146,7 +147,7 @@ var tempID = 0;
 export function line(stream, dispatch, getState) {
   let p1
   let prevLine = null
-  let id = getState().trackData.maxLineID + 1;
+  let id = getState().maxID + 1;
   // TODO: wrap functions around mod keys for clarity
   stream = stream.map(pos => {
     let absPos = getAbsPos(pos, getState)
@@ -191,6 +192,9 @@ export function line(stream, dispatch, getState) {
     onEnd: () => {
       if (prevLine) {
         dispatch(pushAction(addLine(prevLine)))
+      } else {
+        dispatch(addBall(p1))
+        dispatch(pushAction(addBall(prevLine)))
       }
     },
     onCancel: () => {
@@ -225,7 +229,7 @@ export function pencil(stream, dispatch, getState) {
         x2: p2.x,
         y2: p2.y,
         flipped: shift,
-        id: getState().trackData.maxLineID + 1,
+        id: getState().maxID + 1,
         type: lineType
       }
       dispatch(addLine(lineData))

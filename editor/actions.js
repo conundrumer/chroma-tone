@@ -56,6 +56,7 @@ export const REDO = 'REDO'
 export const DRAW_STREAM_START = 'DRAW_STREAM_START'
 export const DRAW_STREAM_END = 'DRAW_STREAM_END'
 export const SELECT_LINE = 'SELECT_LINE'
+export const ADD_BALL = 'ADD_BALL'
 
 /**
  * action creators
@@ -360,6 +361,13 @@ export function addLine(line) {
   return {
     type: ADD_LINE,
     line: line
+  }
+}
+
+export function addBall(point) {
+  return {
+    type: ADD_BALL,
+    point
   }
 }
 

@@ -200,7 +200,7 @@ const viewOptionsSelector = createSelector(
 const entitySelector = createSelector(
   [
     indexSelector,
-    state => state.simStates
+    state => state.simStatesData.simStates
   ],
   ({index}, simStates) => ({
     balls: simStates[index].balls,
