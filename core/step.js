@@ -50,8 +50,39 @@ function getCloserIntersection(a, b) {
   return null
 }
 
+function getAABB(points) {
+  return points.length > 0 ?
+    points.reduce(([minX, minY, maxX, maxY], {x, y}) => {
+      return [
+        Math.min(minX, x),
+        Math.min(minY, y),
+        Math.max(maxX, x),
+        Math.max(maxY, y)
+      ]
+    }, [Number.MAX_VALUE, Number.MAX_VALUE, Number.MIN_VALUE, Number.MIN_VALUE]) : null
+}
+
+function AABBintersecting([aMinX, aMinY, aMaxX, aMaxY], [bMinX, bMinY, bMaxX, bMaxY]) {
+  if (aMaxX < bMinX) return false
+  if (aMinX > bMaxX) return false
+  if (aMaxY < bMinY) return false
+  if (aMinY > bMaxY) return false
+  return true
+}
+
 function getCollision({cur, next, baseToi}, wire) {
   let r = cur.r + wire.r
+  let ballAABB = getAABB([cur.p, next.p])
+  let rOffset = {x: r, y: r}
+  let wireAABB = getAABB([
+    wire.p.clone().add(rOffset),
+    wire.p.clone().subtract(rOffset),
+    wire.q.clone().add(rOffset),
+    wire.q.clone().subtract(rOffset)
+  ])
+  if (!AABBintersecting(ballAABB, wireAABB)) {
+    return null
+  }
   let ballDisplacement = vec(cur.p, next.p)
   let ballDistanceTraveledSq = vec(cur.p, next.p).lengthSq()
   let ray = {start: cur.p, end: next.p}
