@@ -194,8 +194,8 @@ export function line(stream, dispatch, getState) {
       if (prevLine) {
         dispatch(pushAction(addLine(prevLine)))
       } else {
-        dispatch(addBall(p1))
-        dispatch(pushAction(addBall(prevLine)))
+        dispatch(addBall(p1, id))
+        dispatch(pushAction(addBall(p1, id)))
       }
     },
     onCancel: () => {
