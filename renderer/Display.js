@@ -92,7 +92,7 @@ var Display = React.createClass({
     return (
       <div ref='container' style={this.getStyle()} >
         <svg style={{position: 'absolute'}} viewBox={viewBox}>
-          <SvgEntityDisplay balls={this.props.entities.balls} wires={this.props.entities.wires} />
+          <SvgEntityDisplay {...this.props.entities} />
         </svg>
       </div>
     );

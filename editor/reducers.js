@@ -1,7 +1,7 @@
 'use strict';
 
 import {Vec2, Ball, Wire, SimState, step} from 'core'
-const testSimState = SimState([Ball(0, Vec2(0, 1), Vec2(1, 0)), Ball(1, Vec2(15, 15), Vec2(3, 2))], [Wire(0, Vec2(10, 40), Vec2(40, 30)), Wire(1, Vec2(-10, 50), Vec2(60, 60))])
+const testSimState = SimState([Ball(0, Vec2(0, 1), Vec2(1, 0)), Ball(1, Vec2(15, 15), Vec2(3, 2))], [Wire(2, Vec2(10, 40), Vec2(40, 30)), Wire(3, Vec2(-10, 50), Vec2(60, 60))])
 
 import Immutable from 'immutable';
 
