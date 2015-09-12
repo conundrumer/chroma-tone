@@ -26,7 +26,6 @@ class Wire extends React.Component {
 
 export default class SvgEntityDisplay extends React.Component {
   render() {
-    console.log(this.props.collisions)
     return (
       <g>
         {
@@ -42,11 +41,6 @@ export default class SvgEntityDisplay extends React.Component {
         {
           this.props.collisions.map((c, i) =>
             c ? <circle key={i} cx={c.intersection.x} cy={c.intersection.y} r={1} fill='red' /> : null
-          )
-        }
-        {
-          this.props.collisions.map((c, i) =>
-            c ? <circle key={i} cx={c.intersection.x - c.displacement.x} cy={c.intersection.y - c.displacement.y} r={1} fill='green' /> : null
           )
         }
       </g>
