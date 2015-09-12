@@ -2,6 +2,8 @@
 
 var React = require('react');
 
+import SvgEntityDisplay from './SvgEntityDisplay'
+
 // var Rider = require('./Rider');
 // import Flag from './Flag'
 // import LineSelection from './SvgLineSelection'
@@ -90,6 +92,7 @@ var Display = React.createClass({
     return (
       <div ref='container' style={this.getStyle()} >
         <svg style={{position: 'absolute'}} viewBox={viewBox}>
+          <SvgEntityDisplay balls={this.props.entities.balls} wires={this.props.entities.wires} />
         </svg>
       </div>
     );
