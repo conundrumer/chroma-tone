@@ -43,6 +43,12 @@ export default class ColorPicker extends PureComponent {
 
     let buttonStyle = this.getStyle().buttonStyle
 
+    let colors = [
+      'white',
+      this.context.muiTheme.palette.primary1Color,
+      'grey'
+    ]
+
     return (
       <div className='ColorPicker'>
         <div>
@@ -52,11 +58,11 @@ export default class ColorPicker extends PureComponent {
               style={{...buttonStyle,
                 transform: `scale(${!open ? 0 : selected === i ? 1.4 : 1})`
               }}
-              backgroundColor={this.context.muiTheme.palette[`primary${i+1}Color`]}
+              backgroundColor={colors[i]}
               mini
               onTouchTap={() => dispatch(selectColor(i))}
             >
-              {spacer}
+              {i === 0 ? <div style={{width: size, height: size, borderRadius: '50%'}} /> : spacer}
             </FloatingActionButton>
           )}
         </div>
