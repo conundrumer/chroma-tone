@@ -27,9 +27,9 @@ let render = (store, rootElement) => {
   );
 }
 
-import { trackCache } from './trackCacheMiddleware'
+import simStateStep from './simStateStepMiddleware'
 
-let enhanceStore = applyMiddleware(thunk, trackCache())
+let enhanceStore = applyMiddleware(thunk, simStateStep())
 if (__DEVTOOLS__) {  // eslint-disable-line no-undef
 
   let { devTools, persistState } = require('redux-devtools')
