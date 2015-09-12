@@ -31,7 +31,8 @@ function perpComp(norm, offset) {
 }
 
 function project(u, v) {
-  return v.clone().mulS(u.dot(v) / v.lengthSq())
+  let lengthSq = v.lengthSq()
+  return lengthSq > 0 ? v.clone().mulS(u.dot(v) / v.lengthSq()) : lengthSq
 }
 
 function getCloserIntersection(a, b) {
@@ -56,6 +57,9 @@ function getCollision({cur, next, baseToi}, wire) {
   let ray = {start: cur.p, end: next.p}
   let thicknessOffset = norm(vec(wire.p, wire.q)).mulS(r)
   let wireLength = wire.p.distance(wire.q)
+  if (ballDistanceTraveledSq === 0) {
+    return
+  }
   let segmentA = {
     start: wire.p.clone().add(thicknessOffset),
     end: wire.q.clone().add(thicknessOffset)
