@@ -38,11 +38,6 @@ export default class SvgEntityDisplay extends React.Component {
             <Ball key={ball.id} {...ball} />
           )
         }
-        {
-          this.props.collisions.map((c, i) =>
-            c ? <circle key={i} cx={c.intersection.x} cy={c.intersection.y} r={1} fill='red' /> : null
-          )
-        }
       </g>
     );
   }
