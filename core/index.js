@@ -1,4 +1,4 @@
-import Vec2 from './vector'
+import Vec2 from './Vec2'
 import Ball from './Ball'
 import Wire from './Wire'
 import SimState from './SimState'
