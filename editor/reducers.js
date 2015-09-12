@@ -1,5 +1,8 @@
 'use strict';
 
+import {Vec2, Ball, Wire, SimState, step} from 'core'
+const testSimState = SimState([Ball(0, Vec2(0, 1), Vec2(1, 0)), Ball(1, Vec2(2, 3), Vec2(3, 2))], [Wire(0, Vec2(0, 0), Vec2(0, 1)), Wire(1, Vec2(1, 0), Vec2(1, 1))])
+
 import Immutable from 'immutable';
 
 import {
@@ -92,7 +95,7 @@ const INIT = {
   trackSaver: {
     open: false
   },
-  trackData: trackData(null, newTrack()),
+  trackData: testSimState,//trackData(null, newTrack()),
   history: {
     undoStack: Immutable.Stack(),
     redoStack: Immutable.Stack()
