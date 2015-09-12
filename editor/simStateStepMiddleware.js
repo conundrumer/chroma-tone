@@ -1,5 +1,5 @@
 import {playback} from './reducers'
-import {INC_FRAME_INDEX, DEC_FRAME_INDEX, SET_FRAME_INDEX, ADD_LINE, REPLACE_LINE, REMOVE_LINE, ADD_BALL, REMOVE_BALL} from './actions'
+import {INC_FRAME_INDEX, DEC_FRAME_INDEX, SET_FRAME_INDEX, ADD_LINE, REPLACE_LINE, REMOVE_LINE, ADD_BALL, REMOVE_BALL, REPLACE_BALL} from './actions'
 import {step, addBall, addWire, removeEntity} from 'core'
 import neume from 'neume.js'
 
@@ -50,6 +50,9 @@ export default function simStateStep() {
       case REPLACE_LINE:
         simStates = [addWire(removeEntity(simStates[0], action.prevLine.id), action.line.id, action.line.p, action.line.q)]
         break
+      case REPLACE_BALL:
+        simStates = [addBall(removeEntity(simStates[0], action.id), action.id, action.point)]
+        break
       case REMOVE_LINE:
         simStates = [removeEntity(simStates[0], action.line.id)]
         break
@@ -69,6 +72,7 @@ export default function simStateStep() {
       case REMOVE_LINE:
       case ADD_BALL:
       case REMOVE_BALL:
+      case REPLACE_BALL:
       case INC_FRAME_INDEX:
       case DEC_FRAME_INDEX:
         action = refreshSimState(simStates, getState, action)

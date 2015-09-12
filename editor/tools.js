@@ -1,8 +1,10 @@
 'use strict';
 
+import _ from 'lodash'
 import {Vec2} from 'core'
-import { setCam, addLine, removeLine, replaceLine, pushAction, selectLine, addBall } from './actions';
+import { setCam, addLine, removeLine, replaceLine, pushAction, selectLine, addBall, replaceBall } from './actions';
 import { getTrackFromCache } from './trackCacheMiddleware'
+import {getClosestEntity} from 'core'
 
 const Vector = Vec2;
 
@@ -253,30 +255,35 @@ export function eraser(stream, dispatch, getState, cancellableStream) {
   return {
     stream: cancellableStream.map((pos) => getAbsPos(pos, getState)),
     onNext: (pos) => {
-      let track = getTrackFromCache(getState)
-      let linesToRemove = track.getLinesInRadius(pos.x, pos.y, ERASER_RADIUS)
-      removedLines = removedLines.concat(linesToRemove);
-      dispatch(removeLine(linesToRemove));
+      // let track = getTrackFromCache(getState)
+      // let linesToRemove = track.getLinesInRadius(pos.x, pos.y, ERASER_RADIUS)
+      // removedLines = removedLines.concat(linesToRemove);
+      // dispatch(removeLine(linesToRemove));
     },
     onEnd: () => {
-      if (removedLines.length > 0) {
-        dispatch(pushAction(removeLine(removedLines)))
-      }
+      // if (removedLines.length > 0) {
+      //   dispatch(pushAction(removeLine(removedLines)))
+      // }
     },
     onCancel: () => {
-      dispatch(addLine(removedLines))
+      // dispatch(addLine(removedLines))
     }
   }
 }
 
 const DragTypes = {
+  BALL: 0,
   P: 1,
   Q: 2,
-  LINE: 3 // bit flags ok???
+  LINE: 3, // bit flags ok???
 }
 const SELECTION_RADIUS = 10
 function getDragType(pos, line, radius) {
-  if (line.vec.clone().mulS(0.5).add(line.p).distance(pos) < (radius / 2)) {
+  if (!line.q) {
+    return DragTypes.BALL
+  }
+  let vec = line.q.clone().subtract(line.p)
+  if (vec.mulS(0.5).add(line.p).distance(pos) < (radius / 2)) {
     return DragTypes.LINE
   }
   let pDist = line.p.distance(pos)
@@ -299,14 +306,15 @@ export function select(stream, dispatch, getState, cancellableStream) {
   let modifyingLine = null
   let dragType
   let {viewport: {z}, lineSelection: {lineID: prevSelectedLineID}} = getState()
-  let track = getTrackFromCache(getState)
+  // let track = getTrackFromCache(getState)
   let radius = SELECTION_RADIUS * z
   stream = cancellableStream.map((pos) => getAbsPos(pos, getState))
   stream.first().subscribe(pos => {
     firstPos = pos
+    let simState = getState().simStatesData.simStates[0]
     if (prevSelectedLineID != null) {
-      let line = track.getLineByID(prevSelectedLineID)
-      if (line && line.inRadius(pos.x, pos.y, radius)) {
+      let line = _.filter(simState.balls.concat(simState.wires), {id: prevSelectedLineID})[0]
+      if (line && line === getClosestEntity(simState, firstPos, radius)) {
         modifyingLine = line
         prevLine = line
         dragType = getDragType(pos, line, radius)
@@ -314,7 +322,7 @@ export function select(stream, dispatch, getState, cancellableStream) {
         return
       }
     }
-    let selectedLine = track.getLinesInRadius(pos.x, pos.y, radius)[0]
+    let selectedLine = getClosestEntity(simState, firstPos, radius)
     if (selectedLine) {
       selectedLineID = selectedLine.id
     }
@@ -326,6 +334,12 @@ export function select(stream, dispatch, getState, cancellableStream) {
         let {modKeys: {mod, alt}} = getState()
         let delta = pos.clone().subtract(firstPos)
         let {p, q} = modifyingLine
+        if (dragType === DragTypes.BALL) {
+          draggedLine = modifyingLine.p.clone().add(delta)
+          dispatch(replaceBall(modifyingLine.id, modifyingLine.p, draggedLine))
+          prevLine = draggedLine
+          return
+        }
         if (dragType & DragTypes.P) {
           p = p.clone().add(delta)
         }
@@ -358,17 +372,23 @@ export function select(stream, dispatch, getState, cancellableStream) {
         if (p.equals(q)) {
           return
         }
-        let draggedLine = modifyingLine.setPoints(p, q)
+        let draggedLine = _.clone(modifyingLine)
+        draggedLine.p = p
+        draggedLine.q = q
         dispatch(replaceLine(prevLine, draggedLine))
         prevLine = draggedLine
       }
     },
     onEnd: () => {
       if (modifyingLine != null) {
-        if (modifyingLine.equals(prevLine)) {
+        if (_.eq(modifyingLine, prevLine)) {
           return;
         }
-        dispatch(pushAction(replaceLine(modifyingLine, prevLine)))
+        if (!modifyingLine.q) {
+          dispatch(pushAction(replaceBall(modifyingLine.id, modifyingLine.p, prevLine)))
+        } else {
+          dispatch(pushAction(replaceLine(modifyingLine, prevLine)))
+        }
       } else {
         dispatch(selectLine(selectedLineID))
       }

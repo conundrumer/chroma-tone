@@ -177,25 +177,31 @@ const viewOptionsSelector = createSelector(
   })
 )
 
-// const lineSelectionSelector = createSelector(
-//   [
-//     trackSelector,
-//     state => state.lineSelection.lineID,
-//     state => state.selectedTool
-//   ],
-//   ({track}, lineID, tool) => {
-//     if (tool !== 'select') {
-//       return []
-//     }
-//     if (lineID != null) {
-//       let line = track.getLineByID(lineID)
-//       if (line != null) {
-//         return [line]
-//       }
-//     }
-//     return []
-//   }
-// )
+const lineSelectionSelector = createSelector(
+  [
+    state => state.simStatesData.simStates,
+    state => state.lineSelection.lineID,
+    state => state.selectedTool
+  ],
+  (simStates, lineID, tool) => {
+    if (tool !== 'select') {
+      return []
+    }
+    if (lineID != null) {
+      let simState = simStates[0]
+      let line = _.filter(simState.balls.concat(simState.wires), {id: lineID})[0]
+      if (line != null) {
+        if (!line.q) {
+          return [{...line,
+            q: line.p
+          }]
+        }
+        return [line]
+      }
+    }
+    return []
+  }
+)
 
 const entitySelector = createSelector(
   [
@@ -219,10 +225,10 @@ const displaySelector = createSelector(
     widthHeightSelector,
     viewOptionsSelector,
     state => state.toggled.onionSkin || false,
-    // lineSelectionSelector,
-    entitySelector
+    entitySelector,
+    lineSelectionSelector
   ],
-  ({index, flagIndex, maxIndex}, {startIndex, endIndex}, /*{startPosition, states, rider, flagRider}, */cam, /*lines,*/ {w, h}, viewOptions, onionSkin, entities) => ({
+  ({index, flagIndex, maxIndex}, {startIndex, endIndex}, /*{startPosition, states, rider, flagRider}, */cam, /*lines,*/ {w, h}, viewOptions, onionSkin, entities, lineSelection) => ({
     frame: index,
     flagIndex,
     maxIndex,
@@ -238,8 +244,8 @@ const displaySelector = createSelector(
     height: h,
     viewOptions,
     onionSkin,
-    entities
-    // lineSelection
+    entities,
+    lineSelection
   })
 )
 

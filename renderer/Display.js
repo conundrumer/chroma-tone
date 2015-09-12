@@ -6,7 +6,7 @@ import SvgEntityDisplay from './SvgEntityDisplay'
 
 // var Rider = require('./Rider');
 // import Flag from './Flag'
-// import LineSelection from './SvgLineSelection'
+import LineSelection from './SvgLineSelection'
 // var Grid = require('./Grid'); // TODO: make separate debug display
 // var Lines = require('./SvgLineDisplay');
 // var Lines = require('./CanvasLineDisplay');
@@ -84,16 +84,17 @@ var Display = React.createClass({
     // let {x, y} = this.props.startPosition;
     // let seed = x * x + y * y;
 
-    // let viewport = {
-    //   ...this.props.cam,
-    //   w: this.props.width,
-    //   h: this.props.height
-    // }
+    let viewport = {
+      ...this.props.cam,
+      w: this.props.width,
+      h: this.props.height
+    }
     return (
       <div ref='container' style={this.getStyle()} >
         <svg style={{position: 'absolute'}} viewBox={viewBox}>
           <SvgEntityDisplay {...this.props.entities} />
         </svg>
+        <LineSelection lines={this.props.lineSelection} viewport={viewport} />
       </div>
     );
   }

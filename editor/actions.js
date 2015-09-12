@@ -58,6 +58,7 @@ export const DRAW_STREAM_END = 'DRAW_STREAM_END'
 export const SELECT_LINE = 'SELECT_LINE'
 export const ADD_BALL = 'ADD_BALL'
 export const REMOVE_BALL = 'REMOVE_BALL'
+export const REPLACE_BALL = 'REPLACE_BALL'
 
 /**
  * action creators
@@ -380,6 +381,14 @@ export function removeBall(point, id) {
     id
   }
 }
+export function replaceBall(id, prevPoint, point) {
+  return {
+    type: REPLACE_BALL,
+    id,
+    prevPoint,
+    point
+  }
+}
 
 export function removeLine(line) {
   return {
@@ -497,6 +506,8 @@ function getInverseAction(action) {
       return removeBall(action.point, action.id)
     case REMOVE_BALL:
       return addBall(action.point, action.id)
+    case REPLACE_BALL:
+      return replaceBall(action.id, action.point, action.prevPoint)
   }
 }
 /* thunk for conditional action + getting state */

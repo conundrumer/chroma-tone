@@ -42,7 +42,7 @@ export function getButtons(dispatch) {
     line:              { action: setTool             , hotkey: 'w'           , icon: Icons.Line                      },
     curve:             { action: null                , hotkey: '5'           , icon: Icons.Curve                     },
     multiLine:         { action: null                , hotkey: '6'           , icon: Icons.MultiLine                 },
-    eraser:            { action: setTool             , hotkey: 'e'           , icon: require('icons/eraser')         },
+    eraser:            { action: null                , hotkey: 'e'           , icon: require('icons/eraser')         },
     undo:              { action: undo                , hotkey: 'mod+z'       , icon: require('icons/undo-variant')   },
     redo:              { action: redo                , hotkey: 'mod+shift+z' , icon: require('icons/redo-variant')   },
     pan:               { action: setTool             , hotkey: 'r'           , icon: require('icons/cursor-move')    },

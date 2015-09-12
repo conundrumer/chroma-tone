@@ -21,6 +21,7 @@ export default class LineSelection extends Component {
   }
 
   getArcs(id, p, q, vec, length, norm, dx, dy, z) {
+    if (p === q) return []
     let d = {
       x: -dx,
       y: -dy
@@ -51,18 +52,21 @@ export default class LineSelection extends Component {
     return (
       <svg style={{position: 'absolute'}} viewBox={`0 0 ${w} ${h}`}>
         <g style={{opacity: 0.7}}>
-          {this.props.lines.map(({id, x1, y1, x2, y2, length}) =>
+          {this.props.lines.map(({id, p, q}) =>
               <line key={id}
                 strokeWidth={width * 2}
                 stroke={LINE_COLOR}
-                x1={x1 / z - dx}
-                y1={y1 / z - dy}
-                x2={x2 / z - dx}
-                y2={y2 / z - dy}
+                x1={p.x / z - dx}
+                y1={p.y / z - dy}
+                x2={q.x / z - dx}
+                y2={q.y / z - dy}
               />
           )}
-          {this.props.lines.map(({id, p, q, vec, length, norm}) =>
-            length * 0.5 / z < (SELECTION_RADIUS - 0.1) ?
+          {this.props.lines.map(({id, p, q}) => {
+            let vec = q.clone().subtract(p)
+            let length = vec.length()
+            let norm = vec.rotateRight().unit()
+            return (length * 0.5 / z < (SELECTION_RADIUS - 0.1) ?
               this.getArcs(id, p, q, vec, length, norm, dx, dy, z)
             : [
               <circle key={-2 * id - 1}
@@ -78,9 +82,12 @@ export default class LineSelection extends Component {
                 cy={q.y / z - dy}
               />
             ]).reduce((cs, c) => cs.concat(c), [])
+            })
           }
-          {this.props.lines.map(({id, p, vec, length}) =>
-            length * 0.5 / z < (SELECTION_RADIUS * 1.5) ?
+          {this.props.lines.map(({id, p, q}) => {
+            let vec = q.clone().subtract(p)
+            let length = vec.length()
+            return (length * 0.5 / z < (SELECTION_RADIUS * 1.5) ?
               <circle key={id}
                 fill={LINE_COLOR}
                 r={width / 2}
@@ -88,6 +95,7 @@ export default class LineSelection extends Component {
                 cy={(p.y + 0.5 * vec.y) / z - dy}
               />
             : null)
+          })
           }
         </g>
       </svg>

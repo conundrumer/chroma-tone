@@ -48,7 +48,8 @@ import {
   DRAW_STREAM_END,
   SELECT_LINE,
   ADD_BALL,
-  REMOVE_BALL
+  REMOVE_BALL,
+  REPLACE_BALL,
 } from './actions';
 
 import { newTrack } from './actions';
@@ -397,6 +398,7 @@ export function simStatesData(state = INIT.simStatesData, action) {
     case REPLACE_LINE:
     case REMOVE_LINE:
     case REMOVE_BALL:
+    case REPLACE_BALL:
       return {
         nextID: state.nextID,
         simStates: action.simStates
@@ -416,8 +418,8 @@ export function simStatesData(state = INIT.simStatesData, action) {
   }
 }
 
-function getAction({action: {type, line, prevLine, id, point}}) {
-  return {type, line, prevLine, id, point}
+function getAction({action: {type, line, prevLine, id, point, prevPoint}}) {
+  return {type, line, prevLine, id, point, prevPoint}
 }
 export function history(state = INIT.history, action) {
   switch (action.type) {
