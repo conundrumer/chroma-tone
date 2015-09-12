@@ -30,13 +30,13 @@ export default class SvgEntityDisplay extends React.Component {
     return (
       <g>
         {
-          this.props.balls.map((ball, i) =>
-            <Ball key={i} {...ball} />
+          this.props.balls.map(ball =>
+            <Ball key={ball.id} {...ball} />
           )
         }
         {
-          this.props.wires.map((wire, i) =>
-            <Wire key={i} {...wire} />
+          this.props.wires.map(wire =>
+            <Wire key={wire.id} {...wire} />
           )
         }
       </g>
