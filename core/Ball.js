@@ -1,6 +1,6 @@
 import Vec2 from './Vec2'
 
-const DEFAULT_RADIUS = 1
+const DEFAULT_RADIUS = 4
 const DEFAULT_BOUNCINESS = 1
 const DEFAULT_MASS = 1
 

@@ -143,8 +143,8 @@ function getAndResolveCollisionsNaively(steppedBalls, wires) {
   })
   .unzip().value()
   return [
-    collisions.filter(c => c),
-    collidedBalls
+    (collisions || []).filter(c => c),
+    collidedBalls || []
   ]
 }
 
