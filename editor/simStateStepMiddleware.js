@@ -23,36 +23,7 @@ function freqToStep(hz) {
 function stepToFreq(step) {
   return 440 * Math.pow(2, (step - 69) / 12);
 }
-// function getGenerator($, instrument, freq) {
-//   // TODO: move this to a different file
-//   // TODO: formalize params
-//   switch (instrument) {
-//     case 'sine':
-//       return $('sin', { freq: freq }).mul(0.6);
-//     case 'synth':
-//       return piano($, freq, 1);
-//   }
-// }
 
-// function play(instrument) {
-//   // TODO: move this to a different file
-//   switch (this.props.stimulus) {
-//     case 'randomIntervals':
-//       this.playing = neu.Synth(($) => $('+', {mul: 0.7},
-//         getGenerator($, instrument, stepToFreq(this.state.pitch1)),
-//         getGenerator($, instrument, stepToFreq(this.state.pitch2))
-//       ));
-//       break;
-//     case 'randomTriads':
-//       this.playing = neu.Synth(($) => $('+', {mul: 0.5},
-//         getGenerator($, instrument, stepToFreq(this.state.pitch1)),
-//         getGenerator($, instrument, stepToFreq(this.state.pitch2)),
-//         getGenerator($, instrument, stepToFreq(this.state.pitch3))
-//       ));
-//       break;
-//   }
-//   this.playing.start('now');
-// }
 function makeCollisionSounds(collisions) {
   collisions.forEach(({entities: [_, wire], force}) => {
     let length = wire.p.distance(wire.q)

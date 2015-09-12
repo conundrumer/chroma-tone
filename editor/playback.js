@@ -2,7 +2,7 @@
 
 import { incFrameIndex, decFrameIndex, setFrameIndex, setFrameRate } from './actions';
 
-const FPS = 40;
+const FPS = 60;
 
 export function setIndexAndRate(state, dispatch, getState, unmoddingState) {
   let setRate = (r) => dispatch(setFrameRate(r));

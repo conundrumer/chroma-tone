@@ -213,10 +213,10 @@ export function setCam(cam) {
   return (dispatch, getState) => {
     let {playback: {state}, viewport: {x: initX, y: initY}} = getState()
     let {x, y, z} = cam
-    if (state !== 'stop' && state !== 'pause') {
-      x = initX
-      y = initY
-    }
+    // if (state !== 'stop' && state !== 'pause') {
+    //   x = initX
+    //   y = initY
+    // }
     dispatch({
       type: SET_CAM,
       cam: {x, y, z}
