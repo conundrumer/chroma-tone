@@ -209,6 +209,7 @@ const entitySelector = createSelector(
     state => state.simStatesData.simStates
   ],
   ({index}, simStates) => ({
+    initBalls: simStates[0].balls,
     balls: simStates[index].balls,
     wires: simStates[index].wires,
     collisions: simStates[index].collisions

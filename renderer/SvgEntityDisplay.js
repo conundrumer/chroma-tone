@@ -35,6 +35,11 @@ export default class SvgEntityDisplay extends React.Component {
     return (
       <g>
         {
+          this.props.initBalls.map(ball =>
+            <Ball key={ball.id} {...ball} color='grey' />
+          )
+        }
+        {
           this.props.wires.map(wire =>
             <Wire key={wire.id} {...wire} />
           )
