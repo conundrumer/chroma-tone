@@ -95,7 +95,7 @@ const INIT = {
   trackSaver: {
     open: false
   },
-  trackData: testSimState,//trackData(null, newTrack()),
+  simStates: [testSimState],
   history: {
     undoStack: Immutable.Stack(),
     redoStack: Immutable.Stack()
@@ -347,41 +347,47 @@ export function playback(state = INIT.playback, action) {
   }
 }
 
-// TODO: change redux-devtools to have deserialized actions
-function turnIntoMapIfNecessary(lineStore) {
-  if (lineStore instanceof Immutable.Map) {
-    return lineStore
-  }
-  console.warn('action.lineStore was not a Map')
-  if (!__DEVTOOLS__) {  // eslint-disable-line no-undef
-    console.error('This should not happen in production') // throw an error?
-  }
-  return Immutable.Map(lineStore).mapKeys(key => parseInt(key, 10))
-}
-export function trackData(state = INIT.trackData, action) {
+// // TODO: change redux-devtools to have deserialized actions
+// function turnIntoMapIfNecessary(lineStore) {
+//   if (lineStore instanceof Immutable.Map) {
+//     return lineStore
+//   }
+//   console.warn('action.lineStore was not a Map')
+//   if (!__DEVTOOLS__) {  // eslint-disable-line no-undef
+//     console.error('This should not happen in production') // throw an error?
+//   }
+//   return Immutable.Map(lineStore).mapKeys(key => parseInt(key, 10))
+// }
+// export function trackData(state = INIT.trackData, action) {
+//   switch (action.type) {
+//     case NEW_TRACK:
+//     case LOAD_TRACK:
+//       let { startPosition, version, label, lineStore } = action
+//       return {
+//         maxLineID: action.maxLineID || 0,
+//         saved: false,
+//         lineStore: turnIntoMapIfNecessary(lineStore),
+//         startPosition,
+//         version,
+//         label
+//       }
+//     case SET_TRACK_NAME:
+//       return {...state,
+//         label: action.name
+//       }
+//     case ADD_LINE:
+//     case REMOVE_LINE:
+//     case REPLACE_LINE:
+//       return {...state,
+//         maxLineID: action.maxLineID,
+//         lineStore: turnIntoMapIfNecessary(action.lineStore)
+//       }
+//     default:
+//       return state;
+//   }
+// }
+export function simStates(state = INIT.simStates, action) {
   switch (action.type) {
-    case NEW_TRACK:
-    case LOAD_TRACK:
-      let { startPosition, version, label, lineStore } = action
-      return {
-        maxLineID: action.maxLineID || 0,
-        saved: false,
-        lineStore: turnIntoMapIfNecessary(lineStore),
-        startPosition,
-        version,
-        label
-      }
-    case SET_TRACK_NAME:
-      return {...state,
-        label: action.name
-      }
-    case ADD_LINE:
-    case REMOVE_LINE:
-    case REPLACE_LINE:
-      return {...state,
-        maxLineID: action.maxLineID,
-        lineStore: turnIntoMapIfNecessary(action.lineStore)
-      }
     default:
       return state;
   }
