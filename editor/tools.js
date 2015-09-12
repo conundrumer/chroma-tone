@@ -143,11 +143,10 @@ function angleSnap(pnt, pos) {
 // TODO: put ID management in reducer
 // TODO: make minimum line length depend on zoom
 const MIN_LINE_LENGTH = 1;
-var tempID = 0;
 export function line(stream, dispatch, getState) {
   let p1
   let prevLine = null
-  let id = getState().maxID + 1;
+  let id = getState().simStatesData.nextID;
   // TODO: wrap functions around mod keys for clarity
   stream = stream.map(pos => {
     let absPos = getAbsPos(pos, getState)
@@ -172,13 +171,15 @@ export function line(stream, dispatch, getState) {
         p2 = angleSnap(p2, p1)
       }
       let lineData = {
-        x1: p1.x,
-        y1: p1.y,
-        x2: p2.x,
-        y2: p2.y,
-        id: id,
-        flipped: shift,
-        type: lineType
+        // x1: p1.x,
+        // y1: p1.y,
+        // x2: p2.x,
+        // y2: p2.y,
+        p: p1,
+        q: p2,
+        id: id
+        // flipped: shift,
+        // type: lineType
       }
       let action
       if (prevLine) {

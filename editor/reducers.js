@@ -73,7 +73,7 @@ const INIT = {
     mod: false,
     alt: false
   },
-  selectedTool: 'pencil',
+  selectedTool: null,
   toggled: Object.create(null),
   hotkeys: Object.create(null),
   playback: {
@@ -394,21 +394,13 @@ export function simStatesData(state = INIT.simStatesData, action) {
     case INC_FRAME_INDEX:
     case DEC_FRAME_INDEX:
     case SET_FRAME_INDEX:
+    case REPLACE_LINE:
+    case REMOVE_LINE:
       return {
         nextID: state.nextID,
         simStates: action.simStates
       }
     case ADD_LINE:
-      return {
-        nextID: state.nextID + 1,
-        simStates: state.simStates
-      }
-    case REPLACE_LINE:
-    case REMOVE_LINE:
-      return {
-        nextID: state.nextID,
-        simStates: state.simStates
-      }
     case ADD_BALL:
       return {
         nextID: state.nextID + 1,
