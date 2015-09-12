@@ -388,6 +388,10 @@ export function playback(state = INIT.playback, action) {
 // }
 export function simStates(state = INIT.simStates, action) {
   switch (action.type) {
+    case INC_FRAME_INDEX:
+    case DEC_FRAME_INDEX:
+    case SET_FRAME_INDEX:
+      return action.simStates
     default:
       return state;
   }
