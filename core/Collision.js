@@ -3,7 +3,7 @@ export const CollisionType = {
   BALL_WIRE: 1
 }
 
-export default function collision(type, [entityA, entityB], force, position = 0) {
+export default function Collision(type, [entityA, entityB], force, position = 0) {
   return {
     type,
     entities: [entityA, entityB],

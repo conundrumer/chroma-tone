@@ -1,5 +1,5 @@
 import {ObjectVector} from 'vector2d'
 
-export default function vector(x, y) {
+export default function Vec2(x, y) {
   return new ObjectVector(x, y)
 }

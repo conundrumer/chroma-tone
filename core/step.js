@@ -1,5 +1,5 @@
 import stepBall from './stepBall'
-import SimState from './simState'
+import SimState from './SimState'
 
 const GRAVITY = { x: 0, y: 0.175 }
 const AIR_FRICTION = 0
