@@ -120,7 +120,7 @@ function resolveCollision({cur, next, baseToi}, collision) {
   let bounceDelta = project(vec(next.p, intersection), collision.normalForce).mulS(1 + collision.wire.t)
   let bounceVelDelta = project(next.v, collision.normalForce).mulS(-1).mulS(1 + collision.wire.t)
   return [
-    makeCollision(collision, cur.id, bounceVelDelta),
+    makeCollision(collision, cur, bounceVelDelta),
     {
       cur: Ball(cur.id, intersection, cur.v),
       next: Ball(next.id, next.p.clone().add(bounceDelta), next.v.clone().add(bounceVelDelta)),
@@ -128,8 +128,8 @@ function resolveCollision({cur, next, baseToi}, collision) {
     }]
 }
 
-function makeCollision({wire, toi, wirePosition}, ballID, force) {
-  return Collision(CollisionType.BALL_WIRE, [ballID, wire.id], toi, force.length(), wirePosition)
+function makeCollision({wire, toi, wirePosition}, ball, force) {
+  return Collision(CollisionType.BALL_WIRE, [ball, wire], toi, force.length(), wirePosition)
 }
 
 // do it naively for now, O(n^2) collision checking
