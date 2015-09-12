@@ -279,12 +279,12 @@ export function setPlaybackState(state) {
   return (dispatch, getState) => {
     setIndexAndRate(state, dispatch, getState);
     // TODO: figure out editing/playback camera logic
-    if (state === 'pause') {
-      dispatch({
-        type: SET_CAM,
-        cam: playbackCamSelector(getState())
-      })
-    }
+    // if (state === 'pause') {
+    //   dispatch({
+    //     type: SET_CAM,
+    //     cam: playbackCamSelector(getState())
+    //   })
+    // }
     dispatch({
       type: SET_PLAYBACK_STATE,
       state: state
