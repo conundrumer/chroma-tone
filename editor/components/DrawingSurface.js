@@ -2,7 +2,9 @@
 import React from 'react';
 import Rx from 'rx';
 import mouse from 'mouse-event'
-import Vector from 'core/Vector';
+import {Vec2} from 'core';
+const Vector = Vec2;
+
 
 import { draw, deltaPanModZoom } from '../actions';
 import DrawCancelledException from '../DrawCancelledException';

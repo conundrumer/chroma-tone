@@ -1,8 +1,10 @@
 'use strict';
 
-import Vector from 'core/Vector'
+import {Vec2} from 'core'
 import { setCam, addLine, removeLine, replaceLine, pushAction, selectLine } from './actions';
 import { getTrackFromCache } from './trackCacheMiddleware'
+
+const Vector = Vec2;
 
 export function debugTool(stream, dispatch, getState) {
   stream.first().subscribe(pos => {

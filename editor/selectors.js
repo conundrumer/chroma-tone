@@ -21,18 +21,18 @@ const inPlaybackModeSelector = ({playback: {state}}) => state !== 'stop' && stat
 
 // track gets mutated but startPosition and lineStore are immutable
 // const trackSelector = createSelectorFromProps('trackData', ['track', 'startPosition', 'lineStore'])
-const trackSelector = createSelector(
-  [
-    state => state.trackData.startPosition,
-    state => state.trackData.lineStore
-  ],
-  // the track from cache is derived purely from startPosition and lineStore
-  (startPosition, lineStore) => ({
-    track: getTrackFromCache(null, lineStore, startPosition),
-    startPosition,
-    lineStore
-  })
-)
+// const trackSelector = createSelector(
+//   [
+//     state => state.trackData.startPosition,
+//     state => state.trackData.lineStore
+//   ],
+//   // the track from cache is derived purely from startPosition and lineStore
+//   (startPosition, lineStore) => ({
+//     track: getTrackFromCache(null, lineStore, startPosition),
+//     startPosition,
+//     lineStore
+//   })
+// )
 const viewportSelector = createSelectorFromProps('viewport', ['w', 'h', 'x', 'y', 'z'])
 const widthHeightSelector = createSelectorFromProps('viewport', ['w', 'h'])
 const fileLoaderSelector = createSelectorFromProps('fileLoader', ['open', 'loadingFile', 'error', 'fileName', 'tracks'])
@@ -48,9 +48,9 @@ export const playbackCamSelector = createSelector(
     openToolbarSelector,
     viewportSelector,
     state => state.playback.index,
-    trackSelector
+    // trackSelector
   ],
-  ({toolbarsOpen, timeControlOpen, sidebarOpen}, {w, h, z}, index, {track}) => {
+  ({toolbarsOpen, timeControlOpen, sidebarOpen}, {w, h, z}, index, /*{track}*/) => {
     h = h - 2 * (toolbarsOpen ? TOOLBAR_HEIGHT * (timeControlOpen ? 2 : 1) : PAPERBAR_HEIGHT)
     let maxRadius = Math.max(z * (Math.min(w, h) / 2) - OFFSET, 0)
     let {x, y} = track.getRiderCam(index, maxRadius)
@@ -61,7 +61,7 @@ export const playbackCamSelector = createSelector(
 const camSelector = createSelector(
   [
     viewportSelector,
-    state => inPlaybackModeSelector(state) ? playbackCamSelector(state) : null
+    state => null //inPlaybackModeSelector(state) ? playbackCamSelector(state) : null
   ],
   ({x, y, z}, playbackCam) => {
     if (playbackCam) {
@@ -71,23 +71,23 @@ const camSelector = createSelector(
   }
 )
 
-const lineSelector = createSelector(
-  [
-    state => state.viewport.w,
-    state => state.viewport.h,
-    camSelector,
-    trackSelector
-  ],
-  (w, h, {x, y, z}, {track}) => {
-    let [x1, y1, width, height] = [
-      x - w / 2 * z,
-      y - h / 2 * z,
-      w * z,
-      h * z
-    ]
-    return track.getLinesInBox(x1, y1, x1 + width, y1 + height)
-  }
-)
+// const lineSelector = createSelector(
+//   [
+//     state => state.viewport.w,
+//     state => state.viewport.h,
+//     camSelector,
+//     trackSelector
+//   ],
+//   (w, h, {x, y, z}, {track}) => {
+//     let [x1, y1, width, height] = [
+//       x - w / 2 * z,
+//       y - h / 2 * z,
+//       w * z,
+//       h * z
+//     ]
+//     return track.getLinesInBox(x1, y1, x1 + width, y1 + height)
+//   }
+// )
 
 const indexSelector = createSelector(
   [
@@ -101,19 +101,19 @@ const indexSelector = createSelector(
     endIndex: Math.max(index, flagIndex)
   })
 )
-const riderSelector = createSelector(
-  [
-    indexSelector,
-    trackSelector
-  ],
-  ({index, flagIndex, startIndex, endIndex}, {track}) => ({
-    startPosition: track.getStartPosition(),
-    rider: track.getRiderStateAtFrame(index),
-    flagRider: track.getRiderStateAtFrame(flagIndex),
-    states: _.range(startIndex, endIndex + 1)
-      .map(i => track.getRiderStateAtFrame(i))
-  })
-)
+// const riderSelector = createSelector(
+//   [
+//     indexSelector,
+//     trackSelector
+//   ],
+//   ({index, flagIndex, startIndex, endIndex}, {track}) => ({
+//     startPosition: track.getStartPosition(),
+//     rider: track.getRiderStateAtFrame(index),
+//     flagRider: track.getRiderStateAtFrame(flagIndex),
+//     states: _.range(startIndex, endIndex + 1)
+//       .map(i => track.getRiderStateAtFrame(i))
+//   })
+// )
 
 const colorPickerOpenSelector = state => {
   switch (state.selectedTool) {
@@ -177,72 +177,72 @@ const viewOptionsSelector = createSelector(
   })
 )
 
-const lineSelectionSelector = createSelector(
-  [
-    trackSelector,
-    state => state.lineSelection.lineID,
-    state => state.selectedTool
-  ],
-  ({track}, lineID, tool) => {
-    if (tool !== 'select') {
-      return []
-    }
-    if (lineID != null) {
-      let line = track.getLineByID(lineID)
-      if (line != null) {
-        return [line]
-      }
-    }
-    return []
-  }
-)
+// const lineSelectionSelector = createSelector(
+//   [
+//     trackSelector,
+//     state => state.lineSelection.lineID,
+//     state => state.selectedTool
+//   ],
+//   ({track}, lineID, tool) => {
+//     if (tool !== 'select') {
+//       return []
+//     }
+//     if (lineID != null) {
+//       let line = track.getLineByID(lineID)
+//       if (line != null) {
+//         return [line]
+//       }
+//     }
+//     return []
+//   }
+// )
 
 const displaySelector = createSelector(
   [
     timelineSelector,
     indexSelector,
-    riderSelector,
+    // riderSelector,
     camSelector,
-    lineSelector,
+    // lineSelector,
     widthHeightSelector,
     viewOptionsSelector,
     state => state.toggled.onionSkin || false,
-    lineSelectionSelector,
+    // lineSelectionSelector,
   ],
-  ({index, flagIndex, maxIndex}, {startIndex, endIndex}, {startPosition, states, rider, flagRider}, cam, lines, {w, h}, viewOptions, onionSkin, lineSelection) => ({
+  ({index, flagIndex, maxIndex}, {startIndex, endIndex}, /*{startPosition, states, rider, flagRider}, */cam, /*lines,*/ {w, h}, viewOptions, onionSkin/*, lineSelection*/) => ({
     frame: index,
     flagIndex,
     maxIndex,
-    startPosition,
-    rider,
-    flagRider,
-    riders: states,
+    // startPosition,
+    // rider,
+    // flagRider,
+    // riders: states,
     startIndex,
     endIndex,
     cam,
-    lines,
+    // lines,
     width: w,
     height: h,
     viewOptions,
     onionSkin,
-    lineSelection
+    // lineSelection
   })
 )
 
 const trackSaverSelector = createSelector(
   [
-    trackSelector,
+    // trackSelector,
     state => state.trackSaver.open,
     state => state.trackData.startPosition,
     state => state.trackData.label,
     state => state.trackData.version
   ],
-  ({track}, open, startPosition, label, version) => {
+  (/*{track},*/ open, startPosition, label, version) => {
     let trackData = open ? {
       label,
       version,
       startPosition,
-      lines: _.sortBy(track.getData(), 'id')
+      // lines: _.sortBy(track.getData(), 'id')
     } : null
     let trackSaver = {
       open,
