@@ -197,6 +197,17 @@ const viewOptionsSelector = createSelector(
 //   }
 // )
 
+const entitySelector = createSelector(
+  [
+    indexSelector,
+    state => state.simStates
+  ],
+  ({index}, simStates) => ({
+    balls: simStates[index].balls,
+    wires: simStates[index].wires
+  })
+)
+
 const displaySelector = createSelector(
   [
     timelineSelector,
@@ -208,8 +219,9 @@ const displaySelector = createSelector(
     viewOptionsSelector,
     state => state.toggled.onionSkin || false,
     // lineSelectionSelector,
+    entitySelector
   ],
-  ({index, flagIndex, maxIndex}, {startIndex, endIndex}, /*{startPosition, states, rider, flagRider}, */cam, /*lines,*/ {w, h}, viewOptions, onionSkin/*, lineSelection*/) => ({
+  ({index, flagIndex, maxIndex}, {startIndex, endIndex}, /*{startPosition, states, rider, flagRider}, */cam, /*lines,*/ {w, h}, viewOptions, onionSkin, entities) => ({
     frame: index,
     flagIndex,
     maxIndex,
@@ -225,6 +237,7 @@ const displaySelector = createSelector(
     height: h,
     viewOptions,
     onionSkin,
+    entities
     // lineSelection
   })
 )
