@@ -93,4 +93,10 @@ export default function bindHotkey(combokeys, ripples, name, hotkey, dispatch) {
     e.preventDefault()
     dispatch(deleteSelection())
   })
+  combokeys.bind('mod+right', e => {
+    e.preventDefault()
+  })
+  combokeys.bind('mod+left', e => {
+    e.preventDefault()
+  })
 }
