@@ -250,37 +250,31 @@ const displaySelector = createSelector(
   })
 )
 
-// const trackSaverSelector = createSelector(
-//   [
-//     // trackSelector,
-//     state => state.trackSaver.open,
-//     state => state.trackData.startPosition,
-//     state => state.trackData.label,
-//     state => state.trackData.version
-//   ],
-//   (/*{track},*/ open, startPosition, label, version) => {
-//     let trackData = open ? {
-//       label,
-//       version,
-//       startPosition,
-//       // lines: _.sortBy(track.getData(), 'id')
-//     } : null
-//     let trackSaver = {
-//       open,
-//       trackData,
-//       label,
-//       fileName: (label || 'untitled') + '.json'
-//     }
-//     if (trackData) {
-//       let trackDataJSON = jsonWriter(trackData) // TODO: this is slow af
-//       let blob = new Blob([trackDataJSON], {type: 'application/json'})
-//       trackSaver.trackDataURI = URL.createObjectURL(blob)
-//       trackSaver.trackDataJSON = (blob.size > 500000) ? // 500 kb
-//         (label + ': too long to preview raw data :O') : trackDataJSON
-//     }
-//     return trackSaver
-//   }
-// )
+const trackSaverSelector = createSelector(
+  [
+    state => state.simStatesData.simStates,
+    state => state.trackSaver.open
+  ],
+  (simStates, open) => {
+    let {balls, wires} = simStates[0]
+    let trackData = open ? {balls, wires} : null
+    let label = 'untitled'
+    let trackSaver = {
+      open,
+      trackData,
+      label,
+      fileName: (label || 'untitled') + '.json'
+    }
+    if (trackData) {
+      let trackDataJSON = jsonWriter(trackData) // TODO: this is slow af
+      let blob = new Blob([trackDataJSON], {type: 'application/json'})
+      trackSaver.trackDataURI = URL.createObjectURL(blob)
+      trackSaver.trackDataJSON = (blob.size > 500000) ? // 500 kb
+        (label + ': too long to preview raw data :O') : trackDataJSON
+    }
+    return trackSaver
+  }
+)
 
 const drawingSurfaceSelector = createSelector(
   [
@@ -296,16 +290,16 @@ export default createSelector(
     timelineSelector,
     displaySelector,
     widthHeightSelector,
-    // trackSaverSelector,
+    trackSaverSelector,
     drawingSurfaceSelector
   ],
-  (editor, fileLoader, timeline, display, widthHeight, /*trackSaver,*/ drawingSurface) => ({
+  (editor, fileLoader, timeline, display, widthHeight, trackSaver, drawingSurface) => ({
     editor,
     fileLoader,
     timeline,
     display,
     widthHeight,
-    // trackSaver,
+    trackSaver,
     drawingSurface
   })
 )

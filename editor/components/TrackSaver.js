@@ -9,17 +9,17 @@ import '../styles/TrackSaver.less'
 
 export default class TrackSaver extends PureComponent {
 
-  static get propTypes() {
-    return {
-      dispatch: PropTypes.func.isRequired,
-      open: PropTypes.bool.isRequired,
-      trackData: PropTypes.object,
-      trackDataJSON: PropTypes.string,
-      trackDataURI: PropTypes.string,
-      label: PropTypes.string,
-      fileName: PropTypes.string
-    }
-  }
+  // static get propTypes() {
+  //   return {
+  //     dispatch: PropTypes.func.isRequired,
+  //     open: PropTypes.bool.isRequired,
+  //     trackData: PropTypes.object,
+  //     trackDataJSON: PropTypes.string,
+  //     trackDataURI: PropTypes.string,
+  //     label: PropTypes.string,
+  //     fileName: PropTypes.string
+  //   }
+  // }
 
   constructor() {
     super()

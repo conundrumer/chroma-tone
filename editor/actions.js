@@ -9,6 +9,8 @@ import { getTrackFromCache } from './trackCacheMiddleware'
 import 'buffer'
 import _ from 'lodash'
 
+import {Vec2} from 'core'
+
 const DEBUG = false;
 /**
  * action types
@@ -459,12 +461,22 @@ export function loadFile([file]) {
       case 'json':
         reader.onload = (upload) => {
           try {
+            let track = JSON.parse(upload.target.result)
             let track = jsonReader(upload.target.result);
             dispatch({
               type: LOAD_FILE_SUCCESS,
               fileName: file.name,
               tracks: [track]
             })
+            track.balls.forEach(ball => {
+              ball.p = new Vec2(ball.p.x, ball.p.y)
+              ball.v = new Vec2(ball.v.x, ball.v.y)
+            })
+            track.wires.forEach(wire => {
+              wire.p = new Vec2(wire.p.x, wire.p.y)
+              wire.q = new Vec2(wire.q.x, wire.q.y)
+            })
+            dispatch(loadTrack(track))
           } catch (e) {
             dispatch({
               type: LOAD_FILE_FAIL,

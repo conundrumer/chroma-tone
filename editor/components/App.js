@@ -115,6 +115,7 @@ var App = React.createClass({
         />
         <Editor {...editor} {...{editor, fileLoader, trackSaver, timeline, drawingSurface}} combokeys={this.combokeys} dispatch={dispatch} />
         <FileLoader {...fileLoader} dispatch={dispatch} />
+        <TrackSaver {...trackSaver} dispatch={dispatch} />
       </div>
     );
   }

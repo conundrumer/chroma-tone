@@ -182,11 +182,11 @@ export function toolbars(state = INIT.toolbars, action) {
       return {...state,
         toolbarsOpen: false
       };
-    case LOAD_FILE_SUCCESS:
-      return {...state,
-        sidebarOpen: true,
-        sidebarSelected: INIT.toolbars.sidebarSelected
-      }
+    // case LOAD_FILE_SUCCESS:
+    //   return {...state,
+    //     sidebarOpen: true,
+    //     sidebarSelected: INIT.toolbars.sidebarSelected
+    //   }
     case SHOW_SIDEBAR:
       return {...state,
         sidebarOpen: true
@@ -234,6 +234,7 @@ export function fileLoader(state = INIT.fileLoader, action) {
       return {...state,
         loadingFile: true
       }
+    case LOAD_TRACK:
     case LOAD_FILE_SUCCESS:
       return {...state,
         loadingFile: false,
