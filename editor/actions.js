@@ -409,22 +409,22 @@ export function replaceLine(prevLine, line) {
   }
 }
 
-export function newTrack(isV61 = false) {
+export function newTrack() {
   return {
     type: NEW_TRACK,
     label: (new Date()).toString(),
-    version: isV61 ? '6.1' : '6.2'
   };
 }
 
 export function loadTrack(trackData) {
-  let {label, version, startPosition, lines} = trackData
   return {
     type: LOAD_TRACK,
-    lines: lines,
-    startPosition: startPosition,
-    label: label,
-    version: version
+    balls: trackData.balls,
+    wires: trackData.wires
+    // lines: lines,
+    // startPosition: startPosition,
+    // label: label,
+    // version: version
   }
 }
 

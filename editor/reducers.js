@@ -390,6 +390,7 @@ export function playback(state = INIT.playback, action) {
 //       return state;
 //   }
 // }
+const getMaxID = (entities) => entities.reduce((maxID, e) => Math.max(maxID, e.id), 0)
 export function simStatesData(state = INIT.simStatesData, action) {
   switch (action.type) {
     case INC_FRAME_INDEX:
@@ -405,13 +406,20 @@ export function simStatesData(state = INIT.simStatesData, action) {
       }
     case ADD_LINE:
       return {
-        nextID: Math.max(state.nextID, action.line.id + 1),
+        nextID: Math.max(state.nextID, (action.line instanceof Array ? getMaxID(action.line) : action.line.id) + 1),
         simStates: action.simStates
       }
     case ADD_BALL:
       return {
-        nextID: Math.max(state.nextID, action.ball.id + 1),
+        nextID: Math.max(state.nextID, (action.ball instanceof Array ? getMaxID(action.ball) : action.ball.id) + 1),
         simStates: action.simStates
+      }
+    case NEW_TRACK:
+      return INIT.simStatesData
+    case LOAD_TRACK:
+      return {
+        nextID: Math.max(getMaxID(action.wires), getMaxID(action.balls)),
+        simStates: [SimState(action.balls, action.wires)]
       }
     default:
       return state;
