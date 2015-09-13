@@ -12,10 +12,6 @@ function piano($, freq, dur, vol, brightness = 1) {
   .$("lpf", { freq: $("line", { start: brightness * freq * 3, end: brightness * freq * 0.75, dur: brightness * 3.5 }), Q: 6 })
   .$("xline", { start: 0.5, end: 0.01, dur: dur * 5 }).on("end", $.stop);
 }
-var CONTEXT = new window.AudioContext()
-
-let neu = neume(CONTEXT)
-
 // http://en.wikipedia.org/wiki/MIDI_Tuning_Standard#Frequency_values
 function freqToStep(hz) {
   return 69 + 12 * Math.log2(hz / 440);
@@ -24,7 +20,7 @@ function stepToFreq(step) {
   return 440 * Math.pow(2, (step - 69) / 12);
 }
 
-function makeCollisionSounds(collisions) {
+function makeCollisionSounds(neu, collisions) {
   collisions.forEach(({entities: [_, wire], force}) => {
     if (force < 0.35) return // more than gravity
     let length = wire.p.distance(wire.q)
@@ -43,6 +39,10 @@ function refreshSimState(simStates, getState, action) {
 }
 
 export default function simStateStep() {
+  var CONTEXT = new window.AudioContext()
+
+  let neu = neume(CONTEXT)
+
   return ({getState}) => next => action => {
     let {simStatesData: {simStates}} = getState()
     let balls
@@ -109,7 +109,7 @@ export default function simStateStep() {
       case DEC_FRAME_INDEX:
         action = refreshSimState(simStates, getState, action)
         let {index} = playback(getState().playback, action)
-        makeCollisionSounds(action.simStates[index].collisions)
+        makeCollisionSounds(neu, action.simStates[index].collisions)
     }
     let result = next(action)
     return result
