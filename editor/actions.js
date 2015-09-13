@@ -462,11 +462,6 @@ export function loadFile([file]) {
         reader.onload = (upload) => {
           try {
             let track = jsonReader(upload.target.result);
-            dispatch({
-              type: LOAD_FILE_SUCCESS,
-              fileName: file.name,
-              tracks: [track]
-            })
             track.balls.forEach(ball => {
               ball.p = new Vec2(ball.p.x, ball.p.y)
               ball.v = new Vec2(ball.v.x, ball.v.y)
