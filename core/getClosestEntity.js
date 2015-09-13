@@ -50,7 +50,7 @@ export default function getClosestEntity({balls, wires}, point, maxRadius) {
   let [d2, closestWire] = wires.reduce(([closestDistanceSq, closestWire], wire) => {
     let distanceSq = getDistanceFromWire(wire, point, maxRadius)
     if (closestWire == null && distanceSq != null) return [distanceSq, wire]
-    return distanceSq < closestDistanceSq ? [distanceSq, wire] : [closestDistanceSq, closestWire]
+    return distanceSq != null && distanceSq < closestDistanceSq ? [distanceSq, wire] : [closestDistanceSq, closestWire]
   }, [null, null])
   if (closestBall && !closestWire) return closestBall
   if (closestWire && !closestBall) return closestWire
