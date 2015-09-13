@@ -53,15 +53,19 @@ function getCloserIntersection(a, b) {
 }
 
 function getAABB(points) {
-  return points.length > 0 ?
-    points.reduce(([minX, minY, maxX, maxY], {x, y}) => {
-      return [
-        Math.min(minX, x),
-        Math.min(minY, y),
-        Math.max(maxX, x),
-        Math.max(maxY, y)
-      ]
-    }, [Number.MAX_VALUE, Number.MAX_VALUE, Number.MIN_VALUE, Number.MIN_VALUE]) : null
+  if (points.length < 1) return null;
+  let minX = points[0].x
+  let minY = points[0].y
+  let maxX = points[0].x
+  let maxY = points[0].y
+  for (let i = 0; i < points.length; i++) {
+    let point = points[i]
+    minX = point.x < minX ? point.x : minX
+    minY = point.y < minY ? point.y : minY
+    maxX = point.x > maxX ? point.x : maxX
+    maxY = point.y > maxY ? point.y : maxY
+  }
+  return [minX, minY, maxX, maxY]
 }
 
 function AABBintersecting([aMinX, aMinY, aMaxX, aMaxY], [bMinX, bMinY, bMaxX, bMaxY]) {
