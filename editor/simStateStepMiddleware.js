@@ -28,7 +28,7 @@ function makeCollisionSounds(collisions) {
   collisions.forEach(({entities: [_, wire], force}) => {
     if (force < 0.2) return // more than gravity
     let length = wire.p.distance(wire.q)
-    neu.Synth(($) => piano($, 44000 / length, Math.sqrt(force) / 10, wire.t * (1 - Math.exp(-force))), wire.t).start('now')
+    neu.Synth(($) => piano($, 440 * 128 / length, Math.sqrt(force) / 10, wire.t * (1 - Math.exp(-force))), wire.t).start('now')
   })
 }
 
@@ -52,16 +52,16 @@ export default function simStateStep() {
         simStates = [addWire(removeEntity(simStates[0], action.prevLine.id), action.line.id, action.line.p, action.line.q, action.line.t)]
         break
       case REPLACE_BALL:
-        simStates = [addBall(removeEntity(simStates[0], action.id), action.id, action.point)]
+        simStates = [addBall(removeEntity(simStates[0], action.prevBall.id), action.ball.id, action.ball.p)]
         break
       case REMOVE_LINE:
         simStates = [removeEntity(simStates[0], action.line.id)]
         break
       case REMOVE_BALL:
-        simStates = [removeEntity(simStates[0], action.id)]
+        simStates = [removeEntity(simStates[0], action.ball.id)]
         break
       case ADD_BALL:
-        simStates = [addBall(simStates[0], action.id, action.point, action.vel)]
+        simStates = [addBall(simStates[0], action.ball.id, action.ball.p, action.ball.v)]
         break
     }
     switch (action.type) {

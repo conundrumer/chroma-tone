@@ -49,10 +49,16 @@ export default class LineSelection extends Component {
     let {x, y, z, w, h} = this.props.viewport
     let [dx, dy] = [x / z - w / 2, y / z - h / 2]
     let width = SELECTION_RADIUS
+    let lines = this.props.lines.map(line => {
+      return {...line,
+        q: line.q || line.p
+      }
+    })
+    console.log(lines)
     return (
       <svg style={{position: 'absolute'}} viewBox={`0 0 ${w} ${h}`}>
         <g style={{opacity: 0.7}}>
-          {this.props.lines.map(({id, p, q}) =>
+          {lines.map(({id, p, q}) =>
               <line key={id}
                 strokeWidth={width * 2}
                 stroke={LINE_COLOR}
@@ -62,7 +68,7 @@ export default class LineSelection extends Component {
                 y2={q.y / z - dy}
               />
           )}
-          {this.props.lines.map(({id, p, q}) => {
+          {lines.map(({id, p, q}) => {
             let vec = q.clone().subtract(p)
             let length = vec.length()
             let norm = vec.rotateRight().unit()
@@ -84,7 +90,7 @@ export default class LineSelection extends Component {
             ]).reduce((cs, c) => cs.concat(c), [])
             })
           }
-          {this.props.lines.map(({id, p, q}) => {
+          {lines.map(({id, p, q}) => {
             let vec = q.clone().subtract(p)
             let length = vec.length()
             return (length * 0.5 / z < (SELECTION_RADIUS * 1.5) ?

@@ -3,7 +3,6 @@
 import _ from 'lodash'
 import {Vec2} from 'core'
 import { setCam, addLine, removeLine, replaceLine, pushAction, selectLine, addBall, replaceBall } from './actions';
-import { getTrackFromCache } from './trackCacheMiddleware'
 import {getClosestEntity} from 'core'
 
 const Vector = Vec2;
@@ -204,8 +203,8 @@ export function line(stream, dispatch, getState) {
       if (prevLine) {
         dispatch(pushAction(addLine(prevLine)))
       } else {
-        dispatch(addBall(p1, id))
-        dispatch(pushAction(addBall(p1, id)))
+        dispatch(addBall({id, p: p1}))
+        dispatch(pushAction(addBall({id, p: p1})))
       }
     },
     onCancel: () => {
@@ -215,6 +214,47 @@ export function line(stream, dispatch, getState) {
     }
   }
 }
+// export function circle(stream, dispatch, getState) {
+//   stream = stream.map((pos) => getAbsPos(pos, getState))
+//   let prevPoint
+//   let p1
+//   let id = getState().simStatesData.nextID;
+//   stream.first().subscribe( pos => {
+//     p1 = pos
+//   })
+//   return {
+//     stream: stream,
+//     onNext: (p2) => {
+//       let {modKeys: {mod}} = getState()
+//       if (mod) {
+//         p2 = angleSnap(p2, p1)
+//       }
+//       let vel = p2.clone().subtract(p1)
+//       let action
+//       if (prevPoint) {
+//         action = replaceBall(id, prevPoint, point)
+//       } else {
+//         action = addLine(lineData)
+//       }
+//       dispatch(action)
+//       prevPoint = lineData
+//     },
+//     onEnd: () => {
+//       if (prevLine) {
+//         dispatch(pushAction(addLine(prevLine)))
+//       } else {
+//         // dispatch(addBall(p1, id))
+//         // dispatch(pushAction(addBall(p1, id)))
+//       }
+//     },
+//     onCancel: () => {
+//       if (prevLine) {
+//         dispatch(removeLine(prevLine))
+//       }
+//     }
+//   }
+//   }
+// }
 export function pencil(stream, dispatch, getState) {
   stream = stream.map((pos) => getAbsPos(pos, getState))
   let p0
@@ -344,8 +384,8 @@ export function select(stream, dispatch, getState, cancellableStream) {
         let delta = pos.clone().subtract(firstPos)
         let {p, q} = modifyingLine
         if (dragType === DragTypes.BALL) {
-          draggedLine = modifyingLine.p.clone().add(delta)
-          dispatch(replaceBall(modifyingLine.id, modifyingLine.p, draggedLine))
+          draggedLine = {...modifyingLine, p: modifyingLine.p.clone().add(delta)}
+          dispatch(replaceBall(modifyingLine, draggedLine))
           prevLine = draggedLine
           return
         }
@@ -402,7 +442,7 @@ export function select(stream, dispatch, getState, cancellableStream) {
           return;
         }
         if (!modifyingLine.q) {
-          dispatch(pushAction(replaceBall(modifyingLine.id, modifyingLine.p, prevLine)))
+          dispatch(pushAction(replaceBall(modifyingLine, prevLine)))
         } else {
           dispatch(pushAction(replaceLine(modifyingLine, prevLine)))
         }

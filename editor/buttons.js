@@ -37,7 +37,7 @@ export function getButtons(dispatch) {
   ]
   return _.forEach({
     select:            { action: setTool             , hotkey: 'a'           , icon: require('icons/cursor-default') },
-    pencil:            { action: null                , hotkey: 'q'           , icon: require('icons/pencil')         },
+    marble:            { action: null                , hotkey: 'q'           , icon: require('icons/checkbox-blank-circle-outline')},
     brush:             { action: null                , hotkey: '3'           , icon: require('icons/brush')          },
     line:              { action: setTool             , hotkey: 'w'           , icon: Icons.Line                      },
     curve:             { action: null                , hotkey: '5'           , icon: Icons.Curve                     },
@@ -129,7 +129,7 @@ export function getButtonGroups(b) {
         b.undo
       ],
       middle: [
-        b.pencil,
+        b.marble,
         b.line,
         b.eraser,
         b.pan,
@@ -152,7 +152,7 @@ export function getButtonGroups(b) {
       ],
       middle: [
         b.select,
-        b.pencil,
+        b.marble,
         b.brush,
         b.line,
         b.curve,

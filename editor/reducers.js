@@ -410,7 +410,7 @@ export function simStatesData(state = INIT.simStatesData, action) {
       }
     case ADD_BALL:
       return {
-        nextID: Math.max(state.nextID, action.id + 1),
+        nextID: Math.max(state.nextID, action.ball.id + 1),
         simStates: action.simStates
       }
     default:
@@ -418,8 +418,8 @@ export function simStatesData(state = INIT.simStatesData, action) {
   }
 }
 
-function getAction({action: {type, line, prevLine, id, point, prevPoint}}) {
-  return {type, line, prevLine, id, point, prevPoint}
+function getAction({action: {type, line, id, prevLine, ball, prevBall}}) {
+  return {type, line, prevLine, id, ball, prevBall}
 }
 export function history(state = INIT.history, action) {
   switch (action.type) {

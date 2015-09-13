@@ -114,7 +114,7 @@ export default class Editor extends React.Component {
 
     b.toggleTimeControl.transform = `rotate(${timeControlOpen ? 0 : 180}deg)`;
 
-    ['undo', 'redo', 'select', 'pencil', 'brush', 'line', 'curve', 'multiLine', 'eraser'].forEach( tool => {
+    ['undo', 'redo', 'select', 'marble', 'brush', 'line', 'curve', 'multiLine', 'eraser'].forEach( tool => {
       b[tool].disabled = inPlaybackMode;
     });
 

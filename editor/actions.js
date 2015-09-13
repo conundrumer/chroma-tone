@@ -91,8 +91,8 @@ export function deleteSelection() {
         dispatch(removeLine(line))
         dispatch(pushAction(removeLine(line)))
       } else {
-        dispatch(removeBall(line.p, line.id))
-        dispatch(pushAction(removeBall(line.p, line.id)))
+        dispatch(removeBall(line))
+        dispatch(pushAction(removeBall(line)))
       }
     }
   }
@@ -372,27 +372,24 @@ export function addLine(line) {
   }
 }
 
-export function addBall(point, id) {
+export function addBall(ball) {
   return {
     type: ADD_BALL,
-    point,
-    id
+    ball
   }
 }
 
-export function removeBall(point, id) {
+export function removeBall(ball) {
   return {
     type: REMOVE_BALL,
-    point,
-    id
+    ball
   }
 }
-export function replaceBall(id, prevPoint, point) {
+export function replaceBall(prevBall, ball) {
   return {
     type: REPLACE_BALL,
-    id,
-    prevPoint,
-    point
+    prevBall,
+    ball
   }
 }
 
@@ -509,11 +506,11 @@ function getInverseAction(action) {
     case REPLACE_LINE:
       return replaceLine(action.line, action.prevLine)
     case ADD_BALL:
-      return removeBall(action.point, action.id)
+      return removeBall(action.ball)
     case REMOVE_BALL:
-      return addBall(action.point, action.id)
+      return addBall(action.ball)
     case REPLACE_BALL:
-      return replaceBall(action.id, action.point, action.prevPoint)
+      return replaceBall(action.ball, action.prevBall)
   }
 }
 /* thunk for conditional action + getting state */
