@@ -34,8 +34,8 @@ function getDistanceFromWire(wire, point, r) {
   }
   let rSq = r * r;
   // within radius of either endpoints
-  let dist = Math.min(wire.p.distanceSq(point) < rSq, wire.q.distanceSq(point) < rSq)
-  return dist < r && dist
+  let dist = Math.min(wire.p.distanceSq(point), wire.q.distanceSq(point))
+  return dist < rSq && dist
 }
 
 export default function getClosestEntity({balls, wires}, point, maxRadius) {
