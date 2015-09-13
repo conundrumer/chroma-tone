@@ -142,6 +142,8 @@ function angleSnap(pnt, pos) {
   return (new Vector(x, y)).mulS(delta.dot({x, y})).add(pos)
 }
 
+const getTension = lineType => [1, 0.825, 0][lineType]
+
 // TODO: put ID management in reducer
 // TODO: make minimum line length depend on zoom
 const MIN_LINE_LENGTH = 1;
@@ -179,7 +181,8 @@ export function line(stream, dispatch, getState) {
         // y2: p2.y,
         p: p1,
         q: p2,
-        id: id
+        id: id,
+        t: getTension(lineType)
         // flipped: shift,
         // type: lineType
       }

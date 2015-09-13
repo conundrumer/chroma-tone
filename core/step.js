@@ -7,7 +7,7 @@ import _ from 'lodash'
 import rayVsCircle from 'ray-vs-circle'
 import { checkIntersection } from 'line-intersect'
 
-const EPSILON = 0.000001
+const EPSILON = 0.000000001
 
 function intersect(segA, segB) {
   let {point: intersection} = checkIntersection(

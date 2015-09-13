@@ -45,8 +45,8 @@ export default class ColorPicker extends PureComponent {
 
     let colors = [
       'white',
-      this.context.muiTheme.palette.primary1Color,
-      'grey'
+      'grey',
+      'black'
     ]
 
     return (

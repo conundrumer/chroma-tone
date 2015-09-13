@@ -9,9 +9,9 @@ class Ball extends React.Component {
   }
 }
 
-function getColorFromLine(p, q) {
+function getColorFromLine(p, q, t) {
   let length = p.distance(q)
-  return chroma.hcl(360 * (Math.log2(length) % 1), 80, 80)
+  return chroma.hcl(360 * (Math.log2(length) % 1), t === 1 ? 85 : 40, t === 1 ? 85 : 60 * t)
 }
 
 class Wire extends React.Component {
@@ -22,7 +22,7 @@ class Wire extends React.Component {
         y1={this.props.p.y}
         x2={this.props.q.x}
         y2={this.props.q.y}
-        stroke={getColorFromLine(this.props.p, this.props.q)}
+        stroke={getColorFromLine(this.props.p, this.props.q, this.props.t)}
         strokeWidth={2 * this.props.r}
         strokeLinecap='round'
       />
@@ -45,8 +45,8 @@ export default class SvgEntityDisplay extends React.Component {
           )
         }
         {
-          this.props.collisions.map(({entities: [ball, wire]}) => {
-            return <Ball key={-ball.id} {...ball} color={getColorFromLine(wire.p, wire.q)} size={2}/>
+          this.props.collisions.map(({entities: [ball, wire], force}) => {
+            return force < 0.2 ? null : <Ball key={-ball.id} {...ball} color={getColorFromLine(wire.p, wire.q, wire.t)} size={1 + Math.log(1 + force)}/>
           })
         }
         {

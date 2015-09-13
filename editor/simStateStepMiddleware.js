@@ -4,10 +4,10 @@ import {step, addBall, addWire, removeEntity} from 'core'
 import neume from 'neume.js'
 
 // http://mohayonao.github.io/neume.js/examples/mml-piano.html
-function piano($, freq, dur) {
+function piano($, freq, dur, vol) {
   return $([ 1, 5, 13, 0.5 ].map(function(x, i) {
     return $("sin", { freq: freq * x });
-  })).mul(0.75)
+  })).mul(0.75 * vol)
   .$("shaper", { curve: 0.75 })
   .$("lpf", { freq: $("line", { start: freq * 3, end: freq * 0.75, dur: 3.5 }), Q: 6 })
   .$("xline", { start: 0.5, end: 0.01, dur: dur * 5 }).on("end", $.stop);
@@ -26,8 +26,9 @@ function stepToFreq(step) {
 
 function makeCollisionSounds(collisions) {
   collisions.forEach(({entities: [_, wire], force}) => {
+    if (force < 0.2) return // more than gravity
     let length = wire.p.distance(wire.q)
-    neu.Synth(($) => piano($, 44000 / length, Math.sqrt(force) / 10)).start('now')
+    neu.Synth(($) => piano($, 44000 / length, Math.sqrt(force) / 10, 1 - Math.exp(-force))).start('now')
   })
 }
 
@@ -45,10 +46,10 @@ export default function simStateStep() {
     let {simStatesData: {simStates}} = getState()
     switch (action.type) {
       case ADD_LINE:
-        simStates = [addWire(simStates[0], action.line.id, action.line.p, action.line.q)]
+        simStates = [addWire(simStates[0], action.line.id, action.line.p, action.line.q, action.line.t)]
         break
       case REPLACE_LINE:
-        simStates = [addWire(removeEntity(simStates[0], action.prevLine.id), action.line.id, action.line.p, action.line.q)]
+        simStates = [addWire(removeEntity(simStates[0], action.prevLine.id), action.line.id, action.line.p, action.line.q, action.line.t)]
         break
       case REPLACE_BALL:
         simStates = [addBall(removeEntity(simStates[0], action.id), action.id, action.point)]
