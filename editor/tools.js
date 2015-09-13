@@ -141,6 +141,11 @@ function angleSnap(pnt, pos) {
   })()
   return (new Vector(x, y)).mulS(delta.dot({x, y})).add(pos)
 }
+function distanceSnap(pnt, pos) {
+  let delta = pnt.clone().subtract(pos)
+  let newLength = Math.pow(2, ((Math.log2(delta.length()) * 12 + 0.5) | 0) / 12)
+  return delta.unit().mulS(newLength).add(pos)
+}
 
 const getTension = lineType => [1, 0.825, 0][lineType]
 
@@ -164,15 +169,15 @@ export function line(stream, dispatch, getState) {
   stream.first().subscribe( pos => {
     p1 = pos
   });
-  let {modKeys: {shift}} = getState()
-
   return {
     stream: stream
       .filter(p2 => p1.distance(p2) >= MIN_LINE_LENGTH),
     onNext: (p2) => {
-      let {toolbars: {colorSelected: lineType}, modKeys: {mod}} = getState()
+      let {toolbars: {colorSelected: lineType}, modKeys: {mod, shift}} = getState()
       if (mod) {
         p2 = angleSnap(p2, p1)
+      } if (!shift) {
+        p2 = distanceSnap(p2, p1)
       }
       let lineData = {
         // x1: p1.x,
@@ -335,7 +340,7 @@ export function select(stream, dispatch, getState, cancellableStream) {
     stream: stream.skip(1),
     onNext: (pos) => {
       if (modifyingLine != null) {
-        let {modKeys: {mod, alt}} = getState()
+        let {modKeys: {mod, alt, shift}} = getState()
         let delta = pos.clone().subtract(firstPos)
         let {p, q} = modifyingLine
         if (dragType === DragTypes.BALL) {
@@ -371,6 +376,14 @@ export function select(stream, dispatch, getState, cancellableStream) {
             if (!snap.equals(p)) {
               q = snap
             }
+          }
+        }
+        if (!shift) {
+          if (dragType === DragTypes.P) {
+            p = distanceSnap(p, q)
+          }
+          if (dragType === DragTypes.Q) {
+            q = distanceSnap(q, p)
           }
         }
         if (p.equals(q)) {
