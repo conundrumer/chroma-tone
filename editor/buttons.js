@@ -37,7 +37,7 @@ export function getButtons(dispatch) {
   ]
   return _.forEach({
     select:            { action: setTool             , hotkey: 'a'           , icon: require('icons/cursor-default') },
-    marble:            { action: null                , hotkey: 'q'           , icon: require('icons/checkbox-blank-circle-outline')},
+    marble:            { action: setTool             , hotkey: 'q'           , icon: require('icons/checkbox-blank-circle-outline')},
     brush:             { action: null                , hotkey: '3'           , icon: require('icons/brush')          },
     line:              { action: setTool             , hotkey: 'w'           , icon: Icons.Line                      },
     curve:             { action: null                , hotkey: '5'           , icon: Icons.Curve                     },

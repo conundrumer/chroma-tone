@@ -52,7 +52,7 @@ export default function simStateStep() {
         simStates = [addWire(removeEntity(simStates[0], action.prevLine.id), action.line.id, action.line.p, action.line.q, action.line.t)]
         break
       case REPLACE_BALL:
-        simStates = [addBall(removeEntity(simStates[0], action.prevBall.id), action.ball.id, action.ball.p)]
+        simStates = [addBall(removeEntity(simStates[0], action.prevBall.id), action.ball.id, action.ball.p, action.ball.v)]
         break
       case REMOVE_LINE:
         simStates = [removeEntity(simStates[0], action.line.id)]

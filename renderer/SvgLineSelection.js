@@ -54,7 +54,6 @@ export default class LineSelection extends Component {
         q: line.q || line.p
       }
     })
-    console.log(lines)
     return (
       <svg style={{position: 'absolute'}} viewBox={`0 0 ${w} ${h}`}>
         <g style={{opacity: 0.7}}>

@@ -214,47 +214,42 @@ export function line(stream, dispatch, getState) {
     }
   }
 }
-// export function circle(stream, dispatch, getState) {
-//   stream = stream.map((pos) => getAbsPos(pos, getState))
-//   let prevPoint
-//   let p1
-//   let id = getState().simStatesData.nextID;
-//   stream.first().subscribe( pos => {
-//     p1 = pos
-//   })
-//   return {
-//     stream: stream,
-//     onNext: (p2) => {
-//       let {modKeys: {mod}} = getState()
-//       if (mod) {
-//         p2 = angleSnap(p2, p1)
-//       }
-//       let vel = p2.clone().subtract(p1)
-//       let action
-//       if (prevPoint) {
-//         action = replaceBall(id, prevPoint, point)
-//       } else {
-//         action = addLine(lineData)
-//       }
-//       dispatch(action)
-//       prevPoint = lineData
-//     },
-//     onEnd: () => {
-//       if (prevLine) {
-//         dispatch(pushAction(addLine(prevLine)))
-//       } else {
-//         // dispatch(addBall(p1, id))
-//         // dispatch(pushAction(addBall(p1, id)))
-//       }
-//     },
-//     onCancel: () => {
-//       if (prevLine) {
-//         dispatch(removeLine(prevLine))
-//       }
-//     }
-//   }
-//   }
-// }
+export function marble(stream, dispatch, getState) {
+  stream = stream.map((pos) => getAbsPos(pos, getState))
+  let prevBall
+  let p1
+  let id = getState().simStatesData.nextID;
+  stream.first().subscribe( pos => {
+    p1 = pos
+  })
+  return {
+    stream: stream,
+    onNext: (p2) => {
+      let {modKeys: {mod}} = getState()
+      if (mod) {
+        p2 = angleSnap(p2, p1)
+      }
+      let vel = p2.clone().subtract(p1).mulS(0.5)
+      let ball = {id, p: p1, v: vel}
+      let action
+      if (prevBall) {
+        action = replaceBall(prevBall, ball)
+      } else {
+        action = addBall(ball)
+      }
+      dispatch(action)
+      prevBall = ball
+    },
+    onEnd: () => {
+      dispatch(pushAction(addBall(prevBall)))
+    },
+    onCancel: () => {
+      if (prevBall) {
+        dispatch(removeBall(prevBall))
+      }
+    }
+  }
+}
 export function pencil(stream, dispatch, getState) {
   stream = stream.map((pos) => getAbsPos(pos, getState))
   let p0
