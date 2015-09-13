@@ -37163,7 +37163,7 @@
 	      return INIT.simStatesData;
 	    case _actions.LOAD_TRACK:
 	      return {
-	        nextID: Math.max(getMaxID(action.wires), getMaxID(action.balls)),
+	        nextID: Math.max(getMaxID(action.wires), getMaxID(action.balls)) + 1,
 	        simStates: [(0, _core.SimState)(action.balls, action.wires)]
 	      };
 	    default:
