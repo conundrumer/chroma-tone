@@ -3,7 +3,6 @@ var join = require('path').join
 
 module.exports = {
   output: {
-    publicPath: 'assets/',
     path: 'dist/',
     filename: 'main.js'
   },
