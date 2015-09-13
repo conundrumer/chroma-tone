@@ -419,7 +419,7 @@ export function simStatesData(state = INIT.simStatesData, action) {
       return INIT.simStatesData
     case LOAD_TRACK:
       return {
-        nextID: Math.max(getMaxID(action.wires), getMaxID(action.balls)),
+        nextID: Math.max(getMaxID(action.wires), getMaxID(action.balls)) + 1,
         simStates: [SimState(action.balls, action.wires)]
       }
     default:
