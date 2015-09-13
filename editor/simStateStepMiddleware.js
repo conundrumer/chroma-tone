@@ -4,12 +4,12 @@ import {step, addBall, addWire, removeEntity} from 'core'
 import neume from 'neume.js'
 
 // http://mohayonao.github.io/neume.js/examples/mml-piano.html
-function piano($, freq, dur, vol) {
+function piano($, freq, dur, vol, brightness = 1) {
   return $([ 1, 5, 13, 0.5 ].map(function(x, i) {
     return $("sin", { freq: freq * x });
   })).mul(0.75 * vol)
   .$("shaper", { curve: 0.75 })
-  .$("lpf", { freq: $("line", { start: freq * 3, end: freq * 0.75, dur: 3.5 }), Q: 6 })
+  .$("lpf", { freq: $("line", { start: brightness * freq * 3, end: brightness * freq * 0.75, dur: brightness * 3.5 }), Q: 6 })
   .$("xline", { start: 0.5, end: 0.01, dur: dur * 5 }).on("end", $.stop);
 }
 var CONTEXT = new window.AudioContext()
@@ -28,7 +28,7 @@ function makeCollisionSounds(collisions) {
   collisions.forEach(({entities: [_, wire], force}) => {
     if (force < 0.2) return // more than gravity
     let length = wire.p.distance(wire.q)
-    neu.Synth(($) => piano($, 44000 / length, Math.sqrt(force) / 10, 1 - Math.exp(-force))).start('now')
+    neu.Synth(($) => piano($, 44000 / length, Math.sqrt(force) / 10, wire.t * (1 - Math.exp(-force))), wire.t).start('now')
   })
 }
 
