@@ -229,7 +229,11 @@ export function marble(stream, dispatch, getState) {
       if (mod) {
         p2 = angleSnap(p2, p1)
       }
-      let vel = p2.clone().subtract(p1).mulS(0.5)
+      let vel = p2.clone().subtract(p1)
+      let speed = vel.length()
+      if (speed > 0) {
+        vel = vel.unit().mulS(Math.sqrt(speed))
+      }
       let ball = {id, p: p1, v: vel}
       let action
       if (prevBall) {
