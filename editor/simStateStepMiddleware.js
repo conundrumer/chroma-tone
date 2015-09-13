@@ -44,10 +44,9 @@ function refreshSimState(simStates, getState, action) {
 export default function simStateStep() {
   return ({getState}) => next => action => {
     let {simStatesData: {simStates}} = getState()
+    let balls
+    let lines
     switch (action.type) {
-      case ADD_LINE:
-        simStates = [addWire(simStates[0], action.line.id, action.line.p, action.line.q, action.line.t)]
-        break
       case REPLACE_LINE:
         simStates = [addWire(removeEntity(simStates[0], action.prevLine.id), action.line.id, action.line.p, action.line.q, action.line.t)]
         break
@@ -55,13 +54,44 @@ export default function simStateStep() {
         simStates = [addBall(removeEntity(simStates[0], action.prevBall.id), action.ball.id, action.ball.p, action.ball.v)]
         break
       case REMOVE_LINE:
-        simStates = [removeEntity(simStates[0], action.line.id)]
+        if (action.line instanceof Array) {
+          lines = action.line
+        } else {
+          lines = [action.line]
+        }
+        lines.forEach(line => {
+          simStates = [removeEntity(simStates[0], line.id)]
+        })
         break
       case REMOVE_BALL:
-        simStates = [removeEntity(simStates[0], action.ball.id)]
+        if (action.ball instanceof Array) {
+          balls = action.ball
+        } else {
+          balls = [action.ball]
+        }
+        balls.forEach(ball => {
+          simStates = [removeEntity(simStates[0], ball.id)]
+        })
+        break
+      case ADD_LINE:
+        if (action.line instanceof Array) {
+          lines = action.line
+        } else {
+          lines = [action.line]
+        }
+        lines.forEach(line => {
+          simStates = [addWire(simStates[0], line.id, line.p, line.q, line.t)]
+        })
         break
       case ADD_BALL:
-        simStates = [addBall(simStates[0], action.ball.id, action.ball.p, action.ball.v)]
+        if (action.ball instanceof Array) {
+          balls = action.ball
+        } else {
+          balls = [action.ball]
+        }
+        balls.forEach(ball => {
+          simStates = [addBall(simStates[0], ball.id, ball.p, ball.v)]
+        })
         break
     }
     switch (action.type) {

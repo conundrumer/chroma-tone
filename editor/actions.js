@@ -60,6 +60,7 @@ export const SELECT_LINE = 'SELECT_LINE'
 export const ADD_BALL = 'ADD_BALL'
 export const REMOVE_BALL = 'REMOVE_BALL'
 export const REPLACE_BALL = 'REPLACE_BALL'
+export const REMOVE_ENTITIES = 'REMOVE_ENTITIES'
 
 /**
  * action creators

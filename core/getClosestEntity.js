@@ -17,14 +17,14 @@ function project(u, v) {
 }
 
 
-function getDistanceFromWire(wire, point, r) {
+export function getDistanceFromWire(wire, point, r) {
   // true if part or all of the line is in the given radius
   let offset = vec(point, wire.p).mulS(-1)
   let wireVec = vec(wire.p, wire.q)
   let pComp = perpComp(norm(wireVec), offset);
   // not within distance of infinite line
 
-  if (Math.abs(pComp) > r) {
+  if (r != null && Math.abs(pComp) > r) {
     return null;
   }
   let linePos = wireVec.dot(offset) / wireVec.lengthSq()
@@ -35,7 +35,7 @@ function getDistanceFromWire(wire, point, r) {
   let rSq = r * r;
   // within radius of either endpoints
   let dist = Math.min(wire.p.distanceSq(point), wire.q.distanceSq(point))
-  if (dist < rSq) {
+  if (r == null && dist < rSq) {
     return dist
   }
   return null

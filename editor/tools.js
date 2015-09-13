@@ -2,8 +2,8 @@
 
 import _ from 'lodash'
 import {Vec2} from 'core'
-import { setCam, addLine, removeLine, replaceLine, pushAction, selectLine, addBall, replaceBall } from './actions';
-import {getClosestEntity} from 'core'
+import { setCam, addLine, removeLine, replaceLine, pushAction, selectLine, addBall, replaceBall, removeBall } from './actions';
+import {getClosestEntity, getDistanceFromWire} from 'core'
 
 const Vector = Vec2;
 
@@ -300,22 +300,31 @@ export function pencil(stream, dispatch, getState) {
 
 const ERASER_RADIUS = 2;
 export function eraser(stream, dispatch, getState, cancellableStream) {
-  var removedLines = [];
+  var removedBalls = [];
+  var removedWires = [];
   return {
     stream: cancellableStream.map((pos) => getAbsPos(pos, getState)),
     onNext: (pos) => {
-      // let track = getTrackFromCache(getState)
-      // let linesToRemove = track.getLinesInRadius(pos.x, pos.y, ERASER_RADIUS)
-      // removedLines = removedLines.concat(linesToRemove);
-      // dispatch(removeLine(linesToRemove));
+      let simState = getState().simStatesData.simStates[0]
+      let ballsToRemove = simState.balls.filter(ball => ball.p.distance(pos) < ERASER_RADIUS)
+      removedBalls = removedBalls.concat(ballsToRemove)
+      let wiresToRemove = simState.wires.filter(wire => getDistanceFromWire(wire, pos, ERASER_RADIUS))
+      removedWires = removedWires.concat(wiresToRemove)
+      dispatch(removeLine(wiresToRemove));
+      dispatch(removeBall(ballsToRemove));
     },
     onEnd: () => {
-      // if (removedLines.length > 0) {
-      //   dispatch(pushAction(removeLine(removedLines)))
-      // }
+      if (removedWires.length > 0) {
+        dispatch(pushAction(removeLine(removedWires)))
+      }
+      if (removedBalls.length > 0) {
+        dispatch(pushAction(removeBall(removedBalls)))
+      }
     },
     onCancel: () => {
-      // dispatch(addLine(removedLines))
+      // nvm
+      dispatch(addLine(removedWires))
+      dispatch(addBall(removedBalls))
     }
   }
 }
