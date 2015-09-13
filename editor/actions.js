@@ -461,7 +461,6 @@ export function loadFile([file]) {
       case 'json':
         reader.onload = (upload) => {
           try {
-            let track = JSON.parse(upload.target.result)
             let track = jsonReader(upload.target.result);
             dispatch({
               type: LOAD_FILE_SUCCESS,
