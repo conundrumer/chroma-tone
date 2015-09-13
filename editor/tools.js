@@ -315,9 +315,10 @@ export function select(stream, dispatch, getState, cancellableStream) {
   stream.first().subscribe(pos => {
     firstPos = pos
     let simState = getState().simStatesData.simStates[0]
+    let closestEntity = getClosestEntity(simState, firstPos, radius)
     if (prevSelectedLineID != null) {
       let line = _.filter(simState.balls.concat(simState.wires), {id: prevSelectedLineID})[0]
-      if (line && line === getClosestEntity(simState, firstPos, radius)) {
+      if (line && closestEntity && line.id === closestEntity.id) {
         modifyingLine = line
         prevLine = line
         dragType = getDragType(pos, line, radius)
@@ -325,7 +326,7 @@ export function select(stream, dispatch, getState, cancellableStream) {
         return
       }
     }
-    let selectedLine = getClosestEntity(simState, firstPos, radius)
+    let selectedLine = closestEntity
     if (selectedLine) {
       selectedLineID = selectedLine.id
     }

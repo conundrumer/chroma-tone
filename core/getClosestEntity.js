@@ -4,7 +4,7 @@ function vec(p, q) {
 }
 
 function norm(vec) {
-  return vec.rotateRight().unit()
+  return vec.clone().rotateRight().unit()
 }
 
 function perpComp(norm, offset) {
@@ -25,7 +25,7 @@ function getDistanceFromWire(wire, point, r) {
   // not within distance of infinite line
 
   if (Math.abs(pComp) > r) {
-    return false;
+    return null;
   }
   let linePos = wireVec.dot(offset) / wireVec.lengthSq()
   // within boundaries of endpoints or radius of either endpoints
@@ -35,23 +35,26 @@ function getDistanceFromWire(wire, point, r) {
   let rSq = r * r;
   // within radius of either endpoints
   let dist = Math.min(wire.p.distanceSq(point), wire.q.distanceSq(point))
-  return dist < rSq && dist
+  if (dist < rSq) {
+    return dist
+  }
+  return null
 }
 
 export default function getClosestEntity({balls, wires}, point, maxRadius) {
   let [d1, closestBall] = balls.reduce(([closestDistanceSq, closestBall], ball) => {
     let distanceSq = ball.p.distanceSq(point)
-    if (closestDistanceSq < 0 && distanceSq < maxRadius * maxRadius) return [distanceSq, ball]
+    if (closestBall == null && distanceSq < maxRadius * maxRadius) return [distanceSq, ball]
     return distanceSq < closestDistanceSq ? [distanceSq, ball] : [closestDistanceSq, closestBall]
-  }, [-1, null])
+  }, [null, null])
   let [d2, closestWire] = wires.reduce(([closestDistanceSq, closestWire], wire) => {
     let distanceSq = getDistanceFromWire(wire, point, maxRadius)
-    if (distanceSq !== false && closestDistanceSq < 0) return [distanceSq, wire]
-    return distanceSq < closestDistanceSq && distanceSq < maxRadius * maxRadius ? [distanceSq, wire] : [closestDistanceSq, closestWire]
-  }, [-1, null])
+    if (closestWire == null && distanceSq != null) return [distanceSq, wire]
+    return distanceSq < closestDistanceSq ? [distanceSq, wire] : [closestDistanceSq, closestWire]
+  }, [null, null])
   if (closestBall && !closestWire) return closestBall
   if (closestWire && !closestBall) return closestWire
-  if (closestWire && closestBall && d1 > 0 && d2 > 0) {
+  if (closestWire && closestBall) {
     if (d1 < d2) {
       return closestBall
     }

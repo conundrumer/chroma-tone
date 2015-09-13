@@ -25,7 +25,7 @@ function vec(p, q) {
 }
 
 function norm(vec) {
-  return vec.rotateRight().unit()
+  return vec.clone().rotateRight().unit()
 }
 
 function perpComp(norm, offset) {
