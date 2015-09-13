@@ -7,7 +7,7 @@ import _ from 'lodash'
 import rayVsCircle from 'ray-vs-circle'
 import { checkIntersection } from 'line-intersect'
 
-const EPSILON = 0.00000001
+const EPSILON = 0.001
 
 function intersect(segA, segB) {
   let {point: intersection} = checkIntersection(
@@ -72,7 +72,28 @@ function AABBintersecting([aMinX, aMinY, aMaxX, aMaxY], [bMinX, bMinY, bMaxX, bM
   return true
 }
 
-function getCollision({cur, next}, wire) {
+function insideRect(p, a, b, c, d) {
+  let ap = vec(a, p)
+  let cp = vec(c, p)
+  let abCrossAp = vec(a, b).cross(ap)
+  let cdCrossCp = vec(c, d).cross(cp)
+  if ((abCrossAp > 0 && cdCrossCp < 0) || (abCrossAp < 0 && cdCrossCp > 0)) {
+    return false
+  }
+  let adCrossAp = vec(a, d).cross(ap)
+  let cbCrossCp = vec(c, b).cross(cp)
+  if ((adCrossAp > 0 && cbCrossCp < 0) || (adCrossAp < 0 && cbCrossCp > 0)) {
+    return false
+  }
+  return true
+}
+
+function getCollision({cur, next, previouslyCollidedWith}, wire) {
+  if (previouslyCollidedWith != null) {
+    if (previouslyCollidedWith === wire.id) {
+      return null // colliding with the same line consecutively causes bugs
+    }
+  }
   let r = cur.r + wire.r
   let ballAABB = getAABB([cur.p, next.p])
   let rOffset = {x: r, y: r}
@@ -88,7 +109,8 @@ function getCollision({cur, next}, wire) {
   let ballDisplacement = vec(cur.p, next.p)
   let ballDistanceTraveledSq = vec(cur.p, next.p).lengthSq()
   let ray = {start: cur.p, end: next.p}
-  let thicknessOffset = norm(vec(wire.p, wire.q)).mulS(r)
+  let wireVec = vec(wire.p, wire.q)
+  let thicknessOffset = norm(wireVec).mulS(r)
   let wireLength = wire.p.distance(wire.q)
   if (ballDistanceTraveledSq === 0) {
     return
@@ -100,6 +122,18 @@ function getCollision({cur, next}, wire) {
   let segmentB = {
     start: wire.p.clone().subtract(thicknessOffset),
     end: wire.q.clone().subtract(thicknessOffset)
+  }
+  if (insideRect(cur.p, segmentA.start, segmentA.end, segmentB.end, segmentB.start)) {
+    let offset = vec(wire.p, cur.p)
+    let linePos = offset.dot(wireVec) / (wireLength * wireLength)
+    let normalForce = wireVec.cross(offset) > 0 ? thicknessOffset.clone() : thicknessOffset.clone().mulS(-1)
+    return {
+      intersection: wireVec.clone().mulS(linePos).add(normalForce).add(wire.p),
+      normalForce: normalForce.unit(),
+      toi: 0,
+      wire: wire,
+      wirePosition: 1 - 2 * Math.abs(linePos - 0.5)
+    }
   }
   let circleP = {
     position: wire.p,
@@ -128,6 +162,15 @@ function getCollision({cur, next}, wire) {
     wire: wire,
     wirePosition: 1 - 2 * Math.abs(vec(intersectionB, wire.p).length() / wireLength - 0.5)
   }
+  // check for case when inside
+  if (a && b) {
+    if (a.toi < 0 && b.toi > 1) {
+      return {...a, toi: 0}
+    }
+    if (a.toi > 1 && b.toi < 0) {
+      return {...b, toi: 0}
+    }
+  }
   let p = intersectionP && {
     intersection: intersectionP,
     normalForce: vec(intersectionP, wire.p).mulS(-1).unit(),
@@ -148,17 +191,18 @@ function getCollision({cur, next}, wire) {
     .reduce(getCloserIntersection, null)
 }
 
-function resolveCollision({cur, next, baseToi}, collision) {
+function resolveCollision({cur, next, baseToi}, collision, forcefullyResolve = false) {
   let intersection = cur.p.clone().set(collision.intersection)
   let bounceDelta = project(vec(next.p, intersection), collision.normalForce).mulS(1 + collision.wire.t)
-  bounceDelta.mulS(Math.min(1 + EPSILON, 1 + 0.0001 / bounceDelta.length()))
+  bounceDelta.mulS(Math.min(1 + EPSILON, 1 + 0.01 / bounceDelta.length()))
   let bounceVelDelta = project(next.v, collision.normalForce).mulS(-1).mulS(1 + collision.wire.t)
   return [
     makeCollision(collision, next, bounceVelDelta),
     {
       cur: Ball(cur.id, intersection, cur.v),
-      next: Ball(next.id, next.p.clone().add(bounceDelta), next.v.clone().add(bounceVelDelta)),
+      next: Ball(next.id, forcefullyResolve ? intersection : next.p.clone().add(bounceDelta), next.v.clone().add(bounceVelDelta)),
       baseToi: baseToi + (1 - baseToi) * collision.toi,
+      previouslyCollidedWith: collision.wire.id
     }]
 }
 
@@ -176,7 +220,7 @@ function getAndResolveCollisionsNaively(steppedBalls, wires, forcefullyResolve =
         getCollision(steppedBall, wire)
       ).reduce((closest, int) => getCloserIntersection(closest, int), null)
     if (collision && steppedBall.next.v.dot(collision.normalForce) < 0) { // velocity and normal must oppose each other
-      return resolveCollision(steppedBall, collision)
+      return resolveCollision(steppedBall, collision, forcefullyResolve)
     }
     return [null, steppedBall]
   })
@@ -201,9 +245,11 @@ function getAndResolveCollisions(steppedBalls, wires) {
       break;
     }
     nextBallsToCollide = collisions.map(({entities: [ball]}) => finalCollidedBalls[ball.id])
-    // console.log(i, collisions, collidedBalls, 'nextBallsToCollide', nextBallsToCollide)
   }
-
+  if (nextBallsToCollide.length > 0) {
+    // make sure they don't phase through
+    getAndResolveCollisionsNaively(nextBallsToCollide, wires, true)
+  }
   return [totalCollisions.map(c => ({...c, force: c.force / totalCollisions.length})), _.values(finalCollidedBalls)]
 }
 
