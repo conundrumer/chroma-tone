@@ -231,8 +231,10 @@ export function marble(stream, dispatch, getState) {
       }
       let vel = p2.clone().subtract(p1)
       let speed = vel.length()
-      if (speed > 0) {
+      if (speed > 5) {
         vel = vel.unit().mulS(Math.sqrt(speed))
+      } else {
+        vel = vel.setAxes(0, 0) // need to surpass
       }
       let ball = {id, p: p1, v: vel}
       let action
