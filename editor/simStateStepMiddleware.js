@@ -26,9 +26,10 @@ function stepToFreq(step) {
 
 function makeCollisionSounds(collisions) {
   collisions.forEach(({entities: [_, wire], force}) => {
-    if (force < 0.2) return // more than gravity
+    if (force < 0.35) return // more than gravity
     let length = wire.p.distance(wire.q)
-    neu.Synth(($) => piano($, 440 * 128 / length, Math.sqrt(force) / 10, wire.t * (1 - Math.exp(-force))), wire.t).start('now')
+    let vol = 1 - 1 / (1 + Math.max(0, force - 0.35))
+    neu.Synth(($) => piano($, 440 * 128 / length, Math.sqrt(force) / 10, vol * vol, wire.t)).start('now')
   })
 }
 
