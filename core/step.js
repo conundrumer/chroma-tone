@@ -7,7 +7,7 @@ import _ from 'lodash'
 import rayVsCircle from 'ray-vs-circle'
 import { checkIntersection } from 'line-intersect'
 
-const EPSILON = 0.000000001
+const EPSILON = 0.00000001
 
 function intersect(segA, segB) {
   let {point: intersection} = checkIntersection(
@@ -72,7 +72,7 @@ function AABBintersecting([aMinX, aMinY, aMaxX, aMaxY], [bMinX, bMinY, bMaxX, bM
   return true
 }
 
-function getCollision({cur, next, baseToi}, wire) {
+function getCollision({cur, next}, wire) {
   let r = cur.r + wire.r
   let ballAABB = getAABB([cur.p, next.p])
   let rOffset = {x: r, y: r}
@@ -119,14 +119,14 @@ function getCollision({cur, next, baseToi}, wire) {
     normalForce: thicknessOffset.unit(),
     toi: vec(intersectionA, cur.p).mulS(-1).dot(ballDisplacement) / ballDistanceTraveledSq,
     wire: wire,
-    wirePosition: 1 - 2 * Math.abs(vec(intersectionA, wire.p).mulS(1 / wireLength) - 0.5)
+    wirePosition: 1 - 2 * Math.abs(vec(intersectionA, wire.p).length() / wireLength - 0.5)
   }
   let b = intersectionB && {
     intersection: intersectionB,
     normalForce: thicknessOffset.clone().mulS(-1).unit(),
     toi: vec(intersectionB, cur.p).mulS(-1).dot(ballDisplacement) / ballDistanceTraveledSq,
     wire: wire,
-    wirePosition: 1 - 2 * Math.abs(vec(intersectionB, wire.p).mulS(1 / wireLength) - 0.5)
+    wirePosition: 1 - 2 * Math.abs(vec(intersectionB, wire.p).length() / wireLength - 0.5)
   }
   let p = intersectionP && {
     intersection: intersectionP,
@@ -144,21 +144,21 @@ function getCollision({cur, next, baseToi}, wire) {
   }
   return [a, b, p, q]
     .filter(x => x !== null)
-    .filter(x => x.toi >= baseToi && x.toi <= 1)
+    .filter(x => x.toi > 0 && x.toi < 1)
     .reduce(getCloserIntersection, null)
 }
 
 function resolveCollision({cur, next, baseToi}, collision) {
   let intersection = cur.p.clone().set(collision.intersection)
   let bounceDelta = project(vec(next.p, intersection), collision.normalForce).mulS(1 + collision.wire.t)
-  bounceDelta.mulS(Math.min(1 + EPSILON, 1 + 0.001 / bounceDelta.length()))
+  bounceDelta.mulS(Math.min(1 + EPSILON, 1 + 0.0001 / bounceDelta.length()))
   let bounceVelDelta = project(next.v, collision.normalForce).mulS(-1).mulS(1 + collision.wire.t)
   return [
     makeCollision(collision, next, bounceVelDelta),
     {
       cur: Ball(cur.id, intersection, cur.v),
       next: Ball(next.id, next.p.clone().add(bounceDelta), next.v.clone().add(bounceVelDelta)),
-      baseToi: collision.toi,
+      baseToi: baseToi + (1 - baseToi) * collision.toi,
     }]
 }
 
@@ -170,14 +170,15 @@ function makeCollision({wire, toi, wirePosition}, ball, force) {
 // damn that's bad
 // also don't check for ball_ball collisions, keep it simple
 // each ball only gets zero or one collisions because fk this sht
-function getAndResolveCollisionsNaively(steppedBalls, wires) {
+function getAndResolveCollisionsNaively(steppedBalls, wires, forcefullyResolve = false) {
   let [collisions, collidedBalls] = _(steppedBalls).map(steppedBall => {
     let collision = _(wires).map(wire =>
         getCollision(steppedBall, wire)
       ).reduce((closest, int) => getCloserIntersection(closest, int), null)
-    return collision
-      ? resolveCollision(steppedBall, collision)
-      : [null, steppedBall]
+    if (collision && steppedBall.next.v.dot(collision.normalForce) < 0) { // velocity and normal must oppose each other
+      return resolveCollision(steppedBall, collision)
+    }
+    return [null, steppedBall]
   })
   .unzip().value()
   return [
@@ -186,9 +187,29 @@ function getAndResolveCollisionsNaively(steppedBalls, wires) {
   ]
 }
 
+function getAndResolveCollisions(steppedBalls, wires) {
+  let totalCollisions = []
+  let finalCollidedBalls = Object.create(null)
+  let nextBallsToCollide = steppedBalls
+  for (let i = 0; i < 20; i++) {
+    let [collisions, collidedBalls] = getAndResolveCollisionsNaively(nextBallsToCollide, wires)
+    totalCollisions = totalCollisions.concat(collisions)
+    collidedBalls.forEach((collidedBall) => {
+      finalCollidedBalls[collidedBall.next.id] = collidedBall
+    })
+    if (collisions.length === 0) {
+      break;
+    }
+    nextBallsToCollide = collisions.map(({entities: [ball]}) => finalCollidedBalls[ball.id])
+    // console.log(i, collisions, collidedBalls, 'nextBallsToCollide', nextBallsToCollide)
+  }
+
+  return [totalCollisions.map(c => ({...c, force: c.force / totalCollisions.length})), _.values(finalCollidedBalls)]
+}
+
 // should return simState
 export default function step(simState) {
   let steppedBalls = simState.balls.map(ball => stepBall(ball, GRAVITY, AIR_FRICTION))
-  let [collisions, collidedBalls] = getAndResolveCollisionsNaively(steppedBalls, simState.wires)
+  let [collisions, collidedBalls] = getAndResolveCollisions(steppedBalls, simState.wires)
   return SimState(collidedBalls.map(collidedBall => collidedBall.next), simState.wires, collisions)
 }
