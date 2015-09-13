@@ -7,8 +7,6 @@ import _ from 'lodash'
 import rayVsCircle from 'ray-vs-circle'
 import { checkIntersection } from 'line-intersect'
 
-const EPSILON = 0.001
-
 function intersect(segA, segB) {
   let {point: intersection} = checkIntersection(
     segA.start.x, segA.start.y, segA.end.x, segA.end.y,
@@ -198,7 +196,6 @@ function getCollision({cur, next, previouslyCollidedWith}, wire) {
 function resolveCollision({cur, next, baseToi}, collision, forcefullyResolve = false) {
   let intersection = cur.p.clone().set(collision.intersection)
   let bounceDelta = project(vec(next.p, intersection), collision.normalForce).mulS(1 + collision.wire.t)
-  bounceDelta.mulS(Math.min(1 + EPSILON, 1 + 0.01 / bounceDelta.length()))
   let bounceVelDelta = project(next.v, collision.normalForce).mulS(-1).mulS(1 + collision.wire.t)
   return [
     makeCollision(collision, next, bounceVelDelta),
