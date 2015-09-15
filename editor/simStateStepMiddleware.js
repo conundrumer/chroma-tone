@@ -148,7 +148,7 @@ export default function simStateStep() {
       case DEC_FRAME_INDEX:
         makeCollisionSounds(neu, updatedState[getState().playback.index].collisions)
     }
-    if (line) {
+    if (line && line.t > 0) {
       makeCollisionSounds(neu, [{entities: [null, line], force: 1}])
     }
     return result
