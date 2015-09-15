@@ -27,16 +27,16 @@ export function getDistanceFromWire(wire, point, r) {
   if (r != null && Math.abs(pComp) > r) {
     return null;
   }
+  let rSq = r * r;
+  // within radius of either endpoints
+  let dist = Math.min(wire.p.distanceSq(point), wire.q.distanceSq(point))
+  if (r != null && dist < rSq) {
+    return dist
+  }
   let linePos = wireVec.dot(offset) / wireVec.lengthSq()
   // within boundaries of endpoints or radius of either endpoints
   if (linePos > 0 && linePos < 1) {
     return pComp * pComp;
-  }
-  let rSq = r * r;
-  // within radius of either endpoints
-  let dist = Math.min(wire.p.distanceSq(point), wire.q.distanceSq(point))
-  if (r == null && dist < rSq) {
-    return dist
   }
   return null
 }
