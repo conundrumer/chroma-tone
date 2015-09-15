@@ -2,7 +2,7 @@ import React, {Component, PropTypes} from 'react'
 
 const P_COLOR = '#FFEB3B'
 const Q_COLOR = '#FF9800'
-const LINE_COLOR = '#9C27B0'
+const LINE_COLOR = '#c0c0c0'
 const SELECTION_RADIUS = 10
 
 export default class LineSelection extends Component {
@@ -20,7 +20,7 @@ export default class LineSelection extends Component {
     }
   }
 
-  getArcs(id, p, q, vec, length, norm, dx, dy, z) {
+  getArcs(id, p, q, length, norm, dx, dy, z) {
     if (p === q) return []
     let d = {
       x: -dx,
@@ -29,7 +29,7 @@ export default class LineSelection extends Component {
     let width = SELECTION_RADIUS
 
     let offset = Math.sqrt(width * width - Math.pow(length * 0.5 / z, 2)) * z
-    let middle = vec.clone().mulS(0.5).add(p)
+    let middle = p.clone().add(q).mulS(0.5)
     let a = norm.clone().mulS(offset).add(middle).mulS(1/z).add(d)
     let b = norm.clone().mulS(-offset).add(middle).mulS(1/z).add(d)
 
@@ -56,7 +56,7 @@ export default class LineSelection extends Component {
     })
     return (
       <svg style={{position: 'absolute'}} viewBox={`0 0 ${w} ${h}`}>
-        <g style={{opacity: 0.7}}>
+        <g style={{opacity: 0.5}}>
           {lines.map(({id, p, q}) =>
               <line key={id}
                 strokeWidth={width * 2}
@@ -68,11 +68,11 @@ export default class LineSelection extends Component {
               />
           )}
           {lines.map(({id, p, q}) => {
+            let length = p.distance(q)
             let vec = q.clone().subtract(p)
-            let length = vec.length()
             let norm = vec.rotateRight().unit()
             return (length * 0.5 / z < (SELECTION_RADIUS - 0.1) ?
-              this.getArcs(id, p, q, vec, length, norm, dx, dy, z)
+              this.getArcs(id, p, q, length, norm, dx, dy, z)
             : [
               <circle key={-2 * id - 1}
                 fill={P_COLOR}
@@ -90,14 +90,12 @@ export default class LineSelection extends Component {
             })
           }
           {lines.map(({id, p, q}) => {
-            let vec = q.clone().subtract(p)
-            let length = vec.length()
-            return (length * 0.5 / z < (SELECTION_RADIUS * 1.5) ?
+            return (p.distance(q) * 0.5 / z < (SELECTION_RADIUS * 1.5) ?
               <circle key={id}
                 fill={LINE_COLOR}
                 r={width / 2}
-                cx={(p.x + 0.5 * vec.x) / z - dx}
-                cy={(p.y + 0.5 * vec.y) / z - dy}
+                cx={(0.5 * p.x + 0.5 * q.x) / z - dx}
+                cy={(0.5 * p.y + 0.5 * q.y) / z - dy}
               />
             : null)
           })
