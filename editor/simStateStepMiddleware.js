@@ -28,6 +28,7 @@ function wireLength(wire) {
 
 function makeCollisionSounds(neu, collisions) {
   collisions.forEach(({entities: [ , wire], force}) => {
+    if (wire.t === 0) return
     if (force < 0.35) return // more than gravity
     let length = wireLength(wire)
     let vol = 1 - 1 / (1 + Math.max(0, force - 0.35))
@@ -148,7 +149,7 @@ export default function simStateStep() {
       case DEC_FRAME_INDEX:
         makeCollisionSounds(neu, updatedState[getState().playback.index].collisions)
     }
-    if (line && line.t > 0) {
+    if (line) {
       makeCollisionSounds(neu, [{entities: [null, line], force: 1}])
     }
     return result
