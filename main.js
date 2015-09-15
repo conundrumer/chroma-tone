@@ -1580,7 +1580,7 @@
 
 	__webpack_require__(69);
 
-	var _lodash = __webpack_require__(22);
+	var _lodash = __webpack_require__(20);
 
 	var _lodash2 = _interopRequireDefault(_lodash);
 
@@ -3323,307 +3323,6 @@
 
 /***/ },
 /* 20 */
-/***/ function(module, exports) {
-
-	"use strict";
-
-	module.exports = {
-	  DOWN: 40,
-	  ESC: 27,
-	  ENTER: 13,
-	  LEFT: 37,
-	  RIGHT: 39,
-	  SPACE: 32,
-	  TAB: 9,
-	  UP: 38
-	};
-
-/***/ },
-/* 21 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Copyright 2013-2015, Facebook, Inc.
-	 * All rights reserved.
-	 *
-	 * This source code is licensed under the BSD-style license found in the
-	 * LICENSE file in the root directory of this source tree. An additional grant
-	 * of patent rights can be found in the PATENTS file in the same directory.
-	 *
-	 * @providesModule ReactUpdates
-	 */
-
-	'use strict';
-
-	var CallbackQueue = __webpack_require__(103);
-	var PooledClass = __webpack_require__(28);
-	var ReactCurrentOwner = __webpack_require__(30);
-	var ReactPerf = __webpack_require__(40);
-	var ReactReconciler = __webpack_require__(50);
-	var Transaction = __webpack_require__(79);
-
-	var assign = __webpack_require__(7);
-	var invariant = __webpack_require__(5);
-	var warning = __webpack_require__(8);
-
-	var dirtyComponents = [];
-	var asapCallbackQueue = CallbackQueue.getPooled();
-	var asapEnqueued = false;
-
-	var batchingStrategy = null;
-
-	function ensureInjected() {
-	  ( false ? invariant(
-	    ReactUpdates.ReactReconcileTransaction && batchingStrategy,
-	    'ReactUpdates: must inject a reconcile transaction class and batching ' +
-	    'strategy'
-	  ) : invariant(ReactUpdates.ReactReconcileTransaction && batchingStrategy));
-	}
-
-	var NESTED_UPDATES = {
-	  initialize: function() {
-	    this.dirtyComponentsLength = dirtyComponents.length;
-	  },
-	  close: function() {
-	    if (this.dirtyComponentsLength !== dirtyComponents.length) {
-	      // Additional updates were enqueued by componentDidUpdate handlers or
-	      // similar; before our own UPDATE_QUEUEING wrapper closes, we want to run
-	      // these new updates so that if A's componentDidUpdate calls setState on
-	      // B, B will update before the callback A's updater provided when calling
-	      // setState.
-	      dirtyComponents.splice(0, this.dirtyComponentsLength);
-	      flushBatchedUpdates();
-	    } else {
-	      dirtyComponents.length = 0;
-	    }
-	  }
-	};
-
-	var UPDATE_QUEUEING = {
-	  initialize: function() {
-	    this.callbackQueue.reset();
-	  },
-	  close: function() {
-	    this.callbackQueue.notifyAll();
-	  }
-	};
-
-	var TRANSACTION_WRAPPERS = [NESTED_UPDATES, UPDATE_QUEUEING];
-
-	function ReactUpdatesFlushTransaction() {
-	  this.reinitializeTransaction();
-	  this.dirtyComponentsLength = null;
-	  this.callbackQueue = CallbackQueue.getPooled();
-	  this.reconcileTransaction =
-	    ReactUpdates.ReactReconcileTransaction.getPooled();
-	}
-
-	assign(
-	  ReactUpdatesFlushTransaction.prototype,
-	  Transaction.Mixin, {
-	  getTransactionWrappers: function() {
-	    return TRANSACTION_WRAPPERS;
-	  },
-
-	  destructor: function() {
-	    this.dirtyComponentsLength = null;
-	    CallbackQueue.release(this.callbackQueue);
-	    this.callbackQueue = null;
-	    ReactUpdates.ReactReconcileTransaction.release(this.reconcileTransaction);
-	    this.reconcileTransaction = null;
-	  },
-
-	  perform: function(method, scope, a) {
-	    // Essentially calls `this.reconcileTransaction.perform(method, scope, a)`
-	    // with this transaction's wrappers around it.
-	    return Transaction.Mixin.perform.call(
-	      this,
-	      this.reconcileTransaction.perform,
-	      this.reconcileTransaction,
-	      method,
-	      scope,
-	      a
-	    );
-	  }
-	});
-
-	PooledClass.addPoolingTo(ReactUpdatesFlushTransaction);
-
-	function batchedUpdates(callback, a, b, c, d) {
-	  ensureInjected();
-	  batchingStrategy.batchedUpdates(callback, a, b, c, d);
-	}
-
-	/**
-	 * Array comparator for ReactComponents by mount ordering.
-	 *
-	 * @param {ReactComponent} c1 first component you're comparing
-	 * @param {ReactComponent} c2 second component you're comparing
-	 * @return {number} Return value usable by Array.prototype.sort().
-	 */
-	function mountOrderComparator(c1, c2) {
-	  return c1._mountOrder - c2._mountOrder;
-	}
-
-	function runBatchedUpdates(transaction) {
-	  var len = transaction.dirtyComponentsLength;
-	  ( false ? invariant(
-	    len === dirtyComponents.length,
-	    'Expected flush transaction\'s stored dirty-components length (%s) to ' +
-	    'match dirty-components array length (%s).',
-	    len,
-	    dirtyComponents.length
-	  ) : invariant(len === dirtyComponents.length));
-
-	  // Since reconciling a component higher in the owner hierarchy usually (not
-	  // always -- see shouldComponentUpdate()) will reconcile children, reconcile
-	  // them before their children by sorting the array.
-	  dirtyComponents.sort(mountOrderComparator);
-
-	  for (var i = 0; i < len; i++) {
-	    // If a component is unmounted before pending changes apply, it will still
-	    // be here, but we assume that it has cleared its _pendingCallbacks and
-	    // that performUpdateIfNecessary is a noop.
-	    var component = dirtyComponents[i];
-
-	    // If performUpdateIfNecessary happens to enqueue any new updates, we
-	    // shouldn't execute the callbacks until the next render happens, so
-	    // stash the callbacks first
-	    var callbacks = component._pendingCallbacks;
-	    component._pendingCallbacks = null;
-
-	    ReactReconciler.performUpdateIfNecessary(
-	      component,
-	      transaction.reconcileTransaction
-	    );
-
-	    if (callbacks) {
-	      for (var j = 0; j < callbacks.length; j++) {
-	        transaction.callbackQueue.enqueue(
-	          callbacks[j],
-	          component.getPublicInstance()
-	        );
-	      }
-	    }
-	  }
-	}
-
-	var flushBatchedUpdates = function() {
-	  // ReactUpdatesFlushTransaction's wrappers will clear the dirtyComponents
-	  // array and perform any updates enqueued by mount-ready handlers (i.e.,
-	  // componentDidUpdate) but we need to check here too in order to catch
-	  // updates enqueued by setState callbacks and asap calls.
-	  while (dirtyComponents.length || asapEnqueued) {
-	    if (dirtyComponents.length) {
-	      var transaction = ReactUpdatesFlushTransaction.getPooled();
-	      transaction.perform(runBatchedUpdates, null, transaction);
-	      ReactUpdatesFlushTransaction.release(transaction);
-	    }
-
-	    if (asapEnqueued) {
-	      asapEnqueued = false;
-	      var queue = asapCallbackQueue;
-	      asapCallbackQueue = CallbackQueue.getPooled();
-	      queue.notifyAll();
-	      CallbackQueue.release(queue);
-	    }
-	  }
-	};
-	flushBatchedUpdates = ReactPerf.measure(
-	  'ReactUpdates',
-	  'flushBatchedUpdates',
-	  flushBatchedUpdates
-	);
-
-	/**
-	 * Mark a component as needing a rerender, adding an optional callback to a
-	 * list of functions which will be executed once the rerender occurs.
-	 */
-	function enqueueUpdate(component) {
-	  ensureInjected();
-
-	  // Various parts of our code (such as ReactCompositeComponent's
-	  // _renderValidatedComponent) assume that calls to render aren't nested;
-	  // verify that that's the case. (This is called by each top-level update
-	  // function, like setProps, setState, forceUpdate, etc.; creation and
-	  // destruction of top-level components is guarded in ReactMount.)
-	  ( false ? warning(
-	    ReactCurrentOwner.current == null,
-	    'enqueueUpdate(): Render methods should be a pure function of props ' +
-	    'and state; triggering nested component updates from render is not ' +
-	    'allowed. If necessary, trigger nested updates in ' +
-	    'componentDidUpdate.'
-	  ) : null);
-
-	  if (!batchingStrategy.isBatchingUpdates) {
-	    batchingStrategy.batchedUpdates(enqueueUpdate, component);
-	    return;
-	  }
-
-	  dirtyComponents.push(component);
-	}
-
-	/**
-	 * Enqueue a callback to be run at the end of the current batching cycle. Throws
-	 * if no updates are currently being performed.
-	 */
-	function asap(callback, context) {
-	  ( false ? invariant(
-	    batchingStrategy.isBatchingUpdates,
-	    'ReactUpdates.asap: Can\'t enqueue an asap callback in a context where' +
-	    'updates are not being batched.'
-	  ) : invariant(batchingStrategy.isBatchingUpdates));
-	  asapCallbackQueue.enqueue(callback, context);
-	  asapEnqueued = true;
-	}
-
-	var ReactUpdatesInjection = {
-	  injectReconcileTransaction: function(ReconcileTransaction) {
-	    ( false ? invariant(
-	      ReconcileTransaction,
-	      'ReactUpdates: must provide a reconcile transaction class'
-	    ) : invariant(ReconcileTransaction));
-	    ReactUpdates.ReactReconcileTransaction = ReconcileTransaction;
-	  },
-
-	  injectBatchingStrategy: function(_batchingStrategy) {
-	    ( false ? invariant(
-	      _batchingStrategy,
-	      'ReactUpdates: must provide a batching strategy'
-	    ) : invariant(_batchingStrategy));
-	    ( false ? invariant(
-	      typeof _batchingStrategy.batchedUpdates === 'function',
-	      'ReactUpdates: must provide a batchedUpdates() function'
-	    ) : invariant(typeof _batchingStrategy.batchedUpdates === 'function'));
-	    ( false ? invariant(
-	      typeof _batchingStrategy.isBatchingUpdates === 'boolean',
-	      'ReactUpdates: must provide an isBatchingUpdates boolean attribute'
-	    ) : invariant(typeof _batchingStrategy.isBatchingUpdates === 'boolean'));
-	    batchingStrategy = _batchingStrategy;
-	  }
-	};
-
-	var ReactUpdates = {
-	  /**
-	   * React references `ReactReconcileTransaction` using this property in order
-	   * to allow dependency injection.
-	   *
-	   * @internal
-	   */
-	  ReactReconcileTransaction: null,
-
-	  batchedUpdates: batchedUpdates,
-	  enqueueUpdate: enqueueUpdate,
-	  flushBatchedUpdates: flushBatchedUpdates,
-	  injection: ReactUpdatesInjection,
-	  asap: asap
-	};
-
-	module.exports = ReactUpdates;
-
-
-/***/ },
-/* 22 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(module, global) {/**
@@ -15981,6 +15680,307 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(123)(module), (function() { return this; }())))
 
 /***/ },
+/* 21 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	module.exports = {
+	  DOWN: 40,
+	  ESC: 27,
+	  ENTER: 13,
+	  LEFT: 37,
+	  RIGHT: 39,
+	  SPACE: 32,
+	  TAB: 9,
+	  UP: 38
+	};
+
+/***/ },
+/* 22 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Copyright 2013-2015, Facebook, Inc.
+	 * All rights reserved.
+	 *
+	 * This source code is licensed under the BSD-style license found in the
+	 * LICENSE file in the root directory of this source tree. An additional grant
+	 * of patent rights can be found in the PATENTS file in the same directory.
+	 *
+	 * @providesModule ReactUpdates
+	 */
+
+	'use strict';
+
+	var CallbackQueue = __webpack_require__(103);
+	var PooledClass = __webpack_require__(28);
+	var ReactCurrentOwner = __webpack_require__(30);
+	var ReactPerf = __webpack_require__(40);
+	var ReactReconciler = __webpack_require__(50);
+	var Transaction = __webpack_require__(79);
+
+	var assign = __webpack_require__(7);
+	var invariant = __webpack_require__(5);
+	var warning = __webpack_require__(8);
+
+	var dirtyComponents = [];
+	var asapCallbackQueue = CallbackQueue.getPooled();
+	var asapEnqueued = false;
+
+	var batchingStrategy = null;
+
+	function ensureInjected() {
+	  ( false ? invariant(
+	    ReactUpdates.ReactReconcileTransaction && batchingStrategy,
+	    'ReactUpdates: must inject a reconcile transaction class and batching ' +
+	    'strategy'
+	  ) : invariant(ReactUpdates.ReactReconcileTransaction && batchingStrategy));
+	}
+
+	var NESTED_UPDATES = {
+	  initialize: function() {
+	    this.dirtyComponentsLength = dirtyComponents.length;
+	  },
+	  close: function() {
+	    if (this.dirtyComponentsLength !== dirtyComponents.length) {
+	      // Additional updates were enqueued by componentDidUpdate handlers or
+	      // similar; before our own UPDATE_QUEUEING wrapper closes, we want to run
+	      // these new updates so that if A's componentDidUpdate calls setState on
+	      // B, B will update before the callback A's updater provided when calling
+	      // setState.
+	      dirtyComponents.splice(0, this.dirtyComponentsLength);
+	      flushBatchedUpdates();
+	    } else {
+	      dirtyComponents.length = 0;
+	    }
+	  }
+	};
+
+	var UPDATE_QUEUEING = {
+	  initialize: function() {
+	    this.callbackQueue.reset();
+	  },
+	  close: function() {
+	    this.callbackQueue.notifyAll();
+	  }
+	};
+
+	var TRANSACTION_WRAPPERS = [NESTED_UPDATES, UPDATE_QUEUEING];
+
+	function ReactUpdatesFlushTransaction() {
+	  this.reinitializeTransaction();
+	  this.dirtyComponentsLength = null;
+	  this.callbackQueue = CallbackQueue.getPooled();
+	  this.reconcileTransaction =
+	    ReactUpdates.ReactReconcileTransaction.getPooled();
+	}
+
+	assign(
+	  ReactUpdatesFlushTransaction.prototype,
+	  Transaction.Mixin, {
+	  getTransactionWrappers: function() {
+	    return TRANSACTION_WRAPPERS;
+	  },
+
+	  destructor: function() {
+	    this.dirtyComponentsLength = null;
+	    CallbackQueue.release(this.callbackQueue);
+	    this.callbackQueue = null;
+	    ReactUpdates.ReactReconcileTransaction.release(this.reconcileTransaction);
+	    this.reconcileTransaction = null;
+	  },
+
+	  perform: function(method, scope, a) {
+	    // Essentially calls `this.reconcileTransaction.perform(method, scope, a)`
+	    // with this transaction's wrappers around it.
+	    return Transaction.Mixin.perform.call(
+	      this,
+	      this.reconcileTransaction.perform,
+	      this.reconcileTransaction,
+	      method,
+	      scope,
+	      a
+	    );
+	  }
+	});
+
+	PooledClass.addPoolingTo(ReactUpdatesFlushTransaction);
+
+	function batchedUpdates(callback, a, b, c, d) {
+	  ensureInjected();
+	  batchingStrategy.batchedUpdates(callback, a, b, c, d);
+	}
+
+	/**
+	 * Array comparator for ReactComponents by mount ordering.
+	 *
+	 * @param {ReactComponent} c1 first component you're comparing
+	 * @param {ReactComponent} c2 second component you're comparing
+	 * @return {number} Return value usable by Array.prototype.sort().
+	 */
+	function mountOrderComparator(c1, c2) {
+	  return c1._mountOrder - c2._mountOrder;
+	}
+
+	function runBatchedUpdates(transaction) {
+	  var len = transaction.dirtyComponentsLength;
+	  ( false ? invariant(
+	    len === dirtyComponents.length,
+	    'Expected flush transaction\'s stored dirty-components length (%s) to ' +
+	    'match dirty-components array length (%s).',
+	    len,
+	    dirtyComponents.length
+	  ) : invariant(len === dirtyComponents.length));
+
+	  // Since reconciling a component higher in the owner hierarchy usually (not
+	  // always -- see shouldComponentUpdate()) will reconcile children, reconcile
+	  // them before their children by sorting the array.
+	  dirtyComponents.sort(mountOrderComparator);
+
+	  for (var i = 0; i < len; i++) {
+	    // If a component is unmounted before pending changes apply, it will still
+	    // be here, but we assume that it has cleared its _pendingCallbacks and
+	    // that performUpdateIfNecessary is a noop.
+	    var component = dirtyComponents[i];
+
+	    // If performUpdateIfNecessary happens to enqueue any new updates, we
+	    // shouldn't execute the callbacks until the next render happens, so
+	    // stash the callbacks first
+	    var callbacks = component._pendingCallbacks;
+	    component._pendingCallbacks = null;
+
+	    ReactReconciler.performUpdateIfNecessary(
+	      component,
+	      transaction.reconcileTransaction
+	    );
+
+	    if (callbacks) {
+	      for (var j = 0; j < callbacks.length; j++) {
+	        transaction.callbackQueue.enqueue(
+	          callbacks[j],
+	          component.getPublicInstance()
+	        );
+	      }
+	    }
+	  }
+	}
+
+	var flushBatchedUpdates = function() {
+	  // ReactUpdatesFlushTransaction's wrappers will clear the dirtyComponents
+	  // array and perform any updates enqueued by mount-ready handlers (i.e.,
+	  // componentDidUpdate) but we need to check here too in order to catch
+	  // updates enqueued by setState callbacks and asap calls.
+	  while (dirtyComponents.length || asapEnqueued) {
+	    if (dirtyComponents.length) {
+	      var transaction = ReactUpdatesFlushTransaction.getPooled();
+	      transaction.perform(runBatchedUpdates, null, transaction);
+	      ReactUpdatesFlushTransaction.release(transaction);
+	    }
+
+	    if (asapEnqueued) {
+	      asapEnqueued = false;
+	      var queue = asapCallbackQueue;
+	      asapCallbackQueue = CallbackQueue.getPooled();
+	      queue.notifyAll();
+	      CallbackQueue.release(queue);
+	    }
+	  }
+	};
+	flushBatchedUpdates = ReactPerf.measure(
+	  'ReactUpdates',
+	  'flushBatchedUpdates',
+	  flushBatchedUpdates
+	);
+
+	/**
+	 * Mark a component as needing a rerender, adding an optional callback to a
+	 * list of functions which will be executed once the rerender occurs.
+	 */
+	function enqueueUpdate(component) {
+	  ensureInjected();
+
+	  // Various parts of our code (such as ReactCompositeComponent's
+	  // _renderValidatedComponent) assume that calls to render aren't nested;
+	  // verify that that's the case. (This is called by each top-level update
+	  // function, like setProps, setState, forceUpdate, etc.; creation and
+	  // destruction of top-level components is guarded in ReactMount.)
+	  ( false ? warning(
+	    ReactCurrentOwner.current == null,
+	    'enqueueUpdate(): Render methods should be a pure function of props ' +
+	    'and state; triggering nested component updates from render is not ' +
+	    'allowed. If necessary, trigger nested updates in ' +
+	    'componentDidUpdate.'
+	  ) : null);
+
+	  if (!batchingStrategy.isBatchingUpdates) {
+	    batchingStrategy.batchedUpdates(enqueueUpdate, component);
+	    return;
+	  }
+
+	  dirtyComponents.push(component);
+	}
+
+	/**
+	 * Enqueue a callback to be run at the end of the current batching cycle. Throws
+	 * if no updates are currently being performed.
+	 */
+	function asap(callback, context) {
+	  ( false ? invariant(
+	    batchingStrategy.isBatchingUpdates,
+	    'ReactUpdates.asap: Can\'t enqueue an asap callback in a context where' +
+	    'updates are not being batched.'
+	  ) : invariant(batchingStrategy.isBatchingUpdates));
+	  asapCallbackQueue.enqueue(callback, context);
+	  asapEnqueued = true;
+	}
+
+	var ReactUpdatesInjection = {
+	  injectReconcileTransaction: function(ReconcileTransaction) {
+	    ( false ? invariant(
+	      ReconcileTransaction,
+	      'ReactUpdates: must provide a reconcile transaction class'
+	    ) : invariant(ReconcileTransaction));
+	    ReactUpdates.ReactReconcileTransaction = ReconcileTransaction;
+	  },
+
+	  injectBatchingStrategy: function(_batchingStrategy) {
+	    ( false ? invariant(
+	      _batchingStrategy,
+	      'ReactUpdates: must provide a batching strategy'
+	    ) : invariant(_batchingStrategy));
+	    ( false ? invariant(
+	      typeof _batchingStrategy.batchedUpdates === 'function',
+	      'ReactUpdates: must provide a batchedUpdates() function'
+	    ) : invariant(typeof _batchingStrategy.batchedUpdates === 'function'));
+	    ( false ? invariant(
+	      typeof _batchingStrategy.isBatchingUpdates === 'boolean',
+	      'ReactUpdates: must provide an isBatchingUpdates boolean attribute'
+	    ) : invariant(typeof _batchingStrategy.isBatchingUpdates === 'boolean'));
+	    batchingStrategy = _batchingStrategy;
+	  }
+	};
+
+	var ReactUpdates = {
+	  /**
+	   * React references `ReactReconcileTransaction` using this property in order
+	   * to allow dependency injection.
+	   *
+	   * @internal
+	   */
+	  ReactReconcileTransaction: null,
+
+	  batchedUpdates: batchedUpdates,
+	  enqueueUpdate: enqueueUpdate,
+	  flushBatchedUpdates: flushBatchedUpdates,
+	  injection: ReactUpdatesInjection,
+	  asap: asap
+	};
+
+	module.exports = ReactUpdates;
+
+
+/***/ },
 /* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -16168,7 +16168,7 @@
 	var Colors = __webpack_require__(15);
 	var Children = __webpack_require__(73);
 	var Events = __webpack_require__(38);
-	var KeyCode = __webpack_require__(20);
+	var KeyCode = __webpack_require__(21);
 	var FocusRipple = __webpack_require__(71);
 	var TouchRipple = __webpack_require__(92);
 
@@ -16691,7 +16691,7 @@
 	var ReactPerf = __webpack_require__(40);
 	var ReactReconciler = __webpack_require__(50);
 	var ReactUpdateQueue = __webpack_require__(113);
-	var ReactUpdates = __webpack_require__(21);
+	var ReactUpdates = __webpack_require__(22);
 
 	var emptyObject = __webpack_require__(81);
 	var containsNode = __webpack_require__(188);
@@ -24042,7 +24042,7 @@
 	var React = __webpack_require__(1);
 	var CssEvent = __webpack_require__(58);
 	var KeyLine = __webpack_require__(152);
-	var KeyCode = __webpack_require__(20);
+	var KeyCode = __webpack_require__(21);
 	var StylePropable = __webpack_require__(2);
 	var Transitions = __webpack_require__(6);
 	var ClickAwayable = __webpack_require__(41);
@@ -27227,7 +27227,7 @@
 	var React = __webpack_require__(3);
 	var WindowListenable = __webpack_require__(27);
 	var CssEvent = __webpack_require__(58);
-	var KeyCode = __webpack_require__(20);
+	var KeyCode = __webpack_require__(21);
 	var Transitions = __webpack_require__(6);
 	var StylePropable = __webpack_require__(2);
 	var FlatButton = __webpack_require__(54);
@@ -27613,7 +27613,7 @@
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 	var React = __webpack_require__(1);
-	var KeyCode = __webpack_require__(20);
+	var KeyCode = __webpack_require__(21);
 	var StylePropable = __webpack_require__(2);
 	var Transitions = __webpack_require__(6);
 	var UniqueId = __webpack_require__(99);
@@ -30713,7 +30713,7 @@
 	var ReactCurrentOwner = __webpack_require__(30);
 	var ReactElement = __webpack_require__(9);
 	var ReactInstanceMap = __webpack_require__(49);
-	var ReactUpdates = __webpack_require__(21);
+	var ReactUpdates = __webpack_require__(22);
 
 	var assign = __webpack_require__(7);
 	var invariant = __webpack_require__(5);
@@ -32625,7 +32625,7 @@
 	var StylePropable = __webpack_require__(2);
 	var WindowListenable = __webpack_require__(27);
 	var CssEvent = __webpack_require__(58);
-	var KeyCode = __webpack_require__(20);
+	var KeyCode = __webpack_require__(21);
 	var Calendar = __webpack_require__(310);
 	var Dialog = __webpack_require__(88);
 	var FlatButton = __webpack_require__(54);
@@ -32817,7 +32817,7 @@
 	var React = __webpack_require__(1);
 	var StylePropable = __webpack_require__(2);
 	var Transitions = __webpack_require__(6);
-	var KeyCode = __webpack_require__(20);
+	var KeyCode = __webpack_require__(21);
 	var DropDownArrow = __webpack_require__(142);
 	var Paper = __webpack_require__(13);
 	var Menu = __webpack_require__(70);
@@ -36409,7 +36409,7 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _lodash = __webpack_require__(22);
+	var _lodash = __webpack_require__(20);
 
 	var _lodash2 = _interopRequireDefault(_lodash);
 
@@ -37233,7 +37233,7 @@
 
 	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-	var _lodash = __webpack_require__(22);
+	var _lodash = __webpack_require__(20);
 
 	var _lodash2 = _interopRequireDefault(_lodash);
 
@@ -53395,7 +53395,7 @@
 	var StylePropable = __webpack_require__(2);
 	var WindowListenable = __webpack_require__(27);
 	var DateTime = __webpack_require__(37);
-	var KeyCode = __webpack_require__(20);
+	var KeyCode = __webpack_require__(21);
 	var Transitions = __webpack_require__(6);
 	var CalendarMonth = __webpack_require__(307);
 	var CalendarYear = __webpack_require__(309);
@@ -55114,7 +55114,7 @@
 	var Modernizr = isBrowser ? __webpack_require__(153) : undefined;
 
 	var React = __webpack_require__(1);
-	var KeyCode = __webpack_require__(20);
+	var KeyCode = __webpack_require__(21);
 	var StylePropable = __webpack_require__(2);
 	var AutoPrefix = __webpack_require__(14);
 	var Transitions = __webpack_require__(6);
@@ -56277,7 +56277,7 @@
 	var StylePropable = __webpack_require__(2);
 	var AutoPrefix = __webpack_require__(14);
 	var Transitions = __webpack_require__(6);
-	var KeyCode = __webpack_require__(20);
+	var KeyCode = __webpack_require__(21);
 	var PropTypes = __webpack_require__(59);
 	var List = __webpack_require__(90);
 	var Paper = __webpack_require__(13);
@@ -61123,7 +61123,7 @@
 	var React = __webpack_require__(1);
 	var StylePropable = __webpack_require__(2);
 	var WindowListenable = __webpack_require__(27);
-	var KeyCode = __webpack_require__(20);
+	var KeyCode = __webpack_require__(21);
 	var Clock = __webpack_require__(361);
 	var Dialog = __webpack_require__(88);
 	var FlatButton = __webpack_require__(54);
@@ -61801,7 +61801,7 @@
 	  Events: __webpack_require__(38),
 	  Extend: __webpack_require__(97),
 	  ImmutabilityHelper: __webpack_require__(42),
-	  KeyCode: __webpack_require__(20),
+	  KeyCode: __webpack_require__(21),
 	  KeyLine: __webpack_require__(152),
 	  UniqueId: __webpack_require__(99),
 	  Styles: __webpack_require__(98)
@@ -68506,16 +68506,16 @@
 	  if (r != null && Math.abs(pComp) > r) {
 	    return null;
 	  }
+	  var rSq = r * r;
+	  // within radius of either endpoints
+	  var dist = Math.min(wire.p.distanceSq(point), wire.q.distanceSq(point));
+	  if (r != null && dist < rSq) {
+	    return dist;
+	  }
 	  var linePos = wireVec.dot(offset) / wireVec.lengthSq();
 	  // within boundaries of endpoints or radius of either endpoints
 	  if (linePos > 0 && linePos < 1) {
 	    return pComp * pComp;
-	  }
-	  var rSq = r * r;
-	  // within radius of either endpoints
-	  var dist = Math.min(wire.p.distanceSq(point), wire.q.distanceSq(point));
-	  if (r == null && dist < rSq) {
-	    return dist;
 	  }
 	  return null;
 	}
@@ -68588,7 +68588,7 @@
 
 	var _SimState2 = _interopRequireDefault(_SimState);
 
-	var _lodash = __webpack_require__(22);
+	var _lodash = __webpack_require__(20);
 
 	var _lodash2 = _interopRequireDefault(_lodash);
 
@@ -68644,7 +68644,7 @@
 
 	var _Ball2 = _interopRequireDefault(_Ball);
 
-	var _lodash = __webpack_require__(22);
+	var _lodash = __webpack_require__(20);
 
 	var _lodash2 = _interopRequireDefault(_lodash);
 
@@ -69014,7 +69014,7 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _lodash = __webpack_require__(22);
+	var _lodash = __webpack_require__(20);
 
 	var _lodash2 = _interopRequireDefault(_lodash);
 
@@ -69340,7 +69340,7 @@
 
 	var _classnames2 = _interopRequireDefault(_classnames);
 
-	var _lodash = __webpack_require__(22);
+	var _lodash = __webpack_require__(20);
 
 	var _lodash2 = _interopRequireDefault(_lodash);
 
@@ -69840,7 +69840,7 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var _lodash = __webpack_require__(22);
+	var _lodash = __webpack_require__(20);
 
 	var _lodash2 = _interopRequireDefault(_lodash);
 
@@ -71088,7 +71088,7 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var _lodash = __webpack_require__(22);
+	var _lodash = __webpack_require__(20);
 
 	var _lodash2 = _interopRequireDefault(_lodash);
 
@@ -71380,13 +71380,16 @@
 
 	var _neumeJs2 = _interopRequireDefault(_neumeJs);
 
-	// http://mohayonao.github.io/neume.js/examples/mml-piano.html
-	function piano($, freq, dur, vol) {
-	  var brightness = arguments.length <= 4 || arguments[4] === undefined ? 1 : arguments[4];
+	var _lodash = __webpack_require__(20);
 
+	var _lodash2 = _interopRequireDefault(_lodash);
+
+	// http://mohayonao.github.io/neume.js/examples/mml-piano.html
+	function piano($, freq, dur, vol, timbre) {
+	  var freqBrightness = Math.sqrt(freq * 500) * ((vol + 1) / 2);
 	  return $([1, 5, 13, 0.5].map(function (x, i) {
-	    return $("sin", { freq: freq * x });
-	  })).mul(0.75 * vol).$("shaper", { curve: 0.75 }).$("lpf", { freq: $("line", { start: brightness * freq * 3, end: brightness * freq * 0.75, dur: brightness * 3.5 }), Q: 6 }).$("xline", { start: 0.5, end: 0.01, dur: dur * 5 }).on("end", $.stop);
+	    return $("sin", { freq: freq * x, mul: Math.pow(x, 2 * (timbre - 1)) });
+	  })).mul(0.75 * vol).$("shaper", { curve: 0.75 * timbre }).$("lpf", { freq: $("line", { start: freqBrightness * 3, end: freqBrightness * 0.75, dur: 3.5 }), Q: 6 }).$("xline", { start: 0.5, end: 0.01, dur: dur * 5 }).on("end", $.stop);
 	}
 	// http://en.wikipedia.org/wiki/MIDI_Tuning_Standard#Frequency_values
 	function freqToStep(hz) {
@@ -71396,16 +71399,20 @@
 	  return 440 * Math.pow(2, (step - 69) / 12);
 	}
 
+	function wireLength(wire) {
+	  return wire.p.distance(wire.q);
+	}
+
 	function makeCollisionSounds(neu, collisions) {
 	  collisions.forEach(function (_ref) {
 	    var _ref$entities = _slicedToArray(_ref.entities, 2);
 
-	    var _ = _ref$entities[0];
 	    var wire = _ref$entities[1];
 	    var force = _ref.force;
 
+	    if (wire.t === 0) return;
 	    if (force < 0.35) return; // more than gravity
-	    var length = wire.p.distance(wire.q);
+	    var length = wireLength(wire);
 	    var vol = 1 - 1 / (1 + Math.max(0, force - 0.35));
 	    neu.Synth(function ($) {
 	      return piano($, 440 * 128 / length, Math.sqrt(force) / 10, vol * vol, wire.t);
@@ -71423,6 +71430,21 @@
 	    simStates = simStates.concat([(0, _core.step)(simStates[i])]);
 	  }
 	  return _extends({}, action, { simStates: simStates });
+	}
+
+	function getLineByID(simState, lineID) {
+	  var line = _lodash2['default'].filter(simState.balls.concat(simState.wires), { id: lineID })[0];
+	  if (line != null) {
+	    if (line.q) {
+	      return line;
+	    }
+	  }
+	}
+
+	function equalLength(wire1, wire2) {
+	  var len1 = Math.log2(wireLength(wire1));
+	  var len2 = Math.log2(wireLength(wire2));
+	  return Math.abs(len1 - len2) < 1 / 12 / 100;
 	}
 
 	function simStateStep() {
@@ -71501,13 +71523,28 @@
 	          case _actions.INC_FRAME_INDEX:
 	          case _actions.DEC_FRAME_INDEX:
 	            action = refreshSimState(simStates, getState, action);
-
-	            var _playback2 = (0, _reducers.playback)(getState().playback, action),
-	                index = _playback2.index;
-
-	            makeCollisionSounds(neu, action.simStates[index].collisions);
 	        }
 	        var result = next(action);
+	        var updatedState = getState().simStatesData.simStates;
+	        // console.log(updatedState)
+	        var line = undefined;
+	        switch (action.type) {
+	          case _actions.SELECT_LINE:
+	            line = getLineByID(updatedState[0], action.lineID);
+	            break;
+	          case _actions.ADD_LINE:
+	            line = action.line instanceof Array ? null : action.line;
+	            break;
+	          case _actions.REPLACE_LINE:
+	            line = equalLength(action.prevLine, action.line) ? null : action.line;
+	            break;
+	          case _actions.INC_FRAME_INDEX:
+	          case _actions.DEC_FRAME_INDEX:
+	            makeCollisionSounds(neu, updatedState[getState().playback.index].collisions);
+	        }
+	        if (line) {
+	          makeCollisionSounds(neu, [{ entities: [null, line], force: 1 }]);
+	        }
 	        return result;
 	      };
 	    };
@@ -71546,7 +71583,7 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _lodash = __webpack_require__(22);
+	var _lodash = __webpack_require__(20);
 
 	var _lodash2 = _interopRequireDefault(_lodash);
 
@@ -72845,7 +72882,7 @@
 
 	var P_COLOR = '#FFEB3B';
 	var Q_COLOR = '#FF9800';
-	var LINE_COLOR = '#9C27B0';
+	var LINE_COLOR = '#c0c0c0';
 	var SELECTION_RADIUS = 10;
 
 	var LineSelection = (function (_Component) {
@@ -72859,7 +72896,7 @@
 
 	  _createClass(LineSelection, [{
 	    key: 'getArcs',
-	    value: function getArcs(id, p, q, vec, length, norm, dx, dy, z) {
+	    value: function getArcs(id, p, q, length, norm, dx, dy, z) {
 	      if (p === q) return [];
 	      var d = {
 	        x: -dx,
@@ -72868,7 +72905,7 @@
 	      var width = SELECTION_RADIUS;
 
 	      var offset = Math.sqrt(width * width - Math.pow(length * 0.5 / z, 2)) * z;
-	      var middle = vec.clone().mulS(0.5).add(p);
+	      var middle = p.clone().add(q).mulS(0.5);
 	      var a = norm.clone().mulS(offset).add(middle).mulS(1 / z).add(d);
 	      var b = norm.clone().mulS(-offset).add(middle).mulS(1 / z).add(d);
 
@@ -72905,7 +72942,7 @@
 	        { style: { position: 'absolute' }, viewBox: '0 0 ' + w + ' ' + h },
 	        _react2['default'].createElement(
 	          'g',
-	          { style: { opacity: 0.7 } },
+	          { style: { opacity: 0.5 } },
 	          lines.map(function (_ref) {
 	            var id = _ref.id;
 	            var p = _ref.p;
@@ -72924,10 +72961,10 @@
 	            var p = _ref2.p;
 	            var q = _ref2.q;
 
+	            var length = p.distance(q);
 	            var vec = q.clone().subtract(p);
-	            var length = vec.length();
 	            var norm = vec.rotateRight().unit();
-	            return (length * 0.5 / z < SELECTION_RADIUS - 0.1 ? _this.getArcs(id, p, q, vec, length, norm, dx, dy, z) : [_react2['default'].createElement('circle', { key: -2 * id - 1,
+	            return (length * 0.5 / z < SELECTION_RADIUS - 0.1 ? _this.getArcs(id, p, q, length, norm, dx, dy, z) : [_react2['default'].createElement('circle', { key: -2 * id - 1,
 	              fill: P_COLOR,
 	              r: width,
 	              cx: p.x / z - dx,
@@ -72946,13 +72983,11 @@
 	            var p = _ref3.p;
 	            var q = _ref3.q;
 
-	            var vec = q.clone().subtract(p);
-	            var length = vec.length();
-	            return length * 0.5 / z < SELECTION_RADIUS * 1.5 ? _react2['default'].createElement('circle', { key: id,
+	            return p.distance(q) * 0.5 / z < SELECTION_RADIUS * 1.5 ? _react2['default'].createElement('circle', { key: id,
 	              fill: LINE_COLOR,
 	              r: width / 2,
-	              cx: (p.x + 0.5 * vec.x) / z - dx,
-	              cy: (p.y + 0.5 * vec.y) / z - dy
+	              cx: (0.5 * p.x + 0.5 * q.x) / z - dx,
+	              cy: (0.5 * p.y + 0.5 * q.y) / z - dy
 	            }) : null;
 	          })
 	        )
@@ -75567,7 +75602,7 @@
 	var EventPluginHub = __webpack_require__(44);
 	var EventPropagators = __webpack_require__(39);
 	var ExecutionEnvironment = __webpack_require__(12);
-	var ReactUpdates = __webpack_require__(21);
+	var ReactUpdates = __webpack_require__(22);
 	var SyntheticEvent = __webpack_require__(35);
 
 	var isEventSupported = __webpack_require__(120);
@@ -77423,7 +77458,7 @@
 	var ReactPropTypeLocations = __webpack_require__(112);
 	var ReactPropTypeLocationNames = __webpack_require__(77);
 	var ReactReconciler = __webpack_require__(50);
-	var ReactUpdates = __webpack_require__(21);
+	var ReactUpdates = __webpack_require__(22);
 
 	var assign = __webpack_require__(7);
 	var emptyObject = __webpack_require__(81);
@@ -78734,7 +78769,7 @@
 	var ReactClass = __webpack_require__(18);
 	var ReactElement = __webpack_require__(9);
 	var ReactMount = __webpack_require__(31);
-	var ReactUpdates = __webpack_require__(21);
+	var ReactUpdates = __webpack_require__(22);
 
 	var assign = __webpack_require__(7);
 	var invariant = __webpack_require__(5);
@@ -78965,7 +79000,7 @@
 	var ReactBrowserComponentMixin = __webpack_require__(29);
 	var ReactClass = __webpack_require__(18);
 	var ReactElement = __webpack_require__(9);
-	var ReactUpdates = __webpack_require__(21);
+	var ReactUpdates = __webpack_require__(22);
 
 	var assign = __webpack_require__(7);
 
@@ -79365,7 +79400,7 @@
 	var ReactBrowserComponentMixin = __webpack_require__(29);
 	var ReactClass = __webpack_require__(18);
 	var ReactElement = __webpack_require__(9);
-	var ReactUpdates = __webpack_require__(21);
+	var ReactUpdates = __webpack_require__(22);
 
 	var assign = __webpack_require__(7);
 	var invariant = __webpack_require__(5);
@@ -79501,7 +79536,7 @@
 
 	'use strict';
 
-	var ReactUpdates = __webpack_require__(21);
+	var ReactUpdates = __webpack_require__(22);
 	var Transaction = __webpack_require__(79);
 
 	var assign = __webpack_require__(7);
@@ -79835,7 +79870,7 @@
 	var PooledClass = __webpack_require__(28);
 	var ReactInstanceHandles = __webpack_require__(48);
 	var ReactMount = __webpack_require__(31);
-	var ReactUpdates = __webpack_require__(21);
+	var ReactUpdates = __webpack_require__(22);
 
 	var assign = __webpack_require__(7);
 	var getEventTarget = __webpack_require__(118);
@@ -80026,7 +80061,7 @@
 	var ReactDOMComponent = __webpack_require__(109);
 	var ReactPerf = __webpack_require__(40);
 	var ReactRootIndex = __webpack_require__(185);
-	var ReactUpdates = __webpack_require__(21);
+	var ReactUpdates = __webpack_require__(22);
 
 	var ReactInjection = {
 	  Component: ReactComponentEnvironment.injection,
@@ -81605,7 +81640,7 @@
 	var ReactCSSTransitionGroup = __webpack_require__(484);
 	var ReactFragment = __webpack_require__(47);
 	var ReactTransitionGroup = __webpack_require__(186);
-	var ReactUpdates = __webpack_require__(21);
+	var ReactUpdates = __webpack_require__(22);
 
 	var cx = __webpack_require__(535);
 	var cloneWithProps = __webpack_require__(187);
