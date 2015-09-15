@@ -1,15 +1,17 @@
 import {playback} from './reducers'
-import {INC_FRAME_INDEX, DEC_FRAME_INDEX, SET_FRAME_INDEX, ADD_LINE, REPLACE_LINE, REMOVE_LINE, ADD_BALL, REMOVE_BALL, REPLACE_BALL} from './actions'
+import {INC_FRAME_INDEX, DEC_FRAME_INDEX, SET_FRAME_INDEX, SELECT_LINE, ADD_LINE, REPLACE_LINE, REMOVE_LINE, ADD_BALL, REMOVE_BALL, REPLACE_BALL} from './actions'
 import {step, addBall, addWire, removeEntity} from 'core'
 import neume from 'neume.js'
+import _ from 'lodash'
 
 // http://mohayonao.github.io/neume.js/examples/mml-piano.html
-function piano($, freq, dur, vol, brightness = 1) {
+function piano($, freq, dur, vol, timbre) {
+  let freqBrightness = Math.sqrt(freq * 500) * ((vol + 1) / 2)
   return $([ 1, 5, 13, 0.5 ].map(function(x, i) {
-    return $("sin", { freq: freq * x });
+    return $("sin", { freq: freq * x, mul: Math.pow(x, 2 * (timbre - 1)) });
   })).mul(0.75 * vol)
-  .$("shaper", { curve: 0.75 })
-  .$("lpf", { freq: $("line", { start: brightness * freq * 3, end: brightness * freq * 0.75, dur: brightness * 3.5 }), Q: 6 })
+  .$("shaper", { curve: 0.75 * timbre })
+  .$("lpf", { freq: $("line", { start: freqBrightness * 3, end: freqBrightness * 0.75, dur: 3.5 }), Q: 6 })
   .$("xline", { start: 0.5, end: 0.01, dur: dur * 5 }).on("end", $.stop);
 }
 // http://en.wikipedia.org/wiki/MIDI_Tuning_Standard#Frequency_values
@@ -20,10 +22,14 @@ function stepToFreq(step) {
   return 440 * Math.pow(2, (step - 69) / 12);
 }
 
+function wireLength(wire) {
+  return wire.p.distance(wire.q)
+}
+
 function makeCollisionSounds(neu, collisions) {
-  collisions.forEach(({entities: [_, wire], force}) => {
+  collisions.forEach(({entities: [ , wire], force}) => {
     if (force < 0.35) return // more than gravity
-    let length = wire.p.distance(wire.q)
+    let length = wireLength(wire)
     let vol = 1 - 1 / (1 + Math.max(0, force - 0.35))
     neu.Synth(($) => piano($, 440 * 128 / length, Math.sqrt(force) / 10, vol * vol, wire.t)).start('now')
   })
@@ -36,6 +42,21 @@ function refreshSimState(simStates, getState, action) {
     simStates = simStates.concat([step(simStates[i])])
   }
   return {...action, simStates}
+}
+
+function getLineByID(simState, lineID) {
+  let line = _.filter(simState.balls.concat(simState.wires), {id: lineID})[0]
+  if (line != null) {
+    if (line.q) {
+      return line
+    }
+  }
+}
+
+function equalLength(wire1, wire2) {
+  let len1 = Math.log2(wireLength(wire1))
+  let len2 = Math.log2(wireLength(wire2))
+  return Math.abs(len1 - len2) < 1 / 12 / 100
 }
 
 export default function simStateStep() {
@@ -108,10 +129,28 @@ export default function simStateStep() {
       case INC_FRAME_INDEX:
       case DEC_FRAME_INDEX:
         action = refreshSimState(simStates, getState, action)
-        let {index} = playback(getState().playback, action)
-        makeCollisionSounds(neu, action.simStates[index].collisions)
     }
     let result = next(action)
+    let updatedState = getState().simStatesData.simStates
+    // console.log(updatedState)
+    let line;
+    switch (action.type) {
+      case SELECT_LINE:
+        line = getLineByID(updatedState[0], action.lineID)
+        break
+      case ADD_LINE:
+        line = action.line instanceof Array ? null : action.line
+        break
+      case REPLACE_LINE:
+        line = equalLength(action.prevLine, action.line) ? null : action.line
+        break
+      case INC_FRAME_INDEX:
+      case DEC_FRAME_INDEX:
+        makeCollisionSounds(neu, updatedState[getState().playback.index].collisions)
+    }
+    if (line) {
+      makeCollisionSounds(neu, [{entities: [null, line], force: 1}])
+    }
     return result
   }
 }
